@@ -1,0 +1,70 @@
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE/editor settings
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment and secrets
+.env
+.env.*
+*.env
+*.env.*
+!.env.example
+!.env.sample
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# Backend runtime and uploads
+backend/.env
+backend/.env.*
+backend/.pytest_cache/
+backend/.mypy_cache/
+backend/.ruff_cache/
+backend/logs/
+backend/uploads/
+uploads/
+frontend/public/uploads/
+
+# Node / frontend
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+dist-ssr/
+frontend/.vite/
+frontend/.parcel-cache/
+coverage/
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Misc generated files
+*.local
+*.tmp
+*.temp
+*.tsbuildinfo

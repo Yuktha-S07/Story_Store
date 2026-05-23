@@ -1,0 +1,107 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+@import "tailwindcss";
+
+:root {
+  --ink: #0f172a;
+  --muted: #6b7280;
+  --accent: #e07a5f;
+  --accent-2: #3d405b;
+  --surface: #ffffff;
+  --sand: #f7f3ec;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Base Styles */
+body {
+  font-family: 'Space Grotesk', system-ui, -apple-system, Segoe UI, sans-serif;
+  color: var(--ink);
+  background: radial-gradient(circle at 10% 10%, #DFF1F1 0%, transparent 40%),
+    radial-gradient(circle at 90% 0%, #F9DFDF 0%, transparent 40%),
+    linear-gradient(120deg, #fbf8f2 0%, #E5E1DA 45%, #f9f4ec 100%);
+  min-height: 100vh;  
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Fraunces', 'Space Grotesk', serif;
+  letter-spacing: -0.01em;
+}
+
+/* Hero section display font */
+.hero {
+  font-family: 'Fraunces', serif;
+}
+
+/* Ensure hero and surface use the display font for all descendants, but keep font-size unchanged */
+.hero, .hero * {
+  font-family: 'Fraunces', serif;
+  font-size: inherit;
+}
+
+.surface {
+  background: var(--surface);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+  /* Use a display serif for cards for a unified look */
+  font-family: 'Fraunces', 'Space Grotesk', system-ui, -apple-system, Segoe UI, sans-serif;
+}
+
+/* Apply the card font to all children but preserve sizes */
+.surface, .surface * {
+  font-family: 'Fraunces', 'Space Grotesk', system-ui, -apple-system, Segoe UI, sans-serif;
+  font-size: inherit;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.7rem 1.4rem;
+  font-weight: 600;
+}
+
+.btn-ghost {
+  background: rgba(15, 23, 42, 0.06);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 0.7rem 1.3rem;
+  font-weight: 600;
+}
+
+.pill {
+  background: rgba(224, 122, 95, 0.12);
+  color: var(--accent-2);
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Link Styles */
+a {
+  color: var(--accent-2);
+}
+
+/* Button Base Styles */
+button {
+  transition: all 200ms ease;
+}
