@@ -110,46 +110,7 @@ const HomePage = () => {
       <TrendingStories />
       <Genres />
 
-      <section className="mx-auto max-w-7xl px-6 py-8 lg:px-10 lg:py-12">
-        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.35em] text-[#6d6a63]">Browse</p>
-            <h2 className="mt-2 font-serif text-4xl text-[#26231f]">All Stories</h2>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-[#5d584f]">
-              Explore published stories directly from the home page. Guests can preview the catalog before signing in.
-            </p>
-          </div>
-          <Link to="/stories" className="inline-flex items-center rounded-full border border-[#d9d2c6] bg-white px-5 py-2.5 text-sm font-semibold text-[#3a3a3a] shadow-sm transition hover:-translate-y-0.5 hover:border-[#bfa78f] hover:text-[#26231f]">
-            Open full catalog
-          </Link>
-        </div>
-
-        {loadingStories && (
-          <div className="rounded-[24px] border border-black/5 bg-white/80 px-6 py-10 text-center text-[#5d584f] shadow-sm">
-            Loading stories...
-          </div>
-        )}
-
-        {storiesError && !loadingStories && (
-          <div className="rounded-[24px] border border-amber-200 bg-amber-50 px-6 py-4 text-sm text-amber-700">
-            {storiesError}
-          </div>
-        )}
-
-        {!loadingStories && stories.length > 0 && (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {stories.map((story) => (
-              <StoryCard key={story._id || story.id} story={story} />
-            ))}
-          </div>
-        )}
-
-        {!loadingStories && stories.length === 0 && !storiesError && (
-          <div className="rounded-[24px] border border-black/5 bg-white/80 px-6 py-10 text-center text-[#5d584f] shadow-sm">
-            No stories available yet.
-          </div>
-        )}
-      </section>
+      {/* Browse / All Stories section removed per request */}
 
       <section className="mx-auto max-w-7xl px-6 py-8 lg:px-10 lg:py-12">
         <div className="mt-8">
