@@ -45,13 +45,13 @@ export default function StoryCard({ story, compact = false }) {
       style={{ backgroundColor: '#FBF9F1' }}
     >
       <div className="flex h-full flex-col">
-        <div className="flex-shrink-0 h-48 w-full overflow-hidden rounded-t-[24px]">
+        <div className="flex-shrink-0 h-48 w-full overflow-hidden rounded-t-[24px] bg-[#f0ece4]">
           <img
             src={coverSrc}
             alt={coverAlt}
             loading="lazy"
             onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = buildStoryFallbackUrl(story) }}
-            className={`w-full h-full object-cover object-center transition duration-300 group-hover:scale-[1.02]`}
+            className="w-full h-full object-cover object-center transition duration-300 group-hover:scale-[1.02]"
           />
         </div>
 

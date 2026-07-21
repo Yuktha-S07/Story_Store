@@ -93,6 +93,16 @@ def create_story(user_id: str, payload: dict, cover_image_url: str = "") -> dict
 
     inserted = db.stories.insert_one(story_doc)
     story_doc["_id"] = inserted.inserted_id
+
+    if not cover_image_url:
+        cover_index = (int(inserted.inserted_id.generation_time.timestamp()) % 25) + 1
+        assigned_cover = f"/uploads/cover_{cover_index}.svg"
+        db.stories.update_one(
+            {"_id": inserted.inserted_id},
+            {"$set": {"cover_image_url": assigned_cover}},
+        )
+        story_doc["cover_image_url"] = assigned_cover
+
     return _serialize_story(story_doc)
 
 
@@ -105,14 +115,23 @@ def list_stories(
     status: str | None = None,
     limit: int = 20,
     skip: int = 0,
+    author_id: str | None = None,
 ) -> list[dict]:
     db = get_database()
     query: dict = {}
     published_story_ids = _published_story_ids_with_chapters()
 
     # Handle status/ownership filtering
-    if mine and user_id:
+    if mine:
+        if not user_id:
+            return []
         query["user_id"] = _to_object_id(user_id)
+    elif author_id:
+        query["user_id"] = _to_object_id(author_id)
+        if not status:
+            query["status"] = "published"
+        else:
+            query["status"] = status
     elif status:
         if status == "published":
             visibility_filters = [{"status": "published"}]

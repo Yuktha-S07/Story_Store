@@ -16,7 +16,6 @@ export default function StoryEditorPage() {
   const [tags, setTags] = useState('')
   const [coverFile, setCoverFile] = useState(null)
   const [coverPreview, setCoverPreview] = useState('')
-  const [stories, setStories] = useState([])
 
   const API_URL = import.meta.env.VITE_API_URL || ''
   const resolveImage = (img) => {
@@ -57,21 +56,6 @@ export default function StoryEditorPage() {
 
     fetchStory()
   }, [id])
-
-  useEffect(() => {
-    if (!user) return
-
-    const fetchStories = async () => {
-      try {
-        const res = await api.get('/api/stories?mine=true')
-        setStories(res.data || [])
-      } catch (err) {
-        console.error(err)
-      }
-    }
-
-    fetchStories()
-  }, [user])
 
   const submit = async (e) => {
     e.preventDefault()
@@ -189,59 +173,6 @@ export default function StoryEditorPage() {
 
           <button className="btn-primary px-6">Save Story</button>
         </form>
-      </section>
-
-      <section className="surface w-full p-6 md:p-8 border border-slate-200 shadow-sm rounded-3xl">
-        <div className="flex items-center justify-between gap-3 mb-5">
-          <div>
-            <h3 className="text-xl font-semibold">Your Stories</h3>
-            <p className="text-sm text-slate-600">Quick access to the stories you already started.</p>
-          </div>
-          <span className="pill">{stories.length} total</span>
-        </div>
-
-        {stories.length === 0 ? (
-          <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center text-slate-500">
-            No stories yet. Save your first story to see it here.
-          </div>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {stories.map(story => (
-              <article key={story._id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
-                <img
-                  src={resolveImage(story.cover_image_url)}
-                  alt={story.title}
-                  className="h-32 w-full object-cover"
-                />
-                <div className="space-y-3 p-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <h4 className="truncate font-semibold text-slate-900">{story.title}</h4>
-                      <p className="mt-1 line-clamp-2 text-sm text-slate-600">{story.description || 'No description yet.'}</p>
-                    </div>
-                    <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${story.status === 'published' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
-                      {story.status === 'published' ? 'Published' : 'Draft'}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Link
-                      to={`/stories/${story._id}/edit`}
-                      className="rounded-full bg-[#BDA6CE] px-3 py-1.5 text-sm font-semibold text-[#072935] transition hover:bg-[#aa93b6]"
-                    >
-                      Edit
-                    </Link>
-                    <Link
-                      to={`/stories/${story._id}`}
-                      className="rounded-full border border-slate-200 px-3 py-1.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-                    >
-                      View
-                    </Link>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-        )}
       </section>
     </div>
   )

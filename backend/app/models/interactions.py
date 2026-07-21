@@ -10,10 +10,10 @@ class Like(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
     class Config:
-        allow_population_by_field_name = True
+        populate_by_name = True
         arbitrary_types_allowed = True
         json_encoders = {PyObjectId: str}
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "user_id": "60d5ec49e7ef8f0015d5f8b1",
                 "story_id": "60d5ec49e7ef8f0015d5f8b2",
@@ -28,10 +28,10 @@ class Bookmark(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
     class Config:
-        allow_population_by_field_name = True
+        populate_by_name = True
         arbitrary_types_allowed = True
         json_encoders = {PyObjectId: str}
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "user_id": "60d5ec49e7ef8f0015d5f8b1",
                 "story_id": "60d5ec49e7ef8f0015d5f8b2",
@@ -47,10 +47,10 @@ class ReadingHistory(BaseModel):
     last_read_at: datetime = Field(default_factory=datetime.utcnow)
 
     class Config:
-        allow_population_by_field_name = True
+        populate_by_name = True
         arbitrary_types_allowed = True
         json_encoders = {PyObjectId: str}
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "user_id": "60d5ec49e7ef8f0015d5f8b1",
                 "story_id": "60d5ec49e7ef8f0015d5f8b2",
@@ -66,7 +66,7 @@ class StoryVote(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
     class Config:
-        allow_population_by_field_name = True
+        populate_by_name = True
         arbitrary_types_allowed = True
         json_encoders = {PyObjectId: str}
 
@@ -79,7 +79,7 @@ class StoryComment(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
     class Config:
-        allow_population_by_field_name = True
+        populate_by_name = True
         arbitrary_types_allowed = True
         json_encoders = {PyObjectId: str}
 
@@ -91,6 +91,6 @@ class Follow(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
     class Config:
-        allow_population_by_field_name = True
+        populate_by_name = True
         arbitrary_types_allowed = True
         json_encoders = {PyObjectId: str}

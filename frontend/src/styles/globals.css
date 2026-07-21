@@ -2,6 +2,8 @@
 
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --ink: #0f172a;
   --muted: #6b7280;
@@ -9,6 +11,15 @@
   --accent-2: #3d405b;
   --surface: #ffffff;
   --sand: #f7f3ec;
+}
+
+.dark {
+  --ink: #f1f5f9;
+  --muted: #94a3b8;
+  --accent: #e07a5f;
+  --accent-2: #c4b5fd;
+  --surface: #1e1b1a;
+  --sand: #1a1817;
 }
 
 /* Custom Scrollbar */
@@ -38,6 +49,11 @@ body {
     radial-gradient(circle at 90% 0%, #F9DFDF 0%, transparent 40%),
     linear-gradient(120deg, #fbf8f2 0%, #E5E1DA 45%, #f9f4ec 100%);
   min-height: 100vh;  
+}
+
+.dark body,
+body.dark {
+  background: #12100f;
 }
 
 h1, h2, h3, h4 {

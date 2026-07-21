@@ -28,7 +28,7 @@ def connect_to_mongodb():
         # Verify connection
         _client.admin.command('ping')
         _db = _client[settings.DATABASE_NAME]
-        print("✓ Connected to MongoDB successfully")
+        print("[OK] Connected to MongoDB successfully")
         
         # Initialize collections with indexes
         initialize_collections()
@@ -39,7 +39,7 @@ def connect_to_mongodb():
 
         _client = MockMongoClient()
         _db = _client[settings.DATABASE_NAME]
-        print("⚠ MongoDB unavailable, using in-memory mongomock database")
+        print("[WARN] MongoDB unavailable, using in-memory mongomock database")
         initialize_collections()
 
 
@@ -51,7 +51,7 @@ def disconnect_from_mongodb():
     global _client
     if _client:
         _client.close()
-        print("✓ Disconnected from MongoDB")
+        print("[OK] Disconnected from MongoDB")
 
 
 def get_database():
@@ -96,7 +96,7 @@ def initialize_collections():
         for index_name in indexes:
             db[collection_name].create_index(index_name)
 
-    print("✓ Initialized MongoDB collections and indexes")
+    print("[OK] Initialized MongoDB collections and indexes")
 
 
 def get_user_collection():

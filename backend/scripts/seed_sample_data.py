@@ -315,6 +315,8 @@ def seed():
         author_id = ensure_user(db, book["author_email"], book["author_username"])
         now = datetime.utcnow()
 
+        TOTAL_COVERS = 25
+        cover_index = (index % TOTAL_COVERS) or TOTAL_COVERS
         story_doc = {
             "user_id": author_id,
             "title": book["title"],
@@ -322,7 +324,7 @@ def seed():
             "genre": book["genre"],
             "tags": book["tags"],
             "status": "published",
-            "cover_image_url": "",
+            "cover_image_url": f"/uploads/cover_{cover_index}.svg",
             "chapter_count": 0,
             "created_at": now,
             "updated_at": now,

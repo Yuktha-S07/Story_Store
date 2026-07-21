@@ -23,6 +23,7 @@ export default function Navbar() {
               <>
                 <Link to="/dashboard" className="rounded-full px-4 py-2 text-[#5b5160] transition-all duration-300 hover:bg-[linear-gradient(135deg,#F7D0D7_0%,#F0B5C2_100%)] hover:text-[#5a2f3d]">Dashboard</Link>
                 <Link to="/bookmarks" className="rounded-full px-4 py-2 text-[#5b5160] transition-all duration-300 hover:bg-[linear-gradient(135deg,#F7D0D7_0%,#F0B5C2_100%)] hover:text-[#5a2f3d]">Bookmarks</Link>
+                <Link to={`/profile/${user._id}`} className="rounded-full px-4 py-2 text-[#5b5160] transition-all duration-300 hover:bg-[linear-gradient(135deg,#F7D0D7_0%,#F0B5C2_100%)] hover:text-[#5a2f3d]">Profile</Link>
               </>
             )}
           </div>

@@ -36,6 +36,7 @@ async def list_stories_endpoint(
     status_value: str | None = Query(default=None, alias="status"),
     limit: int = Query(default=20, ge=1, le=100),
     skip: int = Query(default=0, ge=0),
+    author_id: str | None = Query(default=None),
     current_user: dict | None = Depends(get_current_user_optional),
 ):
     user_id = current_user["_id"] if current_user else None
@@ -48,6 +49,7 @@ async def list_stories_endpoint(
         status=status_value,
         limit=limit,
         skip=skip,
+        author_id=author_id,
     )
 
 
