@@ -64,37 +64,27 @@ def initialize_collections():
     Initialize MongoDB collections with proper indexes.
     Called during startup to ensure collections exist.
     """
+    from pymongo.errors import CollectionInvalid
     db = get_database()
-    
-    # Users collection
-    if "users" not in db.list_collection_names():
-        db.create_collection("users")
-    db.users.create_index("email", unique=True)
-    
-    # Stories collection
-    if "stories" not in db.list_collection_names():
-        db.create_collection("stories")
-    db.stories.create_index("user_id")
-    db.stories.create_index("status")
-    db.stories.create_index("genre")
-    db.stories.create_index("tags")
-    
-    # Chapters collection
-    if "chapters" not in db.list_collection_names():
-        db.create_collection("chapters")
-    db.chapters.create_index("story_id")
-    db.chapters.create_index("chapter_number")
 
-    # Social collections
-    for collection_name, indexes in {
+    collections = {
+        "users": ["email"],
+        "stories": ["user_id", "status", "genre", "tags"],
+        "chapters": ["story_id", "chapter_number"],
         "comments": ["story_id", "chapter_id", "user_id"],
         "votes": ["story_id", "user_id"],
         "follows": ["follower_id", "following_id"],
-    }.items():
-        if collection_name not in db.list_collection_names():
+    }
+
+    for collection_name, indexes in collections.items():
+        unique_indexes = {"users": ["email"]}
+        try:
             db.create_collection(collection_name)
+        except CollectionInvalid:
+            pass
         for index_name in indexes:
-            db[collection_name].create_index(index_name)
+            unique = index_name in unique_indexes.get(collection_name, [])
+            db[collection_name].create_index(index_name, unique=unique)
 
     print("[OK] Initialized MongoDB collections and indexes")
 
