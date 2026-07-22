@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-// Prefer explicit VITE_API_URL. In development, use same-origin (Vite proxy handles forwarding to backend)
+// Dynamically resolve API URL: use configured value, or same host as frontend (works via Vite proxy from any device)
 const API_URL = import.meta.env.VITE_API_URL || ''
 
 const api = axios.create({
