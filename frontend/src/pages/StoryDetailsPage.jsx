@@ -257,13 +257,13 @@ export default function StoryDetailsPage() {
 
   return (
     <div className="space-y-8 bg-[linear-gradient(180deg,#fffaf6_0%,#fff_45%,#f9f4ee_100%)] pb-10">
-      <section className="surface overflow-hidden border border-[#eadfd5] bg-gradient-to-br from-white via-[#fffaf5] to-[#f8efe6] p-6 md:p-8 shadow-[0_22px_70px_rgba(73,48,20,0.08)]">
-        <div className="grid md:grid-cols-[240px_1fr] gap-6 items-start">
+      <section className="surface overflow-hidden border border-[#eadfd5] bg-gradient-to-br from-white via-[#fffaf5] to-[#f8efe6] p-4 md:p-8 shadow-[0_22px_70px_rgba(73,48,20,0.08)]">
+        <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-4 md:gap-6 items-start">
           <img
             src={coverSrc}
             alt={coverAlt}
             onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = buildStoryFallbackUrl(story) }}
-            className="w-full h-80 object-cover rounded-2xl shadow-[0_18px_40px_rgba(77,52,28,0.18)] border border-white/70"
+            className="w-full h-56 sm:h-72 md:h-80 object-cover rounded-2xl shadow-[0_18px_40px_rgba(77,52,28,0.18)] border border-white/70"
           />
           <div>
             <div className="flex items-center gap-3">
@@ -325,7 +325,7 @@ export default function StoryDetailsPage() {
         </div>
       </section>
 
-      <section id="chapters" className="surface border border-[#eadfd5] bg-white/90 p-4 md:p-6 shadow-[0_16px_45px_rgba(73,48,20,0.06)]">
+      <section id="chapters" className="surface border border-[#eadfd5] bg-white/90 p-3 sm:p-4 md:p-6 shadow-[0_16px_45px_rgba(73,48,20,0.06)]">
         <div className="flex items-center justify-between mb-4 gap-4">
           <div className="flex items-center gap-3">
             {isOwner && (

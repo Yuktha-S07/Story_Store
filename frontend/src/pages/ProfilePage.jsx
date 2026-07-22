@@ -148,7 +148,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-3 md:gap-4 mt-6 md:mt-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4 mt-6 md:mt-8">
           <div className="rounded-xl border border-[#e8e0d5] bg-[#fbfaf7] dark:bg-gray-800 dark:border-gray-700 p-4 text-center">
             <p className="text-2xl md:text-3xl font-bold text-[#26231f] dark:text-gray-100">{profile.story_count ?? 0}</p>
             <p className="text-xs font-semibold uppercase tracking-widest text-[#5d584f] dark:text-gray-400 mt-1">Stories</p>

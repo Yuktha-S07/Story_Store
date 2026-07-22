@@ -33,22 +33,22 @@ const HomePage = () => {
   return (
     <div className="w-full overflow-x-hidden bg-transparent text-[#3a3a3a]">
       <section className="w-full border-b border-black/5 bg-transparent">
-        <div className="mx-auto grid min-h-[80vh] max-w-7xl grid-cols-1 items-center gap-10 px-6 py-8 lg:grid-cols-[1.02fr_0.98fr] lg:px-10 lg:py-12">
+        <div className="mx-auto grid min-h-[60vh] md:min-h-[80vh] max-w-7xl grid-cols-1 items-center gap-6 md:gap-10 px-6 py-6 md:py-8 lg:grid-cols-[1.02fr_0.98fr] lg:px-10 lg:py-12">
           <div className="max-w-2xl">
-            <p className="mb-6 text-sm font-semibold uppercase tracking-[0.45em] text-[#6d6a63]">
+            <p className="mb-4 md:mb-6 text-sm font-semibold uppercase tracking-[0.45em] text-[#6d6a63]">
               Story Store
             </p>
-            <h1 className="font-serif text-5xl leading-[0.92] tracking-tight text-[#26231f] sm:text-6xl lg:text-[6.2rem]">
+            <h1 className="font-serif text-[2.5rem] leading-[0.92] tracking-tight text-[#26231f] sm:text-6xl lg:text-[6.2rem]">
               Find stories that feel like home.
             </h1>
-            <p className="mt-6 max-w-xl text-base leading-7 text-[#5d584f] sm:text-lg lg:text-[1.08rem] lg:leading-8">
+            <p className="mt-4 md:mt-6 max-w-xl text-sm leading-6 md:text-base md:leading-7 text-[#5d584f] sm:text-lg lg:text-[1.08rem] lg:leading-8">
               A universe of stories is waiting for you. Discover new worlds,
               connect with writers, and share your own voice.
             </p>
-            <div className="mt-8 flex flex-wrap items-center gap-4">
+            <div className="mt-6 md:mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 md:gap-4">
               <Link
                 to="/login"
-                className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-[linear-gradient(135deg,#C96D7D_0%,#E5A6AF_100%)] px-7 py-3.5 font-semibold text-white shadow-[0_14px_30px_rgba(201,109,125,0.22)] ring-1 ring-white/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(201,109,125,0.28)]"
+                className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-[linear-gradient(135deg,#C96D7D_0%,#E5A6AF_100%)] px-6 md:px-7 py-3 md:py-3.5 font-semibold text-white text-sm md:text-base shadow-[0_14px_30px_rgba(201,109,125,0.22)] ring-1 ring-white/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(201,109,125,0.28)]"
               >
                 <span className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.28),transparent_42%)] opacity-90 transition-opacity duration-300 group-hover:opacity-100" />
                 <span className="absolute -left-6 top-0 h-full w-12 -skew-x-12 bg-white/16 blur-md transition-all duration-500 group-hover:left-[110%]" />
@@ -57,7 +57,7 @@ const HomePage = () => {
               </Link>
               <Link
                 to="/stories"
-                className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-[linear-gradient(135deg,#C96D7D_0%,#E5A6AF_100%)] px-7 py-3.5 font-semibold text-white shadow-[0_14px_30px_rgba(201,109,125,0.22)] ring-1 ring-white/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(201,109,125,0.28)]"
+                className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-[linear-gradient(135deg,#C96D7D_0%,#E5A6AF_100%)] px-6 md:px-7 py-3 md:py-3.5 font-semibold text-white text-sm md:text-base shadow-[0_14px_30px_rgba(201,109,125,0.22)] ring-1 ring-white/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(201,109,125,0.28)]"
               >
                 <span className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.28),transparent_42%)] opacity-90 transition-opacity duration-300 group-hover:opacity-100" />
                 <span className="absolute -left-6 top-0 h-full w-12 -skew-x-12 bg-white/16 blur-md transition-all duration-500 group-hover:left-[110%]" />
@@ -68,33 +68,9 @@ const HomePage = () => {
           </div>
 
           <div className="relative flex justify-center lg:justify-end">
-            <svg
-              className="absolute right-0 top-0 h-full w-1/2 z-10 pointer-events-none"
-              viewBox="0 0 100 100"
-              preserveAspectRatio="none"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              <defs>
-                <linearGradient id="waveGrad" x1="0%" x2="100%" y1="0%" y2="100%">
-                  <stop offset="0%" stopColor="#e8d1c4" stopOpacity="1" />
-                  <stop offset="100%" stopColor="#f3e7df" stopOpacity="1" />
-                </linearGradient>
-              </defs>
-              <path
-                d="M20,8 C45,22 70,30 100,44"
-                fill="none"
-                stroke="url(#waveGrad)"
-                strokeWidth="36"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                opacity="0.95"
-              />
-            </svg>
-
-            <div className="relative w-full max-w-[700px] aspect-[5/4] lg:max-w-[920px] z-10 lg:translate-x-10 xl:translate-x-16">
-              <div className="absolute inset-0 translate-x-4 translate-y-3 rounded-full bg-[#e8dcc7] blur-3xl" />
-               <div className="absolute inset-0 overflow-hidden rounded-[20px] shadow-[0_34px_90px_rgba(62,46,26,0.2)] ring-1 ring-black/5">
+            <div className="relative w-full max-w-[500px] sm:max-w-[700px] aspect-[5/4] lg:max-w-[920px] z-10 lg:translate-x-10 xl:translate-x-16">
+              <div className="absolute inset-0 translate-x-2 translate-y-2 md:translate-x-4 md:translate-y-3 rounded-full bg-[#e8dcc7] blur-3xl" />
+               <div className="absolute inset-0 overflow-hidden rounded-[16px] md:rounded-[20px] shadow-[0_20px_50px_rgba(62,46,26,0.15)] md:shadow-[0_34px_90px_rgba(62,46,26,0.2)] ring-1 ring-black/5">
                 <img
                   src="/Hero_Image.png"
                   alt="Reading illustration"

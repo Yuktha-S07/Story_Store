@@ -113,12 +113,12 @@ export default function DashboardPage() {
                     </span>
                     <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded">{s.genre}</span>
                   </div>
-                  <div className="flex items-center gap-2 mt-4 pt-3 border-t border-slate-100">
-                    <Link to={`/stories/${s._id}/edit`} className="flex-1 text-center rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:border-slate-400">Edit</Link>
+                  <div className="flex items-center gap-1.5 sm:gap-2 mt-4 pt-3 border-t border-slate-100">
+                    <Link to={`/stories/${s._id}/edit`} className="flex-1 text-center rounded-md border border-slate-300 px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:border-slate-400">Edit</Link>
                     {s.status !== 'published' && (
-                      <button onClick={() => publishStory(s._id)} className="rounded-md bg-gradient-to-r from-green-500 to-green-600 px-3 py-1.5 text-sm font-medium text-white transition hover:from-green-600 hover:to-green-700 shadow-sm">Publish</button>
+                      <button onClick={() => publishStory(s._id)} className="rounded-md bg-gradient-to-r from-green-500 to-green-600 px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium text-white transition hover:from-green-600 hover:to-green-700 shadow-sm">Publish</button>
                     )}
-                    <button onClick={() => deleteStory(s._id)} className="rounded-md bg-gradient-to-r from-red-500 to-red-600 px-3 py-1.5 text-sm font-medium text-white transition hover:from-red-600 hover:to-red-700 shadow-sm">Delete</button>
+                    <button onClick={() => deleteStory(s._id)} className="rounded-md bg-gradient-to-r from-red-500 to-red-600 px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium text-white transition hover:from-red-600 hover:to-red-700 shadow-sm">Delete</button>
                   </div>
                 </div>
               </div>

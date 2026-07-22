@@ -89,26 +89,26 @@ export default function ReadingPage() {
   if (!chapter) return <div>Loading...</div>
 
   return (
-    <div className="surface relative p-8 md:p-10 max-w-3xl mx-auto">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <div className="text-sm text-slate-500">Reading</div>
-          <h1 className="text-3xl font-bold mt-2">{chapter.title}</h1>
+    <div className="surface relative px-4 py-6 sm:p-8 md:p-10 max-w-3xl mx-auto">
+      <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-4">
+        <div className="min-w-0 w-full sm:w-auto">
+          <div className="text-xs sm:text-sm text-slate-500">Reading</div>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mt-1 sm:mt-2 break-words">{chapter.title}</h1>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
           {isOwner && (
             <button
               type="button"
               onClick={toggleChapterStatus}
               disabled={savingStatus}
-              className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition disabled:opacity-60 ${chapter.status === 'published' ? 'bg-amber-100 text-amber-800 hover:bg-amber-200' : 'bg-green-100 text-green-800 hover:bg-green-200'}`}
+              className={`shrink-0 rounded-full px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold transition disabled:opacity-60 ${chapter.status === 'published' ? 'bg-amber-100 text-amber-800 hover:bg-amber-200' : 'bg-green-100 text-green-800 hover:bg-green-200'}`}
             >
               {savingStatus ? 'Saving...' : chapter.status === 'published' ? 'Unpublish' : 'Publish'}
             </button>
           )}
           <Link
             to="/dashboard"
-            className="shrink-0 rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
+            className="shrink-0 rounded-full bg-slate-100 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
           >
             Done
           </Link>

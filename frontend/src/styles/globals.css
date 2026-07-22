@@ -117,6 +117,15 @@ a {
   color: var(--accent-2);
 }
 
+/* Hide scrollbar for nav horizontal scroll */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* Button Base Styles */
 button {
   transition: all 200ms ease;

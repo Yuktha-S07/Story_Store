@@ -155,7 +155,7 @@ export default function StoryEditorPage() {
             />
             <label
               htmlFor="cover-upload"
-              className="group mr-auto flex h-56 w-full max-w-[220px] cursor-pointer items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 transition hover:border-[#E87B5D] hover:bg-[#FFF7F4] sm:max-w-[240px] sm:h-60 md:h-64"
+              className="group mr-auto flex h-40 sm:h-56 md:h-64 w-full max-w-[160px] sm:max-w-[220px] md:max-w-[240px] cursor-pointer items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 transition hover:border-[#E87B5D] hover:bg-[#FFF7F4]"
             >
               {coverPreview ? (
                 <img

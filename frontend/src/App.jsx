@@ -22,7 +22,7 @@ export default function App() {
       <NotificationProvider>
         <div className="min-h-screen text-gray-900 flex flex-col">
           <Navbar />
-          <main className="flex-grow w-full max-w-[90rem] mx-auto pt-6 pb-8 md:pt-8 md:pb-12 px-4 sm:px-6 lg:px-8">
+          <main className="flex-grow w-full max-w-[90rem] mx-auto pt-4 pb-6 md:pt-8 md:pb-12 px-3 sm:px-6 lg:px-8">
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<LoginPage />} />
