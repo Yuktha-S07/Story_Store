@@ -39,7 +39,7 @@ class Settings:
     
     # CORS Configuration
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173")
-    ALLOWED_ORIGINS: list = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:5174,http://localhost:3000").split(",")
+    ALLOWED_ORIGINS: list = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:5174,http://localhost:3000,https://storystore.vercel.app").split(",")
 
 
 # Create settings instance
