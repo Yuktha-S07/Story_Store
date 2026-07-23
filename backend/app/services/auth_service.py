@@ -32,6 +32,7 @@ def create_user(email: str, username: str, password: str):
     db = get_database()
     users = db.users
 
+    email = email.lower().strip()
     hashed = hash_password(password)
     user_doc = {
         "email": email,
@@ -54,7 +55,7 @@ def create_user(email: str, username: str, password: str):
 def authenticate_user(email: str, password: str):
     db = get_database()
     users = db.users
-    user = users.find_one({"email": email})
+    user = users.find_one({"email": email.lower().strip()})
     if not user:
         return None
     if not verify_password(password, user["password"]):
