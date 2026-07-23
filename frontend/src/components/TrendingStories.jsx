@@ -164,6 +164,11 @@ const TrendingStories = () => {
       return;
     }
 
+    if (typeof storyId === 'string' && (storyId.startsWith('sample-') || storyId.startsWith('featured-'))) {
+      notify('Sample stories cannot be bookmarked. Create your own story to save it!', 'info')
+      return
+    }
+
     try {
       // fetch story to get chapters
       const res = await api.get(`/api/stories/${storyId}`);

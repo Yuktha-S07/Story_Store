@@ -22,6 +22,10 @@ export default function StoryCard({ story, compact = false }) {
       navigate('/login')
       return;
     }
+    if (typeof storyId === 'string' && (storyId.startsWith('sample-') || storyId.startsWith('featured-'))) {
+      notify('Sample stories cannot be bookmarked. Create your own story to save it!', 'info')
+      return
+    }
     try {
       const res = await api.get(`/api/stories/${storyId}`)
       const storyDetail = res.data
