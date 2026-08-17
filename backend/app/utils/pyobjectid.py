@@ -50,12 +50,8 @@ class PyObjectId(ObjectId):
         Return a JSON schema representation of this type.
         """
         # For JSON schema, we represent ObjectId as a string.
-        json_schema = handler(core_schema)
-        json_schema.update(
-            type='string',
-            example='5eb7cf5a86d9755df3a6c593',
-        )
-        return json_schema
-
-        return handler(source)
+        return {
+            "type": "string",
+            "example": "5eb7cf5a86d9755df3a6c593",
+        }
 
