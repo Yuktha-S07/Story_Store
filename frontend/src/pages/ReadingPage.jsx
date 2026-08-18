@@ -63,6 +63,15 @@ export default function ReadingPage() {
 
   const isOwner = Boolean(user && chapter && String(user._id) === String(chapter.user_id))
 
+  useEffect(() => {
+    if (chapter?.title) {
+      document.title = `${chapter.title} | Story Store`
+    }
+    return () => {
+      document.title = 'Story Store'
+    }
+  }, [chapter?.title])
+
   const toggleChapterStatus = async () => {
     if (!isOwner) return
 

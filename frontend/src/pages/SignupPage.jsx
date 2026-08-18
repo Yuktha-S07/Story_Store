@@ -44,7 +44,7 @@ export default function SignupPage() {
       {/* decorative circles removed for cleaner auth pages */}
 
       <div className="relative w-full max-w-md">
-        <div className="rounded-[28px] border border-black/6 bg-white/95 p-8 shadow-[0_30px_80px_rgba(62,46,26,0.08)] backdrop-blur-lg md:p-10">
+        <div className="rounded-[28px] bg-white/95 p-8 shadow-[0_30px_80px_rgba(62,46,26,0.08)] backdrop-blur-lg md:p-10">
           <div className="mb-6 text-center">
             <span className="mx-auto inline-flex rounded-full border border-[#e7d3c3] bg-[#fff4ee] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#a15a22]">
               Join Story Store

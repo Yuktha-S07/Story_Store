@@ -118,6 +118,15 @@ export default function StoryDetailsPage() {
     fetchFollowing()
   }, [id, story, user])
 
+  useEffect(() => {
+    if (story?.title) {
+      document.title = `${story.title} | Story Store`
+    }
+    return () => {
+      document.title = 'Story Store'
+    }
+  }, [story?.title])
+
   const isOwner = Boolean(user && story && String(user._id) === String(story.user_id))
 
   const toggleLike = async () => {

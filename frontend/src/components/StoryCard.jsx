@@ -39,7 +39,8 @@ export default function StoryCard({ story, compact = false }) {
       notify('Bookmark saved.', 'success')
     } catch (err) {
       console.error(err)
-      notify('Failed to save bookmark.', 'error')
+      const detail = err?.response?.data?.detail
+      notify(typeof detail === 'string' ? detail : 'Failed to save bookmark.', 'error')
     }
   }
 

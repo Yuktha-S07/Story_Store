@@ -69,10 +69,10 @@ export default function Navbar() {
               <Link
                 to={`/profile/${user._id}`}
                 onClick={closeMenu}
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-[#E5A6AF]/40 bg-[linear-gradient(135deg,#FFF2F4_0%,#F8D7DD_100%)] px-4 py-2 font-semibold text-[#8C3838] shadow-[0_10px_22px_rgba(201,109,125,0.14)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(201,109,125,0.2)]"
+                aria-label="Settings"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#E5A6AF]/40 bg-[linear-gradient(135deg,#FFF2F4_0%,#F8D7DD_100%)] text-[#8C3838] shadow-[0_10px_22px_rgba(201,109,125,0.14)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(201,109,125,0.2)]"
               >
                 <FiSettings className="h-4 w-4" />
-                Settings
               </Link>
               <button
                 onClick={toggleTheme}

@@ -45,7 +45,7 @@ const LoginPage = () => {
       {/* decorative circles removed for cleaner auth pages */}
 
       <div className="relative w-full max-w-md">
-        <div className="rounded-[28px] border border-black/6 bg-white/95 p-8 shadow-[0_30px_80px_rgba(62,46,26,0.08)] backdrop-blur-lg">
+        <div className="rounded-[28px] bg-white/95 p-8 shadow-[0_30px_80px_rgba(62,46,26,0.08)] backdrop-blur-lg">
           <h2 className="text-center font-serif text-3xl text-[#26231f]">Join the Community</h2>
           <p className="mt-3 text-center text-sm leading-6 text-[#6d6a63]">Log in to continue reading or start sharing your own stories.</p>
 
