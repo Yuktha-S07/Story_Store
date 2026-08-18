@@ -1,13 +1,36 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { FiSettings, FiSun, FiMoon } from 'react-icons/fi'
 import { AuthContext } from '../context/AuthContext'
 
 export default function Navbar() {
   const { user, logout } = useContext(AuthContext)
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [theme, setTheme] = useState(() =>
+    document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+  )
 
   const closeMenu = () => setMenuOpen(false)
+
+  const toggleTheme = () => {
+    const next = theme === 'light' ? 'dark' : 'light'
+    setTheme(next)
+    if (next === 'dark') {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+    localStorage.setItem('story-store-theme', next)
+  }
+
+  useEffect(() => {
+    const saved = localStorage.getItem('story-store-theme')
+    if (saved === 'dark') {
+      document.documentElement.classList.add('dark')
+      setTheme('dark')
+    }
+  }, [])
 
   const navLinks = [
     { to: '/', label: 'Home', auth: false },
@@ -42,12 +65,29 @@ export default function Navbar() {
         {/* Desktop auth */}
         <div className="hidden md:flex items-center gap-2 text-sm shrink-0 py-3 md:py-4">
           {user ? (
-            <button
-              onClick={() => { logout(); navigate('/') }}
-              className="rounded-full border border-[#E5A6AF]/40 bg-[linear-gradient(135deg,#FFF2F4_0%,#F8D7DD_100%)] px-4 py-2 font-semibold text-[#8C3838] shadow-[0_10px_22px_rgba(201,109,125,0.14)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(201,109,125,0.2)]"
-            >
-              Logout
-            </button>
+            <>
+              <Link
+                to={`/profile/${user._id}`}
+                onClick={closeMenu}
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-[#E5A6AF]/40 bg-[linear-gradient(135deg,#FFF2F4_0%,#F8D7DD_100%)] px-4 py-2 font-semibold text-[#8C3838] shadow-[0_10px_22px_rgba(201,109,125,0.14)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(201,109,125,0.2)]"
+              >
+                <FiSettings className="h-4 w-4" />
+                Settings
+              </Link>
+              <button
+                onClick={toggleTheme}
+                aria-label="Toggle theme"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#E5A6AF]/40 bg-[linear-gradient(135deg,#FFF2F4_0%,#F8D7DD_100%)] text-[#8C3838] shadow-[0_10px_22px_rgba(201,109,125,0.14)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(201,109,125,0.2)]"
+              >
+                {theme === 'dark' ? <FiSun className="h-4 w-4" /> : <FiMoon className="h-4 w-4" />}
+              </button>
+              <button
+                onClick={() => { logout(); navigate('/') }}
+                className="rounded-full border border-[#E5A6AF]/40 bg-[linear-gradient(135deg,#FFF2F4_0%,#F8D7DD_100%)] px-4 py-2 font-semibold text-[#8C3838] shadow-[0_10px_22px_rgba(201,109,125,0.14)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(201,109,125,0.2)]"
+              >
+                Logout
+              </button>
+            </>
           ) : (
             <>
               <Link to="/login" onClick={closeMenu} className="inline-flex items-center justify-center rounded-full bg-[linear-gradient(135deg,#FFD5D5_0%,#E5A6AF_100%)] px-4 py-2 font-semibold text-white shadow-[0_12px_24px_rgba(201,109,125,0.18)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_30px_rgba(201,109,125,0.24)]">Login</Link>
@@ -84,12 +124,27 @@ export default function Navbar() {
           )}
           <div className="pt-2 border-t border-slate-100">
             {user ? (
-              <button
-                onClick={() => { closeMenu(); logout(); navigate('/') }}
-                className="w-full rounded-xl px-4 py-3 text-left font-medium text-[#8C3838] transition hover:bg-[#FFF2F4]"
-              >
-                Logout
-              </button>
+              <>
+                <Link
+                  to={`/profile/${user._id}`}
+                  onClick={closeMenu}
+                  className="block rounded-xl px-4 py-3 font-medium text-[#5b5160] transition hover:bg-[#FFF2F4]"
+                >
+                  Settings
+                </Link>
+                <button
+                  onClick={() => { closeMenu(); toggleTheme() }}
+                  className="w-full rounded-xl px-4 py-3 text-left font-medium text-[#5b5160] transition hover:bg-[#FFF2F4]"
+                >
+                  {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+                </button>
+                <button
+                  onClick={() => { closeMenu(); logout(); navigate('/') }}
+                  className="w-full rounded-xl px-4 py-3 text-left font-medium text-[#8C3838] transition hover:bg-[#FFF2F4]"
+                >
+                  Logout
+                </button>
+              </>
             ) : (
               <div className="flex gap-2">
                 <Link to="/login" onClick={closeMenu} className="flex-1 text-center rounded-full bg-[linear-gradient(135deg,#FFD5D5_0%,#E5A6AF_100%)] px-4 py-3 font-semibold text-white shadow-sm">Login</Link>

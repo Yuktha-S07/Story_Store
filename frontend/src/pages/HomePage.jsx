@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import { FiFeather, FiBook, FiBookmark } from "react-icons/fi";
 import api from "../services/api";
 import StoryCard from "../components/StoryCard";
 import TrendingStories from '../components/TrendingStories';
 import Genres from '../components/Genres';
+import { AuthContext } from "../context/AuthContext";
 
 const HomePage = () => {
+  const { user } = useContext(AuthContext);
   const [stories, setStories] = useState([]);
   const [loadingStories, setLoadingStories] = useState(true);
   const [storiesError, setStoriesError] = useState('');
@@ -46,15 +48,17 @@ const HomePage = () => {
               connect with writers, and share your own voice.
             </p>
             <div className="mt-6 md:mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 md:gap-4">
-              <Link
-                to="/login"
-                className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-[linear-gradient(135deg,#C96D7D_0%,#E5A6AF_100%)] px-6 md:px-7 py-3 md:py-3.5 font-semibold text-white text-sm md:text-base shadow-[0_14px_30px_rgba(201,109,125,0.22)] ring-1 ring-white/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(201,109,125,0.28)]"
-              >
-                <span className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.28),transparent_42%)] opacity-90 transition-opacity duration-300 group-hover:opacity-100" />
-                <span className="absolute -left-6 top-0 h-full w-12 -skew-x-12 bg-white/16 blur-md transition-all duration-500 group-hover:left-[110%]" />
-                <FiFeather className="h-4 w-4 transition-transform duration-300 group-hover:-rotate-12" />
-                <span className="relative tracking-wide">Login</span>
-              </Link>
+              {!user && (
+                <Link
+                  to="/login"
+                  className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-[linear-gradient(135deg,#C96D7D_0%,#E5A6AF_100%)] px-6 md:px-7 py-3 md:py-3.5 font-semibold text-white text-sm md:text-base shadow-[0_14px_30px_rgba(201,109,125,0.22)] ring-1 ring-white/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(201,109,125,0.28)]"
+                >
+                  <span className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.28),transparent_42%)] opacity-90 transition-opacity duration-300 group-hover:opacity-100" />
+                  <span className="absolute -left-6 top-0 h-full w-12 -skew-x-12 bg-white/16 blur-md transition-all duration-500 group-hover:left-[110%]" />
+                  <FiFeather className="h-4 w-4 transition-transform duration-300 group-hover:-rotate-12" />
+                  <span className="relative tracking-wide">Login</span>
+                </Link>
+              )}
               <Link
                 to="/stories"
                 className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-[linear-gradient(135deg,#C96D7D_0%,#E5A6AF_100%)] px-6 md:px-7 py-3 md:py-3.5 font-semibold text-white text-sm md:text-base shadow-[0_14px_30px_rgba(201,109,125,0.22)] ring-1 ring-white/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(201,109,125,0.28)]"
