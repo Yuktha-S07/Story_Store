@@ -1,6 +1,4 @@
 from typing import List, Dict
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
 from bson import ObjectId
 
 from ..database import get_story_collection
@@ -27,6 +25,9 @@ class RecommendationService:
         return ids, corpus
 
     async def recommend_similar(self, story_id: str, limit: int = 5) -> List[Dict]:
+        from sklearn.feature_extraction.text import TfidfVectorizer
+        from sklearn.metrics.pairwise import cosine_similarity
+
         ids, corpus = await self._build_corpus()
         if not corpus:
             return []
