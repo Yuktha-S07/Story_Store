@@ -6,8 +6,8 @@ from fastapi import UploadFile
 from app.config import settings
 
 
-async def save_cover_image(file: UploadFile | None) -> str:
-    """Save uploaded cover image and return public URL path."""
+async def _save_image(file: UploadFile | None) -> str:
+    """Save an uploaded image and return its public URL path."""
     if not file or not file.filename:
         return ""
 
@@ -27,3 +27,13 @@ async def save_cover_image(file: UploadFile | None) -> str:
         out.write(contents)
 
     return f"/uploads/{file_name}"
+
+
+async def save_cover_image(file: UploadFile | None) -> str:
+    """Save uploaded cover image and return public URL path."""
+    return await _save_image(file)
+
+
+async def save_profile_image(file: UploadFile | None) -> str:
+    """Save uploaded profile picture and return public URL path."""
+    return await _save_image(file)

@@ -5,9 +5,12 @@ import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import StoryDetailsPage from './pages/StoryDetailsPage'
 import StoryEditorPage from './pages/StoryEditorPage'
+import EditStoryDetailsPage from './pages/EditStoryDetailsPage'
+import StoryChaptersPage from './pages/StoryChaptersPage'
 import ReadingPage from './pages/ReadingPage'
 import DashboardPage from './pages/DashboardPage'
 import ProfilePage from './pages/ProfilePage'
+import SettingsPage from './pages/SettingsPage'
 import BookmarksPage from './pages/BookmarksPage'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
@@ -31,9 +34,11 @@ export default function App() {
               <Route path="/stories/:id" element={<StoryDetailsPage />} />
               <Route path="/read/:chapterId" element={<ProtectedRoute><ReadingPage /></ProtectedRoute>} />
               <Route path="/write" element={<ProtectedRoute><StoryEditorPage /></ProtectedRoute>} />
-              <Route path="/stories/:id/edit" element={<ProtectedRoute><StoryEditorPage /></ProtectedRoute>} />
+              <Route path="/stories/:id/edit" element={<ProtectedRoute><EditStoryDetailsPage /></ProtectedRoute>} />
+              <Route path="/stories/:id/chapters" element={<ProtectedRoute><StoryChaptersPage /></ProtectedRoute>} />
               <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
               <Route path="/profile/:userId" element={<ProfilePage />} />
+              <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
               <Route path="/bookmarks" element={<ProtectedRoute><BookmarksPage /></ProtectedRoute>} />
             </Routes>
           </main>

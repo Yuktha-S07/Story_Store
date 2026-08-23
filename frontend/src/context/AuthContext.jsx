@@ -25,17 +25,11 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const handleAuthInvalid = (event) => {
-      const message = event?.detail?.message || 'Your session expired. Please sign in again.'
       setToken(null)
       setUser(null)
       localStorage.removeItem('access_token')
       localStorage.removeItem('user')
       delete api.defaults.headers.common['Authorization']
-      window.dispatchEvent(
-        new CustomEvent('story-store:toast', {
-          detail: { message, type: 'info' },
-        }),
-      )
     }
 
     window.addEventListener('story-store:auth-invalid', handleAuthInvalid)
@@ -59,12 +53,18 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('user')
   }
 
+  const updateUser = (updatedUser) => {
+    if (!updatedUser) return
+    setUser(updatedUser)
+    localStorage.setItem('user', JSON.stringify(updatedUser))
+  }
+
   const register = async (payload) => {
     return api.post('/api/auth/register', payload)
   }
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, register }}>
+    <AuthContext.Provider value={{ user, token, login, logout, register, updateUser }}>
       {children}
     </AuthContext.Provider>
   )

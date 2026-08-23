@@ -5,6 +5,8 @@ import { AuthContext } from '../context/AuthContext'
 import { useNotification } from '../context/NotificationContext'
 import { buildStoryCoverAlt, buildStoryCoverUrl, buildStoryFallbackUrl } from '../utils/storyCover'
 import { getSampleStory } from '../data/sampleStories'
+import BackButton from '../components/BackButton'
+import { FiMessageCircle } from 'react-icons/fi'
 
 export default function StoryDetailsPage() {
   const { id } = useParams()
@@ -14,6 +16,7 @@ export default function StoryDetailsPage() {
   const [readCount, setReadCount] = useState(0)
   const [comments, setComments] = useState([])
   const [commentText, setCommentText] = useState('')
+  const [showComments, setShowComments] = useState(false)
   const [isFollowing, setIsFollowing] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -262,10 +265,11 @@ export default function StoryDetailsPage() {
   const coverSrc = isLocalSample ? story.cover_image_url : buildStoryCoverUrl(story)
   const coverAlt = buildStoryCoverAlt(story)
 
-  const firstChapterId = story.chapters?.[0]?._id || null
-
   return (
-    <div className="space-y-8 bg-[linear-gradient(180deg,#fffaf6_0%,#fff_45%,#f9f4ee_100%)] pb-10">
+    <div className="space-y-8 pb-10">
+      <div>
+        <BackButton />
+      </div>
       <section className="surface overflow-hidden border border-[#eadfd5] bg-gradient-to-br from-white via-[#fffaf5] to-[#f8efe6] p-4 md:p-8 shadow-[0_22px_70px_rgba(73,48,20,0.08)]">
         <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-4 md:gap-6 items-start">
           <img
@@ -293,7 +297,7 @@ export default function StoryDetailsPage() {
               )}
               {isOwner && (
                 <Link to={`/stories/${id}/edit`} className="btn-ghost">
-                  Edit story
+                  Edit details
                 </Link>
               )}
               {user && (
@@ -334,16 +338,27 @@ export default function StoryDetailsPage() {
         </div>
       </section>
 
-      <section id="chapters" className="surface border border-[#eadfd5] bg-white/90 p-3 sm:p-4 md:p-6 shadow-[0_16px_45px_rgba(73,48,20,0.06)]">
-        <div className="flex items-center justify-between mb-4 gap-4">
+      <section id="chapters" className="surface border-0 bg-[#fffaf5]/90 p-3 sm:p-4 md:p-6 shadow-[0_16px_45px_rgba(73,48,20,0.06)]">
+        <div className="mb-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             {isOwner && (
-              <Link to={firstChapterId ? `/stories/${id}/chapters/${firstChapterId}/edit` : `/stories/${id}/edit`} className="text-sm text-amber-600 hover:text-amber-700">
-                ✎ Edit part
+              <Link to={`/stories/${id}/chapters`} className="text-sm text-amber-600 hover:text-amber-700">
+                ✎ Edit chapters
               </Link>
             )}
             <div className="text-sm text-[#7c8796]">{story.chapters?.length || 0} parts</div>
           </div>
+          <button
+            type="button"
+            onClick={() => setShowComments(prev => !prev)}
+            aria-label={showComments ? 'Hide comments' : 'Open comments'}
+            title={showComments ? 'Hide comments' : 'Open comments'}
+            className={`inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-full border px-3.5 text-sm font-semibold transition ${showComments ? 'border-[#E87B5D] bg-[#fff0e9] text-[#c45e43]' : 'border-[#eadfd5] bg-[#fffaf5] text-[#7c8796] hover:border-[#E87B5D] hover:text-[#c45e43]'}`}
+          >
+            <FiMessageCircle size={18} aria-hidden="true" />
+            <span>Comment</span>
+            {comments.length > 0 && <span className="sr-only">{comments.length} comments</span>}
+          </button>
         </div>
         {story.chapters?.length > 0 ? (
           <div className="space-y-1.5">
@@ -372,7 +387,7 @@ export default function StoryDetailsPage() {
           <div className="text-sm text-[#7c8796] italic">No parts yet. Add a part to get started.</div>
         )}
 
-        <div className="mt-8 border-t border-[#eadfd5] pt-6 space-y-4">
+        {showComments && <div className="mt-8 space-y-4 border-t border-[#eadfd5] pt-6">
           <div className="flex items-center justify-between gap-3">
             <h3 className="text-lg font-semibold">Comments</h3>
             <span className="text-sm text-[#7c8796]">{comments.length} total</span>
@@ -383,7 +398,7 @@ export default function StoryDetailsPage() {
                 value={commentText}
                 onChange={e => setCommentText(e.target.value)}
                 placeholder="Write a comment..."
-                className="w-full border border-[#eadfd5] bg-[#fffdfb] px-4 py-3 rounded-xl h-28 focus:border-[#E87B5D] focus:ring-2 focus:ring-[#E87B5D]/20 outline-none transition"
+                className="w-full border border-[#eadfd5] bg-[#fffdfb] px-4 py-3 rounded-xl h-20 resize-y focus:border-[#E87B5D] focus:ring-2 focus:ring-[#E87B5D]/20 outline-none transition"
               />
               <button type="button" onClick={submitComment} disabled={savingComment} className="btn-primary disabled:opacity-60">
                 {savingComment ? 'Posting...' : 'Post comment'}
@@ -403,13 +418,13 @@ export default function StoryDetailsPage() {
               <div className="text-sm text-[#7c8796] italic">No comments yet.</div>
             )}
           </div>
-        </div>
+        </div>}
       </section>
 
-      <section id="add-chapter">
-        {isOwner && (
-          <div className="mt-6">
-            <div className="flex items-center justify-between mb-3">
+      {isOwner && (
+        <section id="add-chapter" className="surface border border-[#eadfd5] bg-[#fffaf5]/90 p-4 shadow-[0_16px_45px_rgba(73,48,20,0.06)] sm:p-5 md:p-6">
+          <div>
+            <div className="mb-5 flex items-center justify-between gap-4">
               <h3 className="text-lg font-semibold">Add a chapter</h3>
               <span className="pill">Writer tools</span>
             </div>
@@ -436,8 +451,8 @@ export default function StoryDetailsPage() {
               </div>
             </div>
           </div>
-        )}
-      </section>
+        </section>
+      )}
 
     </div>
   )

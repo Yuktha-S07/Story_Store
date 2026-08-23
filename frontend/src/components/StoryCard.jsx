@@ -39,6 +39,7 @@ export default function StoryCard({ story, compact = false }) {
       notify('Bookmark saved.', 'success')
     } catch (err) {
       console.error(err)
+      if (err?.response?.status === 401 || err?.response?.status === 403) return
       const detail = err?.response?.data?.detail
       notify(typeof detail === 'string' ? detail : 'Failed to save bookmark.', 'error')
     }
@@ -46,7 +47,7 @@ export default function StoryCard({ story, compact = false }) {
 
   return (
     <div
-      className={`surface group overflow-hidden rounded-[24px] border border-black/5 p-0 shadow-sm transition duration-300 ${compact ? 'h-full hover:shadow-md max-h-[260px]' : 'h-full hover:-translate-y-1 hover:shadow-2xl'}`}
+      className={`surface group overflow-hidden rounded-[24px] border border-[#d9e6e2] p-0 shadow-[0_10px_28px_rgba(51,88,80,0.07)] transition duration-300 ${compact ? 'h-full hover:-translate-y-1 hover:shadow-[0_18px_36px_rgba(51,88,80,0.13)]' : 'h-full hover:-translate-y-1 hover:shadow-2xl'}`}
       style={{ backgroundColor: '#FBF9F1' }}
     >
       <div className="flex h-full flex-col">
@@ -60,13 +61,13 @@ export default function StoryCard({ story, compact = false }) {
           />
         </div>
 
-        <div className={`flex flex-1 flex-col justify-between ${compact ? 'p-1' : 'p-4'}`}>
+        <div className={`flex flex-1 flex-col justify-between ${compact ? 'p-4' : 'p-4'}`}>
           <div>
             <div className="flex items-center justify-between gap-3">
               <span className="pill shrink-0">{genreText}</span>
             </div>
 
-            <div className={`${compact ? 'mt-0' : 'mt-4'} flex-1 space-y-3`}>
+            <div className="mt-4 flex-1 space-y-3">
               <Link to={`/stories/${storyId}`} className={`${compact ? 'block text-xs' : 'block text-xl'} font-semibold text-slate-900 transition group-hover:text-[#4f766f]`}>
                 {story.title}
               </Link>

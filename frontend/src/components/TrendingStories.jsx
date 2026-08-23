@@ -154,7 +154,12 @@ const TrendingStories = () => {
     };
 
     fetchStories();
-  }, [user]);
+
+    const handleStoryUpdated = () => fetchStories();
+    window.addEventListener('story-store:story-updated', handleStoryUpdated)
+    return () => window.removeEventListener('story-store:story-updated', handleStoryUpdated)
+    // Refetch only when the signed-in account changes, not on every auth state update
+  }, [user?._id]);
 
   const visibleStories = useMemo(() => stories.slice(0, 15), [stories]);
 
@@ -183,6 +188,7 @@ const TrendingStories = () => {
       notify('Bookmark saved.', 'success')
     } catch (err) {
       console.error(err);
+      if (err?.response?.status === 401 || err?.response?.status === 403) return
       const detail = err?.response?.data?.detail;
       notify(typeof detail === 'string' ? detail : 'Failed to save bookmark.', 'error')
     }

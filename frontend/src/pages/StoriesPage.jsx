@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import api from '../services/api';
 import StoryCard from '../components/StoryCard';
+import BackButton from '../components/BackButton';
 import { AuthContext } from '../context/AuthContext';
 
 const fallbackStories = [
@@ -142,6 +143,9 @@ const StoriesPage = () => {
   return (
     <div className="bg-transparent min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="mb-6 flex justify-start">
+          <BackButton />
+        </div>
         <div className="text-center mb-12">
           <h1 className="text-4xl font-serif font-bold text-[#26231f]">Discover Stories</h1>
           <p className="mt-2 text-lg text-[#5d584f]">Explore a universe of stories from writers around the world.</p>

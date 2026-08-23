@@ -130,3 +130,20 @@ a {
 button {
   transition: all 200ms ease;
 }
+
+/* Mobile touch polish */
+button:not(:disabled),
+[role='button']:not(:disabled),
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+/* Prevent horizontal overflow on small screens */
+html,
+body {
+  overflow-x: hidden;
+}

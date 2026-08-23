@@ -13,29 +13,45 @@ def _to_object_id(value: str) -> ObjectId:
         raise ValueError("Invalid ObjectId") from err
 
 
-def _serialize_author(user_id: ObjectId | str | None) -> dict:
-    if not user_id:
-        return {"_id": "", "username": "Unknown"}
+def _fetch_authors_map(user_ids: list) -> dict:
+    """Batch-load usernames for many stories with a single query instead of one
+    query per story (fixes N+1 slowdown on list endpoints)."""
+    unique_ids = {str(uid) for uid in user_ids if uid}
+    object_ids = []
+    for uid in unique_ids:
+        try:
+            object_ids.append(ObjectId(uid))
+        except Exception:
+            continue
 
-    try:
-        user_oid = _to_object_id(str(user_id))
-    except ValueError:
-        return {"_id": "", "username": "Unknown"}
-
-    db = get_database()
-    user = db.users.find_one({"_id": user_oid}, {"username": 1})
-    if not user:
-        return {"_id": str(user_id), "username": "Unknown"}
-
-    return {"_id": str(user["_id"]), "username": user.get("username", "Unknown")}
+    authors: dict[str, str] = {}
+    if object_ids:
+        db = get_database()
+        for user in db.users.find({"_id": {"$in": object_ids}}, {"username": 1}):
+            authors[str(user["_id"])] = user.get("username") or "Unknown"
+    return authors
 
 
-def _serialize_story(doc: dict) -> dict:
+def _serialize_story(doc: dict, authors_by_id: dict | None = None) -> dict:
     user_id = doc.get("user_id")
+    author_key = str(user_id) if user_id else ""
+
+    username = "Unknown"
+    if author_key:
+        if authors_by_id is not None:
+            username = authors_by_id.get(author_key, "Unknown")
+        else:
+            try:
+                db = get_database()
+                user = db.users.find_one({"_id": ObjectId(author_key)}, {"username": 1})
+                username = (user.get("username") or "Unknown") if user else "Unknown"
+            except Exception:
+                username = "Unknown"
+
     return {
         "_id": str(doc["_id"]),
-        "user_id": str(user_id) if user_id else "",
-        "author": _serialize_author(user_id),
+        "user_id": author_key,
+        "author": {"_id": author_key, "username": username},
         "title": doc.get("title", ""),
         "description": doc.get("description", ""),
         "genre": doc.get("genre", ""),
@@ -46,6 +62,13 @@ def _serialize_story(doc: dict) -> dict:
         "created_at": doc.get("created_at"),
         "updated_at": doc.get("updated_at"),
     }
+
+
+def _serialize_stories(docs: list[dict]) -> list[dict]:
+    if not docs:
+        return []
+    authors_by_id = _fetch_authors_map([doc.get("user_id") for doc in docs])
+    return [_serialize_story(doc, authors_by_id) for doc in docs]
 
 
 def _serialize_chapter(doc: dict) -> dict:
@@ -128,9 +151,10 @@ def list_stories(
         query["user_id"] = _to_object_id(user_id)
     elif author_id:
         query["user_id"] = _to_object_id(author_id)
-        if not status:
+        is_requesting_own_profile = user_id and str(user_id) == str(author_id)
+        if not status and not is_requesting_own_profile:
             query["status"] = "published"
-        else:
+        elif status:
             query["status"] = status
     elif status:
         if status == "published":
@@ -190,7 +214,7 @@ def list_stories(
             query["$or"] = search_or
 
     docs = list(db.stories.find(query).sort("created_at", -1).skip(skip).limit(limit))
-    return [_serialize_story(d) for d in docs]
+    return _serialize_stories(docs)
 
 
 def get_story_by_id(story_id: str) -> dict | None:

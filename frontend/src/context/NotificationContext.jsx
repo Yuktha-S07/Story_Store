@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { FiAlertCircle, FiBell, FiCheck, FiInfo, FiX } from 'react-icons/fi'
 
 const NotificationContext = createContext(null)
 
@@ -59,24 +60,51 @@ export function NotificationProvider({ children }) {
 
   const value = useMemo(() => ({ notify, clearNotification, confirmAction }), [notify, clearNotification, confirmAction])
 
+  const notificationStyles = {
+    success: {
+      icon: FiCheck,
+      iconClass: 'bg-[#e1f2e8] text-[#4d8b68]',
+      background: 'bg-[#f5fbf7]',
+    },
+    error: {
+      icon: FiAlertCircle,
+      iconClass: 'bg-[#f9e5e3] text-[#b36c68]',
+      background: 'bg-[#fff8f7]',
+    },
+    warning: {
+      icon: FiBell,
+      iconClass: 'bg-[#fff0d8] text-[#b17a3c]',
+      background: 'bg-[#fffaf2]',
+    },
+    info: {
+      icon: FiInfo,
+      iconClass: 'bg-[#eee8f7] text-[#7f6a9d]',
+      background: 'bg-[#faf8fd]',
+    },
+  }
+  const notificationStyle = notificationStyles[type] || notificationStyles.info
+  const NotificationIcon = notificationStyle.icon
+
   return (
     <NotificationContext.Provider value={value}>
       {children}
       {message && (
-        <div className="fixed right-4 top-4 z-50 max-w-sm rounded-2xl border border-[#e8d7c2] bg-[#fff8ef] px-4 py-3 text-sm text-[#4b4136] shadow-[0_18px_40px_rgba(143,113,70,0.14)]">
+        <div className={`fixed right-4 top-4 z-50 w-[calc(100%-2rem)] max-w-sm rounded-2xl px-4 py-3.5 text-sm text-[#6f6863] shadow-[0_16px_38px_rgba(91,61,34,0.12)] ${notificationStyle.background}`}>
           <div className="flex items-start gap-3">
-            <div className={`mt-1 h-2.5 w-2.5 rounded-full ${type === 'error' ? 'bg-rose-400' : type === 'success' ? 'bg-emerald-400' : 'bg-[#d8b37a]'}`} />
-            <div className="flex-1">
-              <p className="font-semibold text-[#2f281f]">Story Store</p>
-              <p className="mt-1 text-[#5d5243]">{message}</p>
+            <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${notificationStyle.iconClass}`}>
+              <NotificationIcon className="h-4 w-4" aria-hidden="true" />
+            </div>
+            <div className="min-w-0 flex-1 pt-0.5">
+              <p className="font-serif text-sm font-semibold text-[#514b48]">Story Store</p>
+              <p className="mt-1 leading-5 text-[#7b7470]">{message}</p>
             </div>
             <button
               type="button"
               onClick={clearNotification}
-              className="rounded-full px-2 py-1 text-[#7b6a52] transition hover:bg-black/5 hover:text-[#2f281f]"
+              className="rounded-full p-1 text-[#a69b93] transition hover:bg-black/5 hover:text-[#645a53]"
               aria-label="Dismiss notification"
             >
-              ×
+              <FiX className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
         </div>

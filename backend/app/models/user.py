@@ -38,6 +38,15 @@ class RefreshTokenRequest(BaseModel):
     refresh_token: str
 
 
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str = Field(..., min_length=6)
+
+
+class DeleteAccountRequest(BaseModel):
+    password: str
+
+
 class User(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     email: EmailStr

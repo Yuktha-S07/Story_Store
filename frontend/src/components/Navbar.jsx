@@ -67,7 +67,7 @@ export default function Navbar() {
           {user ? (
             <>
               <Link
-                to={`/profile/${user._id}`}
+                to="/settings"
                 onClick={closeMenu}
                 aria-label="Settings"
                 className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#E5A6AF]/40 bg-[linear-gradient(135deg,#FFF2F4_0%,#F8D7DD_100%)] text-[#8C3838] shadow-[0_10px_22px_rgba(201,109,125,0.14)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(201,109,125,0.2)]"
@@ -98,9 +98,11 @@ export default function Navbar() {
 
         {/* Mobile hamburger */}
         <button
+          type="button"
           onClick={() => setMenuOpen(!menuOpen)}
-          className="md:hidden flex items-center justify-center h-9 w-9 rounded-full border border-white/70 bg-white/70 shadow-sm"
           aria-label="Toggle menu"
+          aria-expanded={menuOpen}
+          className="md:hidden flex cursor-pointer items-center justify-center h-10 w-10 rounded-full border border-white/70 bg-white/70 shadow-sm transition-transform duration-150 active:scale-90"
         >
           <svg className="w-5 h-5 text-[#5b5160]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             {menuOpen ? (
@@ -117,7 +119,7 @@ export default function Navbar() {
         <div className="md:hidden border-t border-white/70 bg-white/98 backdrop-blur-xl px-3 pb-4 pt-2 space-y-1">
           {navLinks.map((link) =>
             (!link.auth || user) && (
-              <Link key={link.to} to={link.to} onClick={closeMenu} className="block rounded-xl px-4 py-3 text-[#5b5160] font-medium transition hover:bg-[#FFF2F4]">
+              <Link key={link.to} to={link.to} onClick={closeMenu} className="block rounded-xl px-4 py-3 text-[#5b5160] font-medium transition active:scale-[0.98] hover:bg-[#FFF2F4]">
                 {link.label}
               </Link>
             )
@@ -126,29 +128,31 @@ export default function Navbar() {
             {user ? (
               <>
                 <Link
-                  to={`/profile/${user._id}`}
+                  to="/settings"
                   onClick={closeMenu}
-                  className="block rounded-xl px-4 py-3 font-medium text-[#5b5160] transition hover:bg-[#FFF2F4]"
+                  className="block rounded-xl px-4 py-3 font-medium text-[#5b5160] transition active:scale-[0.98] hover:bg-[#FFF2F4]"
                 >
                   Settings
                 </Link>
                 <button
+                  type="button"
                   onClick={() => { closeMenu(); toggleTheme() }}
-                  className="w-full rounded-xl px-4 py-3 text-left font-medium text-[#5b5160] transition hover:bg-[#FFF2F4]"
+                  className="w-full cursor-pointer rounded-xl px-4 py-3 text-left font-medium text-[#5b5160] transition active:scale-[0.98] hover:bg-[#FFF2F4]"
                 >
                   {theme === 'dark' ? 'Light mode' : 'Dark mode'}
                 </button>
                 <button
+                  type="button"
                   onClick={() => { closeMenu(); logout(); navigate('/') }}
-                  className="w-full rounded-xl px-4 py-3 text-left font-medium text-[#8C3838] transition hover:bg-[#FFF2F4]"
+                  className="w-full cursor-pointer rounded-xl px-4 py-3 text-left font-medium text-[#8C3838] transition active:scale-[0.98] hover:bg-[#FFF2F4]"
                 >
                   Logout
                 </button>
               </>
             ) : (
-              <div className="flex gap-2">
-                <Link to="/login" onClick={closeMenu} className="flex-1 text-center rounded-full bg-[linear-gradient(135deg,#FFD5D5_0%,#E5A6AF_100%)] px-4 py-3 font-semibold text-white shadow-sm">Login</Link>
-                <Link to="/signup" onClick={closeMenu} className="flex-1 text-center rounded-full bg-[linear-gradient(135deg,#FFB7BD_0%,#EA7777_100%)] px-4 py-3 font-semibold text-white shadow-sm">Sign up</Link>
+              <div className="flex gap-2 pt-1">
+                <Link to="/login" onClick={closeMenu} className="flex-1 text-center rounded-full bg-[linear-gradient(135deg,#FFD5D5_0%,#E5A6AF_100%)] px-4 py-3.5 font-semibold text-white shadow-sm transition-transform duration-150 active:scale-[0.97]">Login</Link>
+                <Link to="/signup" onClick={closeMenu} className="flex-1 text-center rounded-full bg-[linear-gradient(135deg,#FFB7BD_0%,#EA7777_100%)] px-4 py-3.5 font-semibold text-white shadow-sm transition-transform duration-150 active:scale-[0.97]">Sign up</Link>
               </div>
             )}
           </div>

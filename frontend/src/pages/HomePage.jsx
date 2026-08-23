@@ -1,39 +1,19 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { FiFeather, FiBook, FiBookmark } from "react-icons/fi";
-import api from "../services/api";
-import StoryCard from "../components/StoryCard";
 import TrendingStories from '../components/TrendingStories';
 import Genres from '../components/Genres';
 import { AuthContext } from "../context/AuthContext";
+import BackButton from "../components/BackButton";
 
 const HomePage = () => {
   const { user } = useContext(AuthContext);
-  const [stories, setStories] = useState([]);
-  const [loadingStories, setLoadingStories] = useState(true);
-  const [storiesError, setStoriesError] = useState('');
-
-  useEffect(() => {
-    const fetchStories = async () => {
-      try {
-        setLoadingStories(true);
-        setStoriesError('');
-        const response = await api.get('/api/stories?status=published&limit=100');
-        setStories(Array.isArray(response.data) ? response.data : []);
-      } catch (error) {
-        console.error('Error fetching stories for home page:', error);
-        setStoriesError('Unable to load stories right now.');
-        setStories([]);
-      } finally {
-        setLoadingStories(false);
-      }
-    };
-
-    fetchStories();
-  }, []);
 
   return (
     <div className="w-full overflow-x-hidden bg-transparent text-[#3a3a3a]">
+      <div className="mx-auto max-w-7xl px-6 pt-3 lg:px-10">
+        <BackButton />
+      </div>
       <section className="w-full border-b border-black/5 bg-transparent">
         <div className="mx-auto grid min-h-[60vh] md:min-h-[80vh] max-w-7xl grid-cols-1 items-center gap-6 md:gap-10 px-6 py-6 md:py-8 lg:grid-cols-[1.02fr_0.98fr] lg:px-10 lg:py-12">
           <div className="max-w-2xl">

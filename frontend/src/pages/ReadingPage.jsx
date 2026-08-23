@@ -4,6 +4,7 @@ import api from '../services/api'
 import { AuthContext } from '../context/AuthContext'
 import { useNotification } from '../context/NotificationContext'
 import { getSampleChapter, getSampleStory } from '../data/sampleStories'
+import BackButton from '../components/BackButton'
 
 export default function ReadingPage() {
   const { chapterId } = useParams()
@@ -99,6 +100,9 @@ export default function ReadingPage() {
 
   return (
     <div className="surface relative px-4 py-6 sm:p-8 md:p-10 max-w-3xl mx-auto">
+      <div className="mb-4">
+        <BackButton />
+      </div>
       <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-4">
         <div className="min-w-0 w-full sm:w-auto">
           <div className="text-xs sm:text-sm text-slate-500">Reading</div>
