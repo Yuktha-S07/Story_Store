@@ -109,12 +109,15 @@ class InteractionService:
         if not self.story_collection.find_one({"_id": ObjectId(story_id)}):
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Story not found")
 
+        existing_vote = self.vote_collection.find_one({
+            "user_id": {"$in": _id_query_values(user_id)},
+            "story_id": {"$in": _id_query_values(story_id)},
+        })
+        if existing_vote:
+            return {"message": "Story already voted"}
+
         vote = StoryVote(user_id=ObjectId(user_id), story_id=ObjectId(story_id))
-        self.vote_collection.update_one(
-            {"user_id": {"$in": _id_query_values(user_id)}, "story_id": {"$in": _id_query_values(story_id)}},
-            {"$set": vote.dict(by_alias=True)},
-            upsert=True,
-        )
+        self.vote_collection.insert_one(vote.dict(by_alias=True))
         return {"message": "Story voted successfully"}
 
     async def get_story_votes(self, story_id: str) -> dict:
@@ -146,12 +149,15 @@ class InteractionService:
     async def follow_user(self, follower_id: str, following_id: str) -> dict:
         if follower_id == following_id:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You cannot follow yourself")
+        existing_follow = self.follow_collection.find_one({
+            "follower_id": {"$in": _id_query_values(follower_id)},
+            "following_id": {"$in": _id_query_values(following_id)},
+        })
+        if existing_follow:
+            return {"message": "Already following"}
+
         follow = Follow(follower_id=ObjectId(follower_id), following_id=ObjectId(following_id))
-        self.follow_collection.update_one(
-            {"follower_id": {"$in": _id_query_values(follower_id)}, "following_id": {"$in": _id_query_values(following_id)}},
-            {"$set": follow.dict(by_alias=True)},
-            upsert=True,
-        )
+        self.follow_collection.insert_one(follow.dict(by_alias=True))
         return {"message": "Followed successfully"}
 
     async def unfollow_user(self, follower_id: str, following_id: str) -> dict:

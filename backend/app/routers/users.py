@@ -22,9 +22,17 @@ async def get_user_profile(user_id: str):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
     db = get_database()
-    followers_count = db.follows.count_documents({"following_id": ObjectId(user_id)})
-    following_count = db.follows.count_documents({"follower_id": ObjectId(user_id)})
-    story_count = db.stories.count_documents({"user_id": ObjectId(user_id)})
+
+    def _id_variants(value: str) -> list:
+        variants = [value]
+        if ObjectId.is_valid(value):
+            variants.insert(0, ObjectId(value))
+        return variants
+
+    id_variants = _id_variants(user_id)
+    followers_count = db.follows.count_documents({"following_id": {"$in": id_variants}})
+    following_count = db.follows.count_documents({"follower_id": {"$in": id_variants}})
+    story_count = db.stories.count_documents({"user_id": {"$in": id_variants}})
 
     return {
         **user,

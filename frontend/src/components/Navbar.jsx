@@ -7,9 +7,7 @@ export default function Navbar() {
   const { user, logout } = useContext(AuthContext)
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
-  const [theme, setTheme] = useState(() =>
-    localStorage.getItem('story-store-theme') === 'dark' ? 'dark' : 'light'
-  )
+  const [theme, setTheme] = useState('light')
 
   const closeMenu = () => setMenuOpen(false)
 
@@ -21,14 +19,11 @@ export default function Navbar() {
     } else {
       document.documentElement.classList.remove('dark')
     }
-    localStorage.setItem('story-store-theme', next)
   }
 
   useEffect(() => {
-    const saved = localStorage.getItem('story-store-theme')
-    const next = saved === 'dark' ? 'dark' : 'light'
-    document.documentElement.classList.toggle('dark', next === 'dark')
-    setTheme(next)
+    document.documentElement.classList.remove('dark')
+    setTheme('light')
   }, [])
 
   const navLinks = [

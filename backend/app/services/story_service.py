@@ -43,6 +43,7 @@ def _serialize_story(doc: dict) -> dict:
         "status": doc.get("status", "draft"),
         "cover_image_url": doc.get("cover_image_url", ""),
         "chapter_count": doc.get("chapter_count", 0),
+        "likes_count": doc.get("likes_count", 0),
         "created_at": doc.get("created_at"),
         "updated_at": doc.get("updated_at"),
     }

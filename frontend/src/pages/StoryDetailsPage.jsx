@@ -12,6 +12,7 @@ export default function StoryDetailsPage() {
   const { id } = useParams()
   const [story, setStory] = useState(null)
   const [isLiked, setIsLiked] = useState(false)
+  const [likeCount, setLikeCount] = useState(0)
   const [voteCount, setVoteCount] = useState(0)
   const [readCount, setReadCount] = useState(0)
   const [comments, setComments] = useState([])
@@ -44,6 +45,7 @@ export default function StoryDetailsPage() {
         setError(null)
         const res = await api.get(`/api/stories/${id}`)
         setStory(res.data)
+        setLikeCount(res.data?.likes_count || 0)
       } catch (err) {
         console.error(err)
         setError('Failed to load story details')
@@ -141,9 +143,11 @@ export default function StoryDetailsPage() {
       if (isLiked) {
         await api.delete(`/api/stories/${id}/like`)
         setIsLiked(false)
+        setLikeCount(prev => Math.max(0, prev - 1))
       } else {
         await api.post(`/api/stories/${id}/like`)
         setIsLiked(true)
+        setLikeCount(prev => prev + 1)
       }
     } catch (err) {
       console.error(err)
@@ -158,7 +162,8 @@ export default function StoryDetailsPage() {
     try {
       setSavingVote(true)
       await api.post(`/api/stories/${id}/vote`)
-      setVoteCount(prev => prev + 1)
+      const res = await api.get(`/api/stories/${id}/votes`)
+      setVoteCount(res.data?.votes_count || 0)
       notify('Vote saved.', 'success')
     } catch (err) {
       console.error(err)
@@ -306,7 +311,7 @@ export default function StoryDetailsPage() {
                   className={`btn-ghost inline-flex items-center gap-2 ${isLiked ? 'text-rose-600' : ''}`}
                 >
                   <span aria-hidden="true">{isLiked ? '♥' : '♡'}</span>
-                  {isLiked ? 'Liked' : 'Like'}
+                  {isLiked ? 'Liked' : 'Like'} ({likeCount})
                 </button>
               )}
               {user && story?.author?._id && String(user._id) !== String(story.author._id) && (

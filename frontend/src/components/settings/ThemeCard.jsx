@@ -2,15 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { Card } from '../SettingsUI'
 
 export default function ThemeCard() {
-  const [theme, setTheme] = useState(() =>
-    localStorage.getItem('story-store-theme') === 'dark' ? 'dark' : 'light'
-  )
+  const [theme, setTheme] = useState('light')
 
   useEffect(() => {
-    const saved = localStorage.getItem('story-store-theme')
-    const next = saved === 'dark' ? 'dark' : 'light'
-    document.documentElement.classList.toggle('dark', next === 'dark')
-    setTheme(next)
+    document.documentElement.classList.remove('dark')
+    setTheme('light')
   }, [])
 
   const toggleTheme = () => {
@@ -21,7 +17,6 @@ export default function ThemeCard() {
     } else {
       document.documentElement.classList.remove('dark')
     }
-    localStorage.setItem('story-store-theme', next)
   }
 
   return (
