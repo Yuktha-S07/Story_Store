@@ -86,6 +86,17 @@ export default function StoryChaptersPage() {
     notify(status === 'published' ? 'Chapter published.' : 'Chapter saved as draft.', 'success')
   }
 
+  const publishChapter = async (ch) => {
+    try {
+      const res = await api.post(`/api/chapters/${ch._id}/publish`)
+      setChapters(prev => prev.map(c => c._id === ch._id ? res.data : c))
+      notify('Chapter published.', 'success')
+      window.dispatchEvent(new CustomEvent('story-store:story-updated', { detail: { storyId: id } }))
+    } catch (err) {
+      notify('Failed to publish chapter.', 'error')
+    }
+  }
+
   const deleteChapter = async (ch) => {
     const confirmed = await confirmAction({
       title: 'Delete chapter',
@@ -144,6 +155,15 @@ export default function StoryChaptersPage() {
                   </p>
                 </div>
                 <div className="flex gap-2 shrink-0 ml-3">
+                  {ch.status !== 'published' && (
+                    <button
+                      type="button"
+                      onClick={() => publishChapter(ch)}
+                      className="rounded-md bg-emerald-100 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-200"
+                    >
+                      Publish
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => startEditChapter(ch)}
