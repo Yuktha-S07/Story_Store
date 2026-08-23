@@ -8,7 +8,7 @@ export default function Navbar() {
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
   const [theme, setTheme] = useState(() =>
-    document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+    localStorage.getItem('story-store-theme') === 'dark' ? 'dark' : 'light'
   )
 
   const closeMenu = () => setMenuOpen(false)
@@ -26,10 +26,9 @@ export default function Navbar() {
 
   useEffect(() => {
     const saved = localStorage.getItem('story-store-theme')
-    if (saved === 'dark') {
-      document.documentElement.classList.add('dark')
-      setTheme('dark')
-    }
+    const next = saved === 'dark' ? 'dark' : 'light'
+    document.documentElement.classList.toggle('dark', next === 'dark')
+    setTheme(next)
   }, [])
 
   const navLinks = [

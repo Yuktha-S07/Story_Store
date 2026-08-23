@@ -3,15 +3,14 @@ import { Card } from '../SettingsUI'
 
 export default function ThemeCard() {
   const [theme, setTheme] = useState(() =>
-    document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+    localStorage.getItem('story-store-theme') === 'dark' ? 'dark' : 'light'
   )
 
   useEffect(() => {
     const saved = localStorage.getItem('story-store-theme')
-    if (saved === 'dark') {
-      document.documentElement.classList.add('dark')
-      setTheme('dark')
-    }
+    const next = saved === 'dark' ? 'dark' : 'light'
+    document.documentElement.classList.toggle('dark', next === 'dark')
+    setTheme(next)
   }, [])
 
   const toggleTheme = () => {
@@ -54,7 +53,7 @@ export default function ThemeCard() {
           </span>
         </button>}
     >
-      <p className="text-xs text-[#5d584f] dark:text-gray-400">
+      <p className="text-xs text-[#5d584f] dark:text-gray-300">
         Current theme: <span className="font-semibold capitalize">{theme}</span>
       </p>
     </Card>

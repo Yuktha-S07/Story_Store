@@ -51,7 +51,7 @@ export default function DeleteAccountCard({ user, onDeleted, onError }) {
           </div>
           <button
             onClick={openModal}
-            className="rounded-full bg-[#c97870] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#b96861] shadow-sm hover:shadow-md"
+            className="rounded-full bg-[#c97870] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#b96861] shadow-sm hover:shadow-md dark:bg-[#b06b66] dark:hover:bg-[#9f5e59]"
           >
             Delete
           </button>
@@ -63,10 +63,10 @@ export default function DeleteAccountCard({ user, onDeleted, onError }) {
           <form
             onSubmit={handleDeleteAccount}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md rounded-[28px] border border-black/10 bg-white p-6 shadow-[0_28px_80px_rgba(0,0,0,0.2)]"
+            className="w-full max-w-md rounded-[28px] border border-black/10 bg-white p-6 shadow-[0_28px_80px_rgba(0,0,0,0.2)] dark:border-gray-700 dark:bg-[#1f1b22]"
           >
-            <h3 className="font-serif text-2xl text-[#26231f]">Delete account</h3>
-            <p className="mt-3 text-sm leading-6 text-[#5d584f]">
+            <h3 className="font-serif text-2xl text-[#26231f] dark:text-[#f0eaf3]">Delete account</h3>
+            <p className="mt-3 text-sm leading-6 text-[#5d584f] dark:text-[#c8bfcf]">
               This will permanently delete <span className="font-semibold">{user?.username}</span>, all stories,
               chapters and activity. This action cannot be undone. Enter your password to confirm.
             </p>
@@ -85,7 +85,7 @@ export default function DeleteAccountCard({ user, onDeleted, onError }) {
             />
 
             {error && (
-              <p className="mt-2 rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-xs font-semibold text-[#b91c1c]">
+              <p className="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-[#b91c1c] dark:border-red-800/60 dark:bg-red-950/30 dark:text-red-300">
                 {error}
               </p>
             )}
@@ -94,14 +94,14 @@ export default function DeleteAccountCard({ user, onDeleted, onError }) {
               <button
                 type="button"
                 onClick={closeModal}
-                className="rounded-full bg-[#e6ebdf] px-5 py-2.5 text-sm font-semibold text-[#3a3a3a] transition hover:bg-[#d9e1cf]"
+                className="rounded-full bg-[#e6ebdf] px-5 py-2.5 text-sm font-semibold text-[#3a3a3a] transition hover:bg-[#d9e1cf] dark:bg-[#36313e] dark:text-[#e2d7e8] dark:hover:bg-[#433d4d]"
               >
                 Keep my account
               </button>
               <button
                 type="submit"
                 disabled={deleting}
-                className="rounded-full bg-gradient-to-r from-red-500 to-red-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:from-red-600 hover:to-red-700 disabled:opacity-60"
+                className="rounded-full bg-gradient-to-r from-red-500 to-red-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:from-red-600 hover:to-red-700 disabled:opacity-60 dark:from-[#b06b66] dark:to-[#9f5e59] dark:hover:from-[#a5615b] dark:hover:to-[#8e544f]"
               >
                 {deleting ? 'Deleting...' : 'Delete my account'}
               </button>
