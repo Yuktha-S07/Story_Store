@@ -2,44 +2,50 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const Footer = () => {
-  return (
-    <footer className="relative overflow-hidden border-t border-white/10 bg-[linear-gradient(180deg,rgba(23,32,51,0.97)_0%,rgba(28,39,61,0.98)_100%)] text-[#f3ede3] shadow-[0_-12px_30px_rgba(15,23,42,0.16)]">
-      <div className="pointer-events-none absolute inset-0 opacity-70">
-        <div className="absolute -left-16 top-0 h-56 w-56 rounded-full bg-[#F6C7D2]/20 blur-3xl" />
-        <div className="absolute right-0 bottom-0 h-64 w-64 rounded-full bg-[#F4D7B5]/18 blur-3xl" />
-      </div>
+  const quickLinks = [
+    { label: "Home", to: "/" },
+    { label: "Stories", to: "/stories" },
+    { label: "Login", to: "/login" },
+    { label: "Write", to: "/login?next=/write" },
+  ];
 
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-10 sm:py-14 lg:px-10">
-        <div className="grid gap-8 sm:gap-10 grid-cols-1 sm:grid-cols-2 md:grid-cols-[1.3fr_0.85fr_0.85fr] md:items-start">
-          <div className="flex flex-col gap-3 sm:gap-4">
-            <h3 className="font-serif text-2xl font-semibold tracking-tight text-white sm:text-3xl">Story Store</h3>
-            <p className="max-w-sm text-sm leading-6 text-[#c9ceda]">
-              A place to discover, write, and keep coming back to the stories you love.
+  return (
+    <footer className="border-t border-white/10 bg-[#101c2d] text-[#edf3ff]">
+      <div className="mx-auto max-w-7xl px-5 py-10 sm:px-6 lg:px-10">
+        <div className="grid gap-8 md:grid-cols-[1.1fr_0.75fr_0.7fr] md:items-start">
+          <div className="space-y-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-[#c7d2ff]">Story Store</p>
+            <h3 className="font-serif text-2xl font-medium tracking-tight text-white sm:text-3xl">
+              A quiet place for stories.
+            </h3>
+            <p className="max-w-md text-sm leading-6 text-[#d5ddef]">
+              Discover, save, and share the stories that stay with you.
             </p>
           </div>
 
-          <div className="flex flex-col gap-3 sm:gap-4">
-            <Link to="/stories" className="inline-flex w-fit text-sm font-semibold tracking-wide text-[#d7b88c] transition hover:text-white">
-              Explore
-            </Link>
-            <ul className="space-y-2 text-sm">
-              <li><Link to="/" className="inline-flex text-[#e6cc9a] transition duration-300 hover:translate-x-1 hover:text-white">Home</Link></li>
-              <li><Link to="/stories" className="inline-flex text-[#e6cc9a] transition duration-300 hover:translate-x-1 hover:text-white">Stories</Link></li>
-              <li><Link to="/login" className="inline-flex text-[#e6cc9a] transition duration-300 hover:translate-x-1 hover:text-white">Login</Link></li>
-              <li><Link to="/login?next=/write" className="inline-flex text-[#e6cc9a] transition duration-300 hover:translate-x-1 hover:text-white">Write</Link></li>
+          <div className="space-y-3">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-[#a7b9ff]">Explore</p>
+            <ul className="space-y-2.5 text-[15px]">
+              {quickLinks.map((link) => (
+                <li key={link.label}>
+                  <Link
+                    to={link.to}
+                    className="inline-block text-white opacity-100 transition-all duration-200 hover:-translate-x-0.5 hover:text-white"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          <div className="flex flex-col gap-3 sm:gap-4">
-            <h4 className="text-sm font-semibold tracking-wide text-[#d7b88c]">Contact</h4>
-            <div className="space-y-2 text-sm leading-6 text-[#d9dde6]">
-              <p>Email: contact@storystore.com</p>
-              <p>Phone: (123) 456-7890</p>
-            </div>
+          <div className="space-y-3 md:pt-1">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-[#c7d2ff]">Mail</p>
+            <p className="text-sm text-[#eaf0ff]">placeholder@example.com</p>
           </div>
         </div>
 
-        <div className="mt-8 flex flex-col gap-3 border-t border-white/10 pt-5 text-sm text-[#aab3c4] sm:mt-10 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-8 border-t border-white/10 pt-5 text-sm text-[#b5bfce]">
           <p>&copy; {new Date().getFullYear()} Story Store. All rights reserved.</p>
         </div>
       </div>

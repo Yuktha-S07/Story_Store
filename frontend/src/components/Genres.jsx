@@ -14,24 +14,33 @@ const genres = [
 
 const Genres = () => {
   return (
-    <section className="bg-white py-12">
+    <section className="bg-[#f7f2ed] py-12 md:py-16">
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
-        <h2 className="mb-6 font-serif text-4xl text-[#26231f]">Genres</h2>
-        <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+        <div className="mb-8 flex items-end justify-between gap-4">
+          <div>
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.32em] text-[#8d7d68]">Curated</p>
+            <h2 className="font-serif text-4xl tracking-tight text-[#1f1b1a] md:text-5xl">Genres</h2>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5">
           {genres.map((genre) => (
             <Link
               key={genre.name}
               to={`/stories?genre=${genre.name.toLowerCase().replace(/\s+/g, '-')}`}
-              className="flex items-center space-x-4 rounded-lg bg-gray-100 p-4 transition hover:bg-gray-200"
+              className="group relative rounded-[24px] border border-[#e9dfd5] bg-white p-3.5 shadow-[0_16px_30px_rgba(21,16,12,0.04)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_22px_38px_rgba(21,16,12,0.08)]"
             >
-              <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-full bg-[#f0ebe2]">
+              <div className="mb-3 overflow-hidden rounded-[18px] bg-[#f0ece6]">
                 <img
                   src={genre.image}
                   alt={genre.name}
-                  className="h-full w-full object-cover"
+                  className="h-28 w-full object-cover transition duration-300 group-hover:scale-[1.05]"
                 />
               </div>
-              <span className="font-semibold text-[#26231f]">{genre.name}</span>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-base font-medium text-[#201d1a] md:text-lg">{genre.name}</span>
+                <span className="text-[10px] uppercase tracking-[0.22em] text-[#8a7d6d]">Read</span>
+              </div>
             </Link>
           ))}
         </div>
