@@ -2,14 +2,35 @@ import React, { useContext, useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { FiSettings, FiSun, FiMoon } from 'react-icons/fi'
 import { AuthContext } from '../context/AuthContext'
+import api from '../services/api'
 
 export default function Navbar() {
   const { user, logout } = useContext(AuthContext)
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
   const [theme, setTheme] = useState('light')
+  const [unreadCount, setUnreadCount] = useState(0)
 
   const closeMenu = () => setMenuOpen(false)
+
+  const fetchUnread = async () => {
+    if (!user) {
+      setUnreadCount(0)
+      return
+    }
+    try {
+      const res = await api.get('/api/messages/unread-count')
+      setUnreadCount(res.data?.unread_count ?? 0)
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  useEffect(() => {
+    fetchUnread()
+    const interval = setInterval(fetchUnread, 15000)
+    return () => clearInterval(interval)
+  }, [user])
 
   const toggleTheme = () => {
     const next = theme === 'light' ? 'dark' : 'light'
@@ -49,8 +70,13 @@ export default function Navbar() {
           <div className="flex items-center gap-2 rounded-full border border-white/70 bg-white/70 p-1.5 text-sm shadow-[0_14px_30px_rgba(111,68,80,0.08)] backdrop-blur-md">
             {navLinks.map((link) =>
               (!link.auth || user) && (
-                <Link key={link.to} to={link.to} className="rounded-full px-4 py-2 text-[#5b5160] whitespace-nowrap transition-all duration-300 hover:bg-[linear-gradient(135deg,#F7D0D7_0%,#F0B5C2_100%)] hover:text-[#5a2f3d]">
+                <Link key={link.to} to={link.to} className="relative rounded-full px-4 py-2 text-[#5b5160] inline-flex items-center gap-1.5 whitespace-nowrap transition-all duration-300 hover:bg-[linear-gradient(135deg,#F7D0D7_0%,#F0B5C2_100%)] hover:text-[#5a2f3d]">
                   {link.label}
+                  {link.auth && link.to === '/messages' && unreadCount > 0 && (
+                    <span className="inline-flex min-w-[18px] items-center justify-center rounded-full bg-[#E87B5D] px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
                 </Link>
               )
             )}
@@ -114,8 +140,13 @@ export default function Navbar() {
         <div className="md:hidden border-t border-white/70 bg-white/98 backdrop-blur-xl px-3 pb-4 pt-2 space-y-1">
           {navLinks.map((link) =>
             (!link.auth || user) && (
-              <Link key={link.to} to={link.to} onClick={closeMenu} className="block rounded-xl px-4 py-3 text-[#5b5160] font-medium transition active:scale-[0.98] hover:bg-[#FFF2F4]">
-                {link.label}
+              <Link key={link.to} to={link.to} onClick={closeMenu} className="flex items-center justify-between rounded-xl px-4 py-3 text-[#5b5160] font-medium transition active:scale-[0.98] hover:bg-[#FFF2F4]">
+                <span>{link.label}</span>
+                {link.auth && link.to === '/messages' && unreadCount > 0 && (
+                  <span className="inline-flex min-w-[20px] items-center justify-center rounded-full bg-[#E87B5D] px-2 py-0.5 text-xs font-bold text-white">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
               </Link>
             )
           )}

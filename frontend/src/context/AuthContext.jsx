@@ -28,20 +28,30 @@ export function AuthProvider({ children }) {
       setToken(null)
       setUser(null)
       localStorage.removeItem('access_token')
+      localStorage.removeItem('refresh_token')
       localStorage.removeItem('user')
       delete api.defaults.headers.common['Authorization']
     }
 
+    const handleTokenRefreshed = () => {
+      setToken(localStorage.getItem('access_token') || null)
+    }
+
     window.addEventListener('story-store:auth-invalid', handleAuthInvalid)
-    return () => window.removeEventListener('story-store:auth-invalid', handleAuthInvalid)
+    window.addEventListener('story-store:token-refreshed', handleTokenRefreshed)
+    return () => {
+      window.removeEventListener('story-store:auth-invalid', handleAuthInvalid)
+      window.removeEventListener('story-store:token-refreshed', handleTokenRefreshed)
+    }
   }, [])
 
   const login = async (email, password) => {
     const res = await api.post('/api/auth/login', { email, password })
-    const { access_token, user: userData } = res.data
+    const { access_token, refresh_token, user: userData } = res.data
     setToken(access_token)
     setUser(userData)
     localStorage.setItem('access_token', access_token)
+    if (refresh_token) localStorage.setItem('refresh_token', refresh_token)
     localStorage.setItem('user', JSON.stringify(userData))
     return res
   }
@@ -50,6 +60,7 @@ export function AuthProvider({ children }) {
     setToken(null)
     setUser(null)
     localStorage.removeItem('access_token')
+    localStorage.removeItem('refresh_token')
     localStorage.removeItem('user')
   }
 
