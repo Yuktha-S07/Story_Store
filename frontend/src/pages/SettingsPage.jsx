@@ -7,6 +7,7 @@ import ThemeCard from '../components/settings/ThemeCard'
 import EditProfileCard from '../components/settings/EditProfileCard'
 import LogoutCard from '../components/settings/LogoutCard'
 import DeleteAccountCard from '../components/settings/DeleteAccountCard'
+import NotificationPreferences from '../components/settings/NotificationPreferences'
 
 export default function SettingsPage() {
   const { user, logout, updateUser } = useContext(AuthContext)
@@ -43,6 +44,7 @@ export default function SettingsPage() {
 
       <main className="space-y-3">
         <ThemeCard />
+        <NotificationPreferences />
         <EditProfileCard user={user} onUpdated={updateUser} notify={notify} />
         <LogoutCard
           onLogout={() => {

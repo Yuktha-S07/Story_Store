@@ -9,17 +9,17 @@ const HomePage = () => {
   const { user } = useContext(AuthContext);
 
   return (
-    <div className="w-full overflow-x-hidden bg-transparent text-[#3a3a3a]">
-      <section className="w-full border-b border-black/5 bg-transparent">
+    <div className="w-full overflow-x-hidden bg-transparent text-[#3a3a3a] dark:text-[#eee7f2]">
+      <section className="w-full border-b border-black/5 bg-transparent dark:border-white/10">
         <div className="mx-auto grid min-h-[60vh] md:min-h-[80vh] max-w-7xl grid-cols-1 items-center gap-6 md:gap-10 px-6 py-6 md:py-8 lg:grid-cols-[1.02fr_0.98fr] lg:px-10 lg:py-12">
           <div className="max-w-2xl">
-            <p className="mb-4 md:mb-6 text-sm font-semibold uppercase tracking-[0.45em] text-[#6d6a63]">
+            <p className="mb-4 md:mb-6 text-sm font-semibold uppercase tracking-[0.45em] text-[#6d6a63] dark:text-[#c9b8d2]">
               Story Store
             </p>
-            <h1 className="font-serif text-[2.5rem] leading-[0.92] tracking-tight text-[#26231f] sm:text-6xl lg:text-[6.2rem]">
+            <h1 className="font-serif text-[2.5rem] leading-[0.92] tracking-tight text-[#26231f] dark:text-[#f6edf8] sm:text-6xl lg:text-[6.2rem]">
               Find stories that feel like home.
             </h1>
-            <p className="mt-4 md:mt-6 max-w-xl text-sm leading-6 md:text-base md:leading-7 text-[#5d584f] sm:text-lg lg:text-[1.08rem] lg:leading-8">
+            <p className="mt-4 md:mt-6 max-w-xl text-sm leading-6 md:text-base md:leading-7 text-[#5d584f] dark:text-[#c8bbcf] sm:text-lg lg:text-[1.08rem] lg:leading-8">
               A universe of stories is waiting for you. Discover new worlds,
               connect with writers, and share your own voice.
             </p>
@@ -49,7 +49,7 @@ const HomePage = () => {
 
           <div className="relative flex justify-center lg:justify-end">
             <div className="relative w-full max-w-[500px] sm:max-w-[700px] aspect-[5/4] lg:max-w-[920px] z-10 lg:translate-x-10 xl:translate-x-16">
-              <div className="absolute inset-0 translate-x-2 translate-y-2 md:translate-x-4 md:translate-y-3 rounded-full bg-[#e8dcc7] blur-3xl" />
+              <div className="absolute inset-0 translate-x-2 translate-y-2 md:translate-x-4 md:translate-y-3 rounded-full bg-[#e8dcc7] blur-3xl dark:bg-[#574367]" />
                <div className="absolute inset-0 overflow-hidden rounded-[16px] md:rounded-[20px] shadow-[0_20px_50px_rgba(62,46,26,0.15)] md:shadow-[0_34px_90px_rgba(62,46,26,0.2)] ring-1 ring-black/5">
                 <img
                   src="/Hero_Image.png"
@@ -70,30 +70,30 @@ const HomePage = () => {
 
       <section className="mx-auto max-w-7xl px-6 py-8 lg:px-10 lg:py-12">
         <div className="mt-8">
-          <h2 className="text-center font-serif text-4xl text-[#26231f]">
+          <h2 className="text-center font-serif text-4xl text-[#26231f] dark:text-[#f6edf8]">
             A Platform Built for You
           </h2>
           <div className="mt-10 grid gap-6 md:grid-cols-3">
-            <article className="group rounded-[28px] border border-black/8 bg-white p-8 shadow-[0_16px_40px_rgba(0,0,0,0.05)] transition duration-300 hover:-translate-y-2 hover:shadow-[0_24px_50px_rgba(0,0,0,0.1)]">
-              <FiFeather className="h-12 w-12 text-[#3a3a3a] transition-transform duration-300 group-hover:scale-110" />
-              <h3 className="mt-6 text-2xl font-serif text-[#26231f]">Write Your Story</h3>
-              <p className="mt-3 leading-7 text-[#5d584f]">
+            <article className="group rounded-[28px] border border-black/8 bg-white p-8 shadow-[0_16px_40px_rgba(0,0,0,0.05)] transition duration-300 hover:-translate-y-2 hover:shadow-[0_24px_50px_rgba(0,0,0,0.1)] dark:border-[#4b3b5d] dark:bg-[#211a29] dark:shadow-[0_16px_40px_rgba(0,0,0,0.28)] dark:hover:bg-[#2b2235]">
+              <FiFeather className="h-12 w-12 text-[#3a3a3a] transition-transform duration-300 group-hover:scale-110 dark:text-[#d8bde8]" />
+              <h3 className="mt-6 text-2xl font-serif text-[#26231f] dark:text-[#f0e8f6]">Write Your Story</h3>
+              <p className="mt-3 leading-7 text-[#5d584f] dark:text-[#c8b8d2]">
                 Unleash your creativity and share your voice with a global
                 community of readers and writers.
               </p>
             </article>
-            <article className="group rounded-[28px] border border-black/8 bg-white p-8 shadow-[0_16px_40px_rgba(0,0,0,0.05)] transition duration-300 hover:-translate-y-2 hover:shadow-[0_24px_50px_rgba(0,0,0,0.1)]">
-              <FiBook className="h-12 w-12 text-[#3a3a3a] transition-transform duration-300 group-hover:scale-110" />
-              <h3 className="mt-6 text-2xl font-serif text-[#26231f]">Discover New Worlds</h3>
-              <p className="mt-3 leading-7 text-[#5d584f]">
+            <article className="group rounded-[28px] border border-black/8 bg-white p-8 shadow-[0_16px_40px_rgba(0,0,0,0.05)] transition duration-300 hover:-translate-y-2 hover:shadow-[0_24px_50px_rgba(0,0,0,0.1)] dark:border-[#4b3b5d] dark:bg-[#211a29] dark:shadow-[0_16px_40px_rgba(0,0,0,0.28)] dark:hover:bg-[#2b2235]">
+              <FiBook className="h-12 w-12 text-[#3a3a3a] transition-transform duration-300 group-hover:scale-110 dark:text-[#d8bde8]" />
+              <h3 className="mt-6 text-2xl font-serif text-[#26231f] dark:text-[#f0e8f6]">Discover New Worlds</h3>
+              <p className="mt-3 leading-7 text-[#5d584f] dark:text-[#c8b8d2]">
                 Dive into a universe of stories across all genres. Your next
                 favorite book is just a click away.
               </p>
             </article>
-            <article className="group rounded-[28px] border border-black/8 bg-white p-8 shadow-[0_16px_40px_rgba(0,0,0,0.05)] transition duration-300 hover:-translate-y-2 hover:shadow-[0_24px_50px_rgba(0,0,0,0.1)]">
-              <FiBookmark className="h-12 w-12 text-[#3a3a3a] transition-transform duration-300 group-hover:scale-110" />
-              <h3 className="mt-6 text-2xl font-serif text-[#26231f]">Connect & Grow</h3>
-              <p className="mt-3 leading-7 text-[#5d584f]">
+            <article className="group rounded-[28px] border border-black/8 bg-white p-8 shadow-[0_16px_40px_rgba(0,0,0,0.05)] transition duration-300 hover:-translate-y-2 hover:shadow-[0_24px_50px_rgba(0,0,0,0.1)] dark:border-[#4b3b5d] dark:bg-[#211a29] dark:shadow-[0_16px_40px_rgba(0,0,0,0.28)] dark:hover:bg-[#2b2235]">
+              <FiBookmark className="h-12 w-12 text-[#3a3a3a] transition-transform duration-300 group-hover:scale-110 dark:text-[#d8bde8]" />
+              <h3 className="mt-6 text-2xl font-serif text-[#26231f] dark:text-[#f0e8f6]">Connect & Grow</h3>
+              <p className="mt-3 leading-7 text-[#5d584f] dark:text-[#c8b8d2]">
                 Connect with fellow story lovers, get feedback on your work, and
                 build your audience.
               </p>

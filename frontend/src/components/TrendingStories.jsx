@@ -199,10 +199,10 @@ const TrendingStories = () => {
       <div className="mx-auto max-w-7xl px-6 lg:px-10">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.35em] text-[#8a7c68]">Trending now</p>
-            <h2 className="mt-2 font-serif text-4xl text-[#26231f]">Stories worth your time</h2>
+            <p className="text-sm font-semibold uppercase tracking-[0.35em] text-[#8a7c68] dark:text-[#c6afd1]">Trending now</p>
+            <h2 className="mt-2 font-serif text-4xl text-[#26231f] dark:text-[#f1e8f4]">Stories worth your time</h2>
           </div>
-          <Link to="/stories" className="hidden text-sm font-semibold text-[#5d584f] underline underline-offset-4 md:inline-flex">
+          <Link to="/stories" className="hidden text-sm font-semibold text-[#5d584f] underline underline-offset-4 dark:text-[#cbb9d5] md:inline-flex">
             Browse all stories
           </Link>
         </div>
@@ -214,7 +214,7 @@ const TrendingStories = () => {
             const coverAlt = buildStoryCoverAlt(story);
             return (
               <div key={storyId} className="group w-[156px] flex-shrink-0">
-                <div className="flex h-[318px] flex-col overflow-hidden rounded-[22px] shadow-[0_14px_30px_rgba(0,0,0,0.08)] transition duration-300 group-hover:-translate-y-1" style={{ backgroundColor: '#FBF9F1' }}>
+                <div className="flex h-[318px] flex-col overflow-hidden rounded-[22px] bg-[#FBF9F1] shadow-[0_14px_30px_rgba(0,0,0,0.08)] transition duration-300 group-hover:-translate-y-1 dark:bg-[#261e30] dark:shadow-[0_14px_30px_rgba(0,0,0,0.3)]">
                   <div className="aspect-[2/3] overflow-hidden">
                     <img
                       src={coverImage}
@@ -225,9 +225,9 @@ const TrendingStories = () => {
                     />
                   </div>
                   <div className="flex flex-1 flex-col p-3">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#8a7c68]">{story.genre || 'Featured'}</p>
-                    <h3 className="mt-1.5 line-clamp-2 text-sm font-semibold leading-5 text-[#26231f]">{story.title}</h3>
-                    <p className="mt-1.5 line-clamp-2 text-xs leading-5 text-[#5d584f]">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#8a7c68] dark:text-[#c6afd1]">{story.genre || 'Featured'}</p>
+                    <h3 className="mt-1.5 line-clamp-2 text-sm font-semibold leading-5 text-[#26231f] dark:text-[#f1e8f4]">{story.title}</h3>
+                    <p className="mt-1.5 line-clamp-2 text-xs leading-5 text-[#5d584f] dark:text-[#c8b8d2]">
                       {story.description || 'Open the story to start reading.'}
                     </p>
                     <div className="mt-auto flex items-center gap-2 pt-3">

@@ -8,6 +8,7 @@ from ..database import (
     get_message_collection,
     get_user_collection,
 )
+from .notification_service import create_notification
 
 
 def _id_query_values(value: str) -> list:
@@ -41,6 +42,14 @@ class MessageService:
             content=content,
         )
         self.message_collection.insert_one(message.dict(by_alias=True))
+        sender = get_user_collection().find_one({"_id": {"$in": _id_query_values(sender_id)}}, {"username": 1})
+        create_notification(
+            recipient_id=recipient_id,
+            notification_type="messages",
+            message=f"{(sender or {}).get('username', 'Someone')} sent you a message.",
+            actor_id=sender_id,
+            actor_name=(sender or {}).get("username", "Someone"),
+        )
         return {"message": "Message sent successfully"}
 
     async def list_conversations(self, user_id: str, direction: str = "all") -> list[dict]:

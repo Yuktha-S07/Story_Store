@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { FiAlertCircle, FiBell, FiCheck, FiInfo, FiX } from 'react-icons/fi'
 
 const NotificationContext = createContext(null)
@@ -7,6 +7,7 @@ export function NotificationProvider({ children }) {
   const [message, setMessage] = useState('')
   const [type, setType] = useState('info')
   const [confirmState, setConfirmState] = useState(null)
+  const seenNotificationIds = useRef(null)
 
   const notify = useCallback((nextMessage, nextType = 'info') => {
     setMessage(nextMessage)
@@ -34,6 +35,63 @@ export function NotificationProvider({ children }) {
 
     window.addEventListener('story-store:toast', handleToast)
     return () => window.removeEventListener('story-store:toast', handleToast)
+  }, [notify])
+
+  useEffect(() => {
+    const playSound = (soundName) => {
+      const AudioContext = window.AudioContext || window.webkitAudioContext
+      if (!AudioContext) return
+      const audio = new AudioContext()
+      const patterns = {
+        chime: [[523, 0], [659, 0.12]],
+        pop: [[440, 0]],
+        sparkle: [[659, 0], [784, 0.1], [988, 0.2]],
+        pulse: [[220, 0], [330, 0.18]],
+        whistle: [[880, 0], [1175, 0.12]],
+      }
+      ;(patterns[soundName] || patterns.chime).forEach(([frequency, delay]) => {
+        const oscillator = audio.createOscillator()
+        const gain = audio.createGain()
+        oscillator.type = 'sine'
+        oscillator.frequency.value = frequency
+        gain.gain.setValueAtTime(0.0001, audio.currentTime + delay)
+        gain.gain.exponentialRampToValueAtTime(0.08, audio.currentTime + delay + 0.02)
+        gain.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + delay + 0.28)
+        oscillator.connect(gain)
+        gain.connect(audio.destination)
+        oscillator.start(audio.currentTime + delay)
+        oscillator.stop(audio.currentTime + delay + 0.3)
+      })
+    }
+
+    const pollNotifications = async () => {
+      const token = localStorage.getItem('access_token')
+      if (!token) return
+      try {
+        const response = await fetch('/api/notifications', { headers: { Authorization: `Bearer ${token}` } })
+        if (!response.ok) return
+        const data = await response.json()
+        const items = Array.isArray(data.notifications) ? data.notifications : []
+        const ids = new Set(items.map((item) => item._id))
+        if (seenNotificationIds.current === null) {
+          seenNotificationIds.current = ids
+          return
+        }
+        const newItems = items.filter((item) => !seenNotificationIds.current.has(item._id))
+        seenNotificationIds.current = ids
+        if (!newItems.length) return
+        const latest = newItems[0]
+        notify(latest.message, latest.type === 'messages' ? 'info' : 'success')
+        playSound(localStorage.getItem('story-store:notification-sound') || 'chime')
+        await fetch('/api/notifications/read', { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    pollNotifications()
+    const interval = window.setInterval(pollNotifications, 8000)
+    return () => window.clearInterval(interval)
   }, [notify])
 
   const confirmAction = useCallback((options) => {

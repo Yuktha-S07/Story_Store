@@ -80,7 +80,7 @@ export default function ChapterEditorPage() {
   if (!user) return <div>Please login to write.</div>
 
   return (
-    <div className="mx-auto w-full max-w-4xl space-y-7 pb-10 font-sans">
+    <div className="chapter-editor-page mx-auto w-full max-w-4xl space-y-7 pb-10 font-sans">
       <div className="flex items-center justify-between gap-4">
         <BackButton fallback={`/stories/${id}/chapters`} />
         <span className="rounded-full border border-[#d9c7b4] bg-[#fffaf4] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#8b6b52]">
@@ -88,10 +88,10 @@ export default function ChapterEditorPage() {
         </span>
       </div>
 
-      <section className="w-full">
+      <section className="chapter-canvas w-full">
         <div className="mb-7 flex flex-wrap items-end justify-between gap-4 border-b border-[#e8d8c8] pb-6">
           <div className="min-w-0">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#b06f7f]">Story studio</p>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#b06f7f]">Story Store</p>
             <h2 className="font-serif text-2xl font-semibold tracking-tight text-[#28343a] md:text-3xl">
               {isEditing ? 'Edit Chapter' : 'Add a Chapter'}
             </h2>
@@ -102,6 +102,10 @@ export default function ChapterEditorPage() {
                 'Write your next chapter.'
               )}
             </p>
+          </div>
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#81709b]">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#e7def2]">1</span>
+            <span className="hidden sm:inline">Draft your scene</span>
           </div>
         </div>
 

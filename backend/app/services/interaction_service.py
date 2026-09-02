@@ -13,6 +13,7 @@ from ..database import (
     get_vote_collection,
     get_follow_collection,
 )
+from .notification_service import create_notification
 
 
 def _id_query_values(value: str) -> list:
@@ -32,7 +33,8 @@ class InteractionService:
         self.follow_collection = get_follow_collection()
 
     async def like_story(self, user_id: str, story_id: str) -> dict:
-        if not self.story_collection.find_one({"_id": ObjectId(story_id)}):
+        story = self.story_collection.find_one({"_id": ObjectId(story_id)})
+        if not story:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Story not found")
 
         existing_like = self.like_collection.find_one({
@@ -45,6 +47,14 @@ class InteractionService:
         like = Like(user_id=ObjectId(user_id), story_id=ObjectId(story_id))
         self.like_collection.insert_one(like.dict(by_alias=True))
         self.story_collection.update_one({"_id": ObjectId(story_id)}, {"$inc": {"likes_count": 1}})
+        actor = self.story_collection.database.users.find_one({"_id": ObjectId(user_id)}, {"username": 1})
+        if str(story.get("user_id")) != str(user_id):
+            create_notification(
+                recipient_id=str(story.get("user_id")), notification_type="likes",
+                message=f"{(actor or {}).get('username', 'Someone')} liked your story.",
+                actor_id=user_id, actor_name=(actor or {}).get("username", "Someone"),
+                story_id=story_id, story_title=story.get("title", ""),
+            )
         return {"message": "Story liked successfully"}
 
     async def unlike_story(self, user_id: str, story_id: str) -> dict:
@@ -106,7 +116,8 @@ class InteractionService:
         return {"story_id": story_id, "reads_count": count}
 
     async def vote_story(self, user_id: str, story_id: str) -> dict:
-        if not self.story_collection.find_one({"_id": ObjectId(story_id)}):
+        story = self.story_collection.find_one({"_id": ObjectId(story_id)})
+        if not story:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Story not found")
 
         existing_vote = self.vote_collection.find_one({
@@ -118,6 +129,14 @@ class InteractionService:
 
         vote = StoryVote(user_id=ObjectId(user_id), story_id=ObjectId(story_id))
         self.vote_collection.insert_one(vote.dict(by_alias=True))
+        actor = self.story_collection.database.users.find_one({"_id": ObjectId(user_id)}, {"username": 1})
+        if str(story.get("user_id")) != str(user_id):
+            create_notification(
+                recipient_id=str(story.get("user_id")), notification_type="votes",
+                message=f"{(actor or {}).get('username', 'Someone')} voted for your story.",
+                actor_id=user_id, actor_name=(actor or {}).get("username", "Someone"),
+                story_id=story_id, story_title=story.get("title", ""),
+            )
         return {"message": "Story voted successfully"}
 
     async def get_story_votes(self, story_id: str) -> dict:
@@ -125,10 +144,19 @@ class InteractionService:
         return {"story_id": story_id, "votes_count": count}
 
     async def add_story_comment(self, user_id: str, story_id: str, content: str) -> dict:
-        if not self.story_collection.find_one({"_id": ObjectId(story_id)}):
+        story = self.story_collection.find_one({"_id": ObjectId(story_id)})
+        if not story:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Story not found")
         comment = StoryComment(user_id=ObjectId(user_id), story_id=ObjectId(story_id), content=content.strip())
         self.comment_collection.insert_one(comment.dict(by_alias=True))
+        actor = self.story_collection.database.users.find_one({"_id": ObjectId(user_id)}, {"username": 1})
+        if str(story.get("user_id")) != str(user_id):
+            create_notification(
+                recipient_id=str(story.get("user_id")), notification_type="comments",
+                message=f"{(actor or {}).get('username', 'Someone')} commented on your story.",
+                actor_id=user_id, actor_name=(actor or {}).get("username", "Someone"),
+                story_id=story_id, story_title=story.get("title", ""),
+            )
         return {"message": "Comment added successfully"}
 
     async def list_story_comments(self, story_id: str) -> list[dict]:

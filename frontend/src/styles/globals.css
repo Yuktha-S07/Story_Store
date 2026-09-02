@@ -126,6 +126,198 @@ a {
   scrollbar-width: none;
 }
 
+/* Page-specific editorial treatments */
+.messages-page,
+.chapter-editor-page {
+  position: relative;
+}
+
+.messages-page::before,
+.chapter-editor-page::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  width: 18rem;
+  height: 18rem;
+  border-radius: 50%;
+  filter: blur(1px);
+  opacity: 0.65;
+}
+
+.messages-page::before {
+  top: 7rem;
+  left: -8rem;
+  background: #d8c9e8;
+}
+
+.messages-page {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  padding-right: clamp(0.75rem, 4vw, 4rem);
+  padding-left: clamp(0.75rem, 4vw, 4rem);
+  box-sizing: border-box;
+}
+
+.chapter-editor-page::before {
+  top: 5rem;
+  right: -8rem;
+  background: #ddd0ef;
+}
+
+.message-shell {
+  border-radius: 1.5rem;
+  border: 1px solid #d8c9e8;
+  background: rgba(250, 247, 253, 0.95);
+  box-shadow: 0 24px 60px rgba(91, 64, 119, 0.12);
+}
+
+.message-workspace {
+  height: calc(100vh - 10rem);
+  min-height: 680px;
+}
+
+.message-page-header {
+  border-bottom: 1px solid #ded2eb;
+  padding-bottom: 1.25rem;
+}
+
+.message-count {
+  border: 1px solid #d8c9e8;
+  border-radius: 999px;
+  background: #f1eafa;
+  color: #755b8b;
+}
+
+.message-sidebar-title {
+  color: #604579;
+}
+
+.message-recipient-meta {
+  color: #876da0;
+}
+
+.message-conversation {
+  transition: background-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+}
+
+.message-conversation:hover {
+  transform: translateX(3px);
+}
+
+.message-thread-header {
+  box-shadow: 0 5px 18px rgba(91, 64, 119, 0.06);
+}
+
+.message-sidebar {
+  background: linear-gradient(180deg, #f1eafa 0%, #fbf9fd 100%);
+}
+
+.message-thread {
+  background: radial-gradient(circle at 85% 10%, rgba(220, 207, 237, 0.46), transparent 28%), #fdfbff;
+}
+
+.message-empty {
+  background: linear-gradient(135deg, #faf7fd, #eee5f7);
+}
+
+.dark .message-shell {
+  border-color: #4b3b5d;
+  background: #211c29;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+.dark .message-sidebar {
+  background: linear-gradient(180deg, #2c2438 0%, #211c29 100%);
+  border-color: #4b3b5d;
+}
+
+.dark .message-thread {
+  background: radial-gradient(circle at 85% 10%, rgba(104, 77, 133, 0.28), transparent 28%), #18151e;
+}
+
+.dark .message-empty {
+  background: linear-gradient(135deg, #26202f, #332640);
+}
+
+.dark .message-page-header,
+.dark .message-thread-header,
+.dark .message-sidebar > div,
+.dark .message-thread > div:last-child {
+  border-color: #4b3b5d;
+}
+
+.dark .message-page-header p,
+.dark .message-recipient-meta,
+.dark .message-sidebar > div span,
+.dark .message-sidebar > div p,
+.dark .message-empty p {
+  color: #cbb9d9;
+}
+
+.dark .message-sidebar-title,
+.dark .message-thread a,
+.dark .message-conversation span,
+.dark .message-thread-header span {
+  color: #f0e8f6;
+}
+
+.dark .message-conversation:hover,
+.dark .message-conversation[aria-current='true'] {
+  background: #30263d;
+}
+
+.dark .message-thread-header,
+.dark .message-thread > div:last-child {
+  background: rgba(35, 29, 44, 0.94);
+}
+
+.dark .message-thread textarea {
+  border-color: #554363;
+  background: #18151e;
+  color: #f0e8f6;
+}
+
+.dark .message-thread textarea::placeholder {
+  color: #9f8caf;
+}
+
+.dark .message-thread .bg-\[\#f1eafa\] {
+  border-color: #554363;
+  background: #342941;
+  color: #eadff1;
+}
+
+.dark .message-empty .bg-\[\#f0ece4\] {
+  background: #443451;
+}
+
+.chapter-canvas {
+  border: 1px solid #e1d9ed;
+  border-radius: 1.5rem;
+  padding: clamp(1rem, 3vw, 2rem);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(247, 242, 252, 0.88));
+  box-shadow: 0 24px 60px rgba(76, 55, 105, 0.1);
+}
+
+.comment-card {
+  border-left: 3px solid #e87b5d;
+  background: linear-gradient(135deg, #fffdfb, #fff5ef);
+}
+
+.comment-avatar {
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #dcebe4;
+  color: #315d4e;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
 /* Button Base Styles */
 button {
   transition: all 200ms ease;

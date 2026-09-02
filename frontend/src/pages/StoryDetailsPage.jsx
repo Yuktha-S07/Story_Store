@@ -470,9 +470,12 @@ export default function StoryDetailsPage() {
           )}
           <div className="space-y-3">
             {comments.length > 0 ? comments.map((comment) => (
-              <div key={comment._id} className="rounded-xl border border-[#eadfd5] bg-gradient-to-br from-white to-[#fff8f2] p-4 shadow-sm">
+              <div key={comment._id} className="comment-card rounded-xl border border-[#eadfd5] p-4 shadow-sm">
                 <div className="flex items-center justify-between gap-3 text-sm">
-                  <span className="font-semibold text-[#243042]">{comment.username}</span>
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span className="comment-avatar" aria-hidden="true">{(comment.username || 'U')[0].toUpperCase()}</span>
+                    <span className="truncate font-semibold text-[#243042]">{comment.username || 'Reader'}</span>
+                  </div>
                   <div className="flex items-center gap-2">
                     {comment.updated_at && <span className="text-xs text-[#8b7764]">(edited)</span>}
                     {comment.created_at && <span className="text-[#8b7764]">{formatCommentDate(comment.created_at)}</span>}
@@ -495,11 +498,11 @@ export default function StoryDetailsPage() {
                 )}
                 {user && String(user._id) === String(comment.user_id) && editingCommentId !== comment._id && (
                   <div className="mt-2 flex gap-2">
-                    <button onClick={() => startEditComment(comment)} className="inline-flex items-center gap-1 text-xs text-[#8b7764] hover:text-[#E87B5D] transition">
-                      <FiEdit2 size={12} /> Edit
+                    <button onClick={() => startEditComment(comment)} aria-label="Edit comment" title="Edit comment" className="inline-flex h-8 w-8 items-center justify-center rounded-full text-[#8b7764] hover:bg-[#fff0e9] hover:text-[#E87B5D] transition">
+                      <FiEdit2 size={14} />
                     </button>
-                    <button onClick={() => deleteComment(comment._id)} className="inline-flex items-center gap-1 text-xs text-[#8b7764] hover:text-red-500 transition">
-                      <FiTrash2 size={12} /> Delete
+                    <button onClick={() => deleteComment(comment._id)} aria-label="Delete comment" title="Delete comment" className="inline-flex h-8 w-8 items-center justify-center rounded-full text-[#8b7764] hover:bg-red-50 hover:text-red-500 transition">
+                      <FiTrash2 size={14} />
                     </button>
                   </div>
                 )}

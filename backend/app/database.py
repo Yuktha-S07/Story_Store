@@ -75,6 +75,7 @@ def initialize_collections():
         "votes": ["story_id", "user_id"],
         "follows": ["follower_id", "following_id"],
         "messages": ["sender_id", "recipient_id"],
+        "notifications": ["recipient_id", "read", "created_at"],
     }
 
     for collection_name, indexes in collections.items():

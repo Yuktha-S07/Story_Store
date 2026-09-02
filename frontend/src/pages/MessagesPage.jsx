@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { FiMessageCircle, FiSend } from 'react-icons/fi'
+import { FiChevronRight, FiMessageCircle, FiSend, FiUser, FiUsers } from 'react-icons/fi'
 import { AuthContext } from '../context/AuthContext'
 import api from '../services/api'
 import { useNotification } from '../context/NotificationContext'
@@ -37,6 +37,8 @@ export default function MessagesPage() {
       }
     }
     fetchConversations()
+    const interval = window.setInterval(fetchConversations, 8000)
+    return () => window.clearInterval(interval)
   }, [user, direction])
 
   useEffect(() => {
@@ -61,6 +63,8 @@ export default function MessagesPage() {
       }
     }
     fetchThread()
+    const interval = window.setInterval(fetchThread, 5000)
+    return () => window.clearInterval(interval)
   }, [userId, user])
 
   useEffect(() => {
@@ -104,28 +108,45 @@ export default function MessagesPage() {
   ]
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-5 px-0 pb-10 font-sans">
-      <div className="flex items-center justify-between gap-3">
+    <div className="messages-page w-full space-y-5 px-0 pb-10 font-sans">
+      <div className="message-page-header flex flex-wrap items-end justify-between gap-4">
         <BackButton />
-        <span className="rounded-full border border-[#d9c7b4] bg-[#fffaf4] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#8b6b52]">Messages</span>
+        <div className="flex items-center gap-3">
+          <div className="hidden text-right sm:block">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#876da0]">Stay connected</p>
+            <p className="mt-1 text-sm text-[#604579]">Private conversations, all in one place</p>
+          </div>
+          <span className="message-count px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em]">Messages</span>
+        </div>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-[#e8e0d5] bg-[#FBF9F1] shadow-[0_14px_40px_rgba(73,48,20,0.08)]">
-        <div className="grid grid-cols-1 md:grid-cols-[280px_1fr]">
+      <div className="message-shell message-workspace overflow-hidden">
+        <div className="grid h-full grid-cols-1 md:grid-cols-[360px_1fr]">
           {/* Side bar */}
-          <div className="border-b md:border-b-0 md:border-r border-[#e8e0d5] bg-[#fffaf4]">
-            <div className="flex gap-1 border-b border-[#eadfd5] p-2">
+          <div className="message-sidebar border-b md:border-b-0 md:border-r border-[#cfe1d9]">
+            <div className="border-b border-[#ded2eb] px-4 pb-4 pt-5">
+              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-[#d9c9e8] text-[#6d4e88] shadow-sm">
+                <FiMessageCircle size={20} />
+              </div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#876da0]">Your inbox</p>
+              <h1 className="message-sidebar-title mt-1 font-serif text-2xl font-semibold">Personal messages</h1>
+            </div>
+            <div className="flex gap-1 border-b border-[#ded2eb] p-2">
               {tabs.map((t) => (
                 <button
                   key={t.key}
                   onClick={() => setDirection(t.key)}
-                  className={`flex-1 rounded-xl px-3 py-2 text-sm font-semibold transition ${direction === t.key ? 'bg-[#BDA6CE] text-white shadow-sm' : 'text-[#7a5a9a] hover:bg-[#f7f1fb]'}`}
+                  className={`flex-1 rounded-xl px-3 py-2 text-sm font-semibold transition ${direction === t.key ? 'bg-[#a17cbd] text-white shadow-sm' : 'text-[#755b8b] hover:bg-[#e8def2] dark:text-[#d8c9e4] dark:hover:bg-[#40324e]'}`}
                 >
                   {t.label}
                 </button>
               ))}
             </div>
-            <div className="max-h-[520px] overflow-y-auto">
+            <div className="flex items-center justify-between px-4 pb-2 pt-4">
+              <span className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#876da0]"><FiUsers size={14} /> Conversations</span>
+              <span className="text-xs font-semibold text-[#a17cbd]">{conversations.length}</span>
+            </div>
+            <div className="max-h-[calc(100vh-18rem)] overflow-y-auto">
               {loading ? (
                 <p className="p-4 text-sm text-[#8b7764] italic">Loading...</p>
               ) : conversations.length === 0 ? (
@@ -139,10 +160,10 @@ export default function MessagesPage() {
                     <button
                       key={c.user_id}
                       onClick={() => selectConversation(c.user_id)}
-                      className={`w-full text-left px-4 py-3.5 transition hover:bg-white ${String(activeUserId) === String(c.user_id) ? 'bg-white' : ''}`}
+                      className={`message-conversation w-full border-l-2 px-4 py-4 text-left transition hover:bg-[#e8def2] dark:hover:bg-[#40324e] ${String(activeUserId) === String(c.user_id) ? 'border-[#9c78b9] bg-[#f7f1fb] shadow-[inset_0_0_0_1px_#eee5f7] dark:bg-[#30263d] dark:shadow-[inset_0_0_0_1px_#4b3b5d]' : 'border-transparent'}`}
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <span className="truncate text-sm font-semibold text-[#26231f]">{c.username}</span>
+                          <span className="flex min-w-0 items-center gap-2 truncate text-sm font-semibold text-[#604579]"><span className="comment-avatar h-7 w-7 bg-[#e3d8ef] text-[#6d4e88]">{(c.username || 'U')[0].toUpperCase()}</span>{c.username}</span>
                         {direction === 'received' && c.unread_count > 0 && (
                           <span className="inline-flex items-center justify-center rounded-full bg-[#E87B5D] px-2 py-0.5 text-[10px] font-bold text-white">
                             {c.unread_count}
@@ -152,10 +173,11 @@ export default function MessagesPage() {
                       <div className="mt-1 flex items-center justify-between gap-2">
                         <span className="truncate text-xs text-[#8b7764]">{c.last_message}</span>
                         {count > 0 && (
-                          <span className="shrink-0 text-[10px] font-semibold text-[#7a5a9a]">
+                            <span className="shrink-0 text-[10px] font-semibold text-[#876da0]">
                             {count} {count === 1 ? 'message' : 'messages'}
                           </span>
                         )}
+                        <FiChevronRight className="shrink-0 text-[#b49ac6]" size={15} />
                       </div>
                     </button>
                   )
@@ -165,28 +187,33 @@ export default function MessagesPage() {
           </div>
 
           {/* Chat thread */}
-          <div className="flex min-h-[520px] flex-col">
+          <div className="message-thread flex min-h-[520px] flex-col">
             {activeUser ? (
               <>
-                <div className="flex items-center gap-3 border-b border-[#e8e0d5] bg-[#fffaf4] px-4 py-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E0D5F5] text-sm font-bold text-[#5A388C]">
+                <div className="message-thread-header flex items-center justify-between gap-3 border-b border-[#ded2eb] bg-white/80 px-5 py-4">
+                  <div className="flex min-w-0 items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-white bg-[#d9c9e8] text-sm font-bold text-[#6d4e88] shadow-sm">
                     {(activeUser.username || 'U')[0].toUpperCase()}
                   </div>
                   <div className="min-w-0">
-                    <Link to={`/profile/${activeUser._id}`} className="block truncate text-sm font-semibold text-[#26231f] hover:text-[#7a5a9a]">
+                    <Link to={`/profile/${activeUser._id}`} className="block truncate text-sm font-semibold text-[#604579] hover:text-[#8f70aa]">
                       {activeUser.username}
                     </Link>
-                    <span className="text-xs text-[#8b7764]">{activeUser.followers_count ?? 0} followers</span>
+                    <span className="text-xs text-[#876da0]">{activeUser.followers_count ?? 0} followers · private conversation</span>
                   </div>
+                  </div>
+                  <Link to={`/profile/${activeUser._id}`} aria-label="View profile" title="View profile" className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#f1eafa] text-[#755b8b] transition hover:bg-[#e3d8ef] sm:flex">
+                    <FiUser size={16} />
+                  </Link>
                 </div>
 
-                <div className="flex-1 space-y-3 overflow-y-auto p-4" style={{ maxHeight: '420px' }}>
+                <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-5">
                   {messages.length === 0 ? (
                     <p className="py-10 text-center text-sm text-[#8b7764] italic">Say hello to {activeUser.username}!</p>
                   ) : (
                     messages.map((m) => (
                       <div key={m._id} className={`flex ${m.is_mine ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm shadow-sm ${m.is_mine ? 'rounded-br-md bg-[#BDA6CE] text-white' : 'rounded-bl-md border border-[#e8e0d5] bg-white text-[#26231f]'}`}>
+                        <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm shadow-sm ${m.is_mine ? 'rounded-br-md bg-[#8f70aa] text-white' : 'rounded-bl-md border border-[#ded2eb] bg-[#f1eafa] text-[#4d3c5c]'}`}>
                           <p className="whitespace-pre-line">{m.content}</p>
                           {m.created_at && (
                             <p className={`mt-1 text-[10px] ${m.is_mine ? 'text-white/70' : 'text-[#a99a8a]'}`}>{formatCommentDate(m.created_at)}</p>
@@ -198,26 +225,27 @@ export default function MessagesPage() {
                   <div ref={bottomRef} />
                 </div>
 
-                <div className="border-t border-[#e8e0d5] bg-[#fffaf4] p-3">
+                <div className="border-t border-[#ded2eb] bg-white/80 p-4">
                   <form
                     onSubmit={(e) => { e.preventDefault(); sendMessage() }}
-                    className="flex items-end gap-2"
+                    className="flex items-end gap-3"
                   >
+                    <span className="hidden pb-3 text-[10px] font-bold uppercase tracking-[0.16em] text-[#9a82ad] sm:block">Reply</span>
                     <textarea
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
                       placeholder="Write a message..."
                       rows={1}
-                      className="flex-1 resize-none border border-[#eadfd5] bg-white px-3 py-2.5 rounded-xl text-sm outline-none transition focus:border-[#BDA6CE] focus:ring-2 focus:ring-[#BDA6CE]/20"
+                      className="flex-1 resize-none rounded-2xl border border-[#ded2eb] bg-[#fbf9fd] px-4 py-3 text-sm outline-none transition focus:border-[#9c78b9] focus:ring-2 focus:ring-[#9c78b9]/20"
                     />
-                    <button type="submit" disabled={sending || !input.trim()} className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#BDA6CE] text-white shadow-sm transition hover:bg-[#a98cc4] disabled:opacity-50">
+                    <button type="submit" disabled={sending || !input.trim()} className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[#785894] text-white shadow-sm transition hover:bg-[#604579] disabled:opacity-50">
                       <FiSend />
                     </button>
                   </form>
                 </div>
               </>
             ) : (
-              <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
+              <div className="message-empty flex flex-1 flex-col items-center justify-center p-8 text-center">
                 <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#f0ece4]">
                   <FiMessageCircle className="h-7 w-7 text-[#8b7764]" />
                 </div>

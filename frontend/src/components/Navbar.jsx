@@ -58,19 +58,19 @@ export default function Navbar() {
   ]
 
   return (
-    <nav className="sticky top-0 z-20 border-b border-white/70 bg-[linear-gradient(90deg,rgba(255,255,255,0.92)_0%,rgba(255,247,247,0.92)_100%)] backdrop-blur-xl shadow-[0_10px_30px_rgba(111,68,80,0.06)]">
+    <nav className="sticky top-0 z-20 border-b border-white/70 bg-[linear-gradient(90deg,rgba(255,255,255,0.92)_0%,rgba(255,247,247,0.92)_100%)] backdrop-blur-xl shadow-[0_10px_30px_rgba(111,68,80,0.06)] dark:border-[#3b3047] dark:bg-[linear-gradient(90deg,rgba(29,24,36,0.96)_0%,rgba(43,31,49,0.96)_100%)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.35)]">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-3 md:px-10">
         <Link to="/" onClick={closeMenu} className="flex items-center gap-2 shrink-0 py-3 md:py-4">
-          <span className="inline-flex h-9 w-9 md:h-11 md:w-11 items-center justify-center rounded-full bg-[linear-gradient(135deg,#FFD5D5_0%,#FFB2B2_100%)] font-bold text-sm md:text-base text-[#8C3838] shadow-[0_10px_24px_rgba(201,109,125,0.18)] ring-1 ring-white/70">SS</span>
-          <div className="text-base md:text-lg font-semibold tracking-tight text-[#3b3540]">Story Store</div>
+          <span className="inline-flex h-9 w-9 md:h-11 md:w-11 items-center justify-center rounded-full bg-[linear-gradient(135deg,#FFD5D5_0%,#FFB2B2_100%)] font-bold text-sm md:text-base text-[#8C3838] shadow-[0_10px_24px_rgba(201,109,125,0.18)] ring-1 ring-white/70 dark:bg-[linear-gradient(135deg,#493451_0%,#705184_100%)] dark:text-[#f5dff2] dark:ring-[#876da0]/40">SS</span>
+          <div className="text-base md:text-lg font-semibold tracking-tight text-[#3b3540] dark:text-[#f1e8f5]">Story Store</div>
         </Link>
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-2 flex-1 justify-center">
-          <div className="flex items-center gap-2 rounded-full border border-white/70 bg-white/70 p-1.5 text-sm shadow-[0_14px_30px_rgba(111,68,80,0.08)] backdrop-blur-md">
+          <div className="flex items-center gap-2 rounded-full border border-white/70 bg-white/70 p-1.5 text-sm shadow-[0_14px_30px_rgba(111,68,80,0.08)] backdrop-blur-md dark:border-[#4b3b5d] dark:bg-[#2b2235]/90 dark:shadow-[0_14px_30px_rgba(0,0,0,0.28)]">
             {navLinks.map((link) =>
               (!link.auth || user) && (
-                <Link key={link.to} to={link.to} className="relative rounded-full px-4 py-2 text-[#5b5160] inline-flex items-center gap-1.5 whitespace-nowrap transition-all duration-300 hover:bg-[linear-gradient(135deg,#F7D0D7_0%,#F0B5C2_100%)] hover:text-[#5a2f3d]">
+                <Link key={link.to} to={link.to} className="relative rounded-full px-4 py-2 text-[#5b5160] inline-flex items-center gap-1.5 whitespace-nowrap transition-all duration-300 hover:bg-[linear-gradient(135deg,#F7D0D7_0%,#F0B5C2_100%)] hover:text-[#5a2f3d] dark:text-[#d8c9e4] dark:hover:bg-[linear-gradient(135deg,#4c385b_0%,#654672_100%)] dark:hover:text-[#fff2fc]">
                   {link.label}
                   {link.auth && link.to === '/messages' && unreadCount > 0 && (
                     <span className="inline-flex min-w-[18px] items-center justify-center rounded-full bg-[#E87B5D] px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
@@ -91,20 +91,20 @@ export default function Navbar() {
                 to="/settings"
                 onClick={closeMenu}
                 aria-label="Settings"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#E5A6AF]/40 bg-[linear-gradient(135deg,#FFF2F4_0%,#F8D7DD_100%)] text-[#8C3838] shadow-[0_10px_22px_rgba(201,109,125,0.14)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(201,109,125,0.2)]"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#E5A6AF]/40 bg-[linear-gradient(135deg,#FFF2F4_0%,#F8D7DD_100%)] text-[#8C3838] shadow-[0_10px_22px_rgba(201,109,125,0.14)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(201,109,125,0.2)] dark:border-[#705184] dark:bg-[linear-gradient(135deg,#493451_0%,#38283f_100%)] dark:text-[#f2c8dd] dark:hover:bg-[#604579]"
               >
                 <FiSettings className="h-4 w-4" />
               </Link>
               <button
                 onClick={toggleTheme}
                 aria-label="Toggle theme"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#E5A6AF]/40 bg-[linear-gradient(135deg,#FFF2F4_0%,#F8D7DD_100%)] text-[#8C3838] shadow-[0_10px_22px_rgba(201,109,125,0.14)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(201,109,125,0.2)]"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#E5A6AF]/40 bg-[linear-gradient(135deg,#FFF2F4_0%,#F8D7DD_100%)] text-[#8C3838] shadow-[0_10px_22px_rgba(201,109,125,0.14)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(201,109,125,0.2)] dark:border-[#705184] dark:bg-[linear-gradient(135deg,#493451_0%,#38283f_100%)] dark:text-[#f2c8dd] dark:hover:bg-[#604579]"
               >
                 {theme === 'dark' ? <FiSun className="h-4 w-4" /> : <FiMoon className="h-4 w-4" />}
               </button>
               <button
                 onClick={() => { logout(); navigate('/') }}
-                className="rounded-full border border-[#E5A6AF]/40 bg-[linear-gradient(135deg,#FFF2F4_0%,#F8D7DD_100%)] px-4 py-2 font-semibold text-[#8C3838] shadow-[0_10px_22px_rgba(201,109,125,0.14)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(201,109,125,0.2)]"
+                className="rounded-full border border-[#E5A6AF]/40 bg-[linear-gradient(135deg,#FFF2F4_0%,#F8D7DD_100%)] px-4 py-2 font-semibold text-[#8C3838] shadow-[0_10px_22px_rgba(201,109,125,0.14)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(201,109,125,0.2)] dark:border-[#705184] dark:bg-[linear-gradient(135deg,#493451_0%,#38283f_100%)] dark:text-[#f2c8dd] dark:hover:bg-[#604579]"
               >
                 Logout
               </button>
@@ -123,9 +123,9 @@ export default function Navbar() {
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Toggle menu"
           aria-expanded={menuOpen}
-          className="md:hidden flex cursor-pointer items-center justify-center h-10 w-10 rounded-full border border-white/70 bg-white/70 shadow-sm transition-transform duration-150 active:scale-90"
+          className="md:hidden flex cursor-pointer items-center justify-center h-10 w-10 rounded-full border border-white/70 bg-white/70 shadow-sm transition-transform duration-150 active:scale-90 dark:border-[#4b3b5d] dark:bg-[#2b2235]"
         >
-          <svg className="w-5 h-5 text-[#5b5160]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <svg className="w-5 h-5 text-[#5b5160] dark:text-[#eadff1]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             {menuOpen ? (
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             ) : (
@@ -137,10 +137,10 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden border-t border-white/70 bg-white/98 backdrop-blur-xl px-3 pb-4 pt-2 space-y-1">
+        <div className="md:hidden border-t border-white/70 bg-white/98 backdrop-blur-xl px-3 pb-4 pt-2 space-y-1 dark:border-[#3b3047] dark:bg-[#211a29]">
           {navLinks.map((link) =>
             (!link.auth || user) && (
-              <Link key={link.to} to={link.to} onClick={closeMenu} className="flex items-center justify-between rounded-xl px-4 py-3 text-[#5b5160] font-medium transition active:scale-[0.98] hover:bg-[#FFF2F4]">
+              <Link key={link.to} to={link.to} onClick={closeMenu} className="flex items-center justify-between rounded-xl px-4 py-3 text-[#5b5160] font-medium transition active:scale-[0.98] hover:bg-[#FFF2F4] dark:text-[#eadff1] dark:hover:bg-[#3a2c49]">
                 <span>{link.label}</span>
                 {link.auth && link.to === '/messages' && unreadCount > 0 && (
                   <span className="inline-flex min-w-[20px] items-center justify-center rounded-full bg-[#E87B5D] px-2 py-0.5 text-xs font-bold text-white">
@@ -156,21 +156,21 @@ export default function Navbar() {
                 <Link
                   to="/settings"
                   onClick={closeMenu}
-                  className="block rounded-xl px-4 py-3 font-medium text-[#5b5160] transition active:scale-[0.98] hover:bg-[#FFF2F4]"
+                  className="block rounded-xl px-4 py-3 font-medium text-[#5b5160] transition active:scale-[0.98] hover:bg-[#FFF2F4] dark:text-[#eadff1] dark:hover:bg-[#3a2c49]"
                 >
                   Settings
                 </Link>
                 <button
                   type="button"
                   onClick={() => { closeMenu(); toggleTheme() }}
-                  className="w-full cursor-pointer rounded-xl px-4 py-3 text-left font-medium text-[#5b5160] transition active:scale-[0.98] hover:bg-[#FFF2F4]"
+                  className="w-full cursor-pointer rounded-xl px-4 py-3 text-left font-medium text-[#5b5160] transition active:scale-[0.98] hover:bg-[#FFF2F4] dark:text-[#eadff1] dark:hover:bg-[#3a2c49]"
                 >
                   {theme === 'dark' ? 'Light mode' : 'Dark mode'}
                 </button>
                 <button
                   type="button"
                   onClick={() => { closeMenu(); logout(); navigate('/') }}
-                  className="w-full cursor-pointer rounded-xl px-4 py-3 text-left font-medium text-[#8C3838] transition active:scale-[0.98] hover:bg-[#FFF2F4]"
+                  className="w-full cursor-pointer rounded-xl px-4 py-3 text-left font-medium text-[#8C3838] transition active:scale-[0.98] hover:bg-[#FFF2F4] dark:text-[#f2a6ad] dark:hover:bg-[#3a2c49]"
                 >
                   Logout
                 </button>
