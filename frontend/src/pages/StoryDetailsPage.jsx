@@ -4,9 +4,10 @@ import api from '../services/api'
 import { AuthContext } from '../context/AuthContext'
 import { useNotification } from '../context/NotificationContext'
 import { buildStoryCoverAlt, buildStoryCoverUrl, buildStoryFallbackUrl } from '../utils/storyCover'
+import { formatCommentDate } from '../utils/formatDate'
 import { getSampleStory } from '../data/sampleStories'
 import BackButton from '../components/BackButton'
-import { FiMessageCircle } from 'react-icons/fi'
+import { FiMessageCircle, FiEdit2, FiTrash2 } from 'react-icons/fi'
 
 export default function StoryDetailsPage() {
   const { id } = useParams()
@@ -25,10 +26,12 @@ export default function StoryDetailsPage() {
   const [chapterContent, setChapterContent] = useState('')
   const [savingChapter, setSavingChapter] = useState(false)
   const [savingComment, setSavingComment] = useState(false)
+  const [editingCommentId, setEditingCommentId] = useState(null)
+  const [editingCommentText, setEditingCommentText] = useState('')
   const [savingVote, setSavingVote] = useState(false)
   const [savingFollow, setSavingFollow] = useState(false)
   const { user } = useContext(AuthContext)
-  const { notify } = useNotification()
+  const { notify, confirmAction } = useNotification()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -197,6 +200,52 @@ export default function StoryDetailsPage() {
     }
   }
 
+  const startEditComment = (comment) => {
+    setEditingCommentId(comment._id)
+    setEditingCommentText(comment.content)
+  }
+
+  const cancelEditComment = () => {
+    setEditingCommentId(null)
+    setEditingCommentText('')
+  }
+
+  const saveEditComment = async (commentId) => {
+    if (!editingCommentText.trim()) {
+      notify('Comment cannot be empty.', 'info')
+      return
+    }
+    try {
+      await api.put(`/api/stories/${id}/comments/${commentId}`, { content: editingCommentText })
+      const res = await api.get(`/api/stories/${id}/comments`)
+      setComments(Array.isArray(res.data) ? res.data : [])
+      setEditingCommentId(null)
+      setEditingCommentText('')
+      notify('Comment updated.', 'success')
+    } catch (err) {
+      console.error(err)
+      notify('Failed to update comment.', 'error')
+    }
+  }
+
+  const deleteComment = async (commentId) => {
+    const shouldDelete = await confirmAction({
+      title: 'Delete comment',
+      message: 'Are you sure you want to delete this comment? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+    })
+    if (!shouldDelete) return
+    try {
+      await api.delete(`/api/stories/${id}/comments/${commentId}`)
+      setComments(prev => prev.filter(c => c._id !== commentId))
+      notify('Comment deleted.', 'success')
+    } catch (err) {
+      console.error(err)
+      notify('Failed to delete comment.', 'error')
+    }
+  }
+
   const toggleFollow = async () => {
     if (!user) {
       navigate('/login')
@@ -291,7 +340,16 @@ export default function StoryDetailsPage() {
             </div>
             <h1 className="text-3xl md:text-4xl font-bold mt-3 text-[#1e2430]">{story.title}</h1>
             <p className="text-[#5e6675] mt-3 max-w-2xl leading-7">{story.description}</p>
-            <p className="mt-3 text-sm text-[#7c8796]">By {authorName}</p>
+            <p className="mt-3 text-sm text-[#7c8796]">
+              By{' '}
+              {story.author?._id || story.user_id ? (
+                <Link to={`/profile/${story.author?._id || story.user_id}`} className="font-medium text-[#E87B5D] hover:underline">
+                  {authorName}
+                </Link>
+              ) : (
+                authorName
+              )}
+            </p>
             <div className="mt-5 flex flex-wrap gap-3">
               {startReadingHref ? (
                 <Link to={startReadingHref} className="btn-primary shadow-[0_14px_30px_rgba(229,123,92,0.28)]">
@@ -415,9 +473,36 @@ export default function StoryDetailsPage() {
               <div key={comment._id} className="rounded-xl border border-[#eadfd5] bg-gradient-to-br from-white to-[#fff8f2] p-4 shadow-sm">
                 <div className="flex items-center justify-between gap-3 text-sm">
                   <span className="font-semibold text-[#243042]">{comment.username}</span>
-                  {comment.created_at && <span className="text-[#8b7764]">{new Date(comment.created_at).toLocaleString()}</span>}
+                  <div className="flex items-center gap-2">
+                    {comment.updated_at && <span className="text-xs text-[#8b7764]">(edited)</span>}
+                    {comment.created_at && <span className="text-[#8b7764]">{formatCommentDate(comment.created_at)}</span>}
+                  </div>
                 </div>
-                <p className="mt-2 text-sm text-[#5e6675] whitespace-pre-line">{comment.content}</p>
+                {editingCommentId === comment._id ? (
+                  <div className="mt-2 space-y-2">
+                    <textarea
+                      value={editingCommentText}
+                      onChange={e => setEditingCommentText(e.target.value)}
+                      className="w-full border border-[#eadfd5] bg-[#fffdfb] px-4 py-3 rounded-xl h-20 resize-y focus:border-[#E87B5D] focus:ring-2 focus:ring-[#E87B5D]/20 outline-none transition"
+                    />
+                    <div className="flex gap-2">
+                      <button onClick={() => saveEditComment(comment._id)} className="btn-primary text-xs px-3 py-1.5">Save</button>
+                      <button onClick={cancelEditComment} className="btn-ghost text-xs px-3 py-1.5">Cancel</button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="mt-2 text-sm text-[#5e6675] whitespace-pre-line">{comment.content}</p>
+                )}
+                {user && String(user._id) === String(comment.user_id) && editingCommentId !== comment._id && (
+                  <div className="mt-2 flex gap-2">
+                    <button onClick={() => startEditComment(comment)} className="inline-flex items-center gap-1 text-xs text-[#8b7764] hover:text-[#E87B5D] transition">
+                      <FiEdit2 size={12} /> Edit
+                    </button>
+                    <button onClick={() => deleteComment(comment._id)} className="inline-flex items-center gap-1 text-xs text-[#8b7764] hover:text-red-500 transition">
+                      <FiTrash2 size={12} /> Delete
+                    </button>
+                  </div>
+                )}
               </div>
             )) : (
               <div className="text-sm text-[#7c8796] italic">No comments yet.</div>

@@ -147,3 +147,23 @@ html,
 body {
   overflow-x: hidden;
 }
+
+/* Rich text editor placeholder */
+.rich-editor[contenteditable='true']:empty::before {
+  content: attr(data-placeholder);
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+/* Preserve rich text formatting when reading chapter content */
+.prose b,
+.prose strong {
+  font-weight: 700;
+}
+.prose i,
+.prose em {
+  font-style: italic;
+}
+.prose u {
+  text-decoration: underline;
+}

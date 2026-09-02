@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
+import { FiMessageCircle, FiEdit3 } from 'react-icons/fi'
 import { AuthContext } from '../context/AuthContext'
 import api from '../services/api'
 import { useNotification } from '../context/NotificationContext'
@@ -10,10 +11,13 @@ export default function ProfilePage() {
   const { userId } = useParams()
   const { user: authUser } = useContext(AuthContext)
   const { notify } = useNotification()
+  const navigate = useNavigate()
 
   const [profile, setProfile] = useState(null)
   const [stories, setStories] = useState([])
   const [loading, setLoading] = useState(true)
+  const [isFollowing, setIsFollowing] = useState(false)
+  const [savingFollow, setSavingFollow] = useState(false)
 
   const isOwnProfile = Boolean(authUser && String(authUser._id) === String(userId))
 
@@ -45,6 +49,44 @@ export default function ProfilePage() {
     }
     fetchStories()
   }, [userId, isOwnProfile])
+
+  useEffect(() => {
+    const checkFollowing = async () => {
+      if (!authUser || isOwnProfile) return
+      try {
+        const res = await api.get('/api/following')
+        const following = Array.isArray(res.data) ? res.data : []
+        setIsFollowing(following.some(item => String(item.following_id) === String(userId)))
+      } catch (err) {
+        console.error(err)
+        setIsFollowing(false)
+      }
+    }
+    checkFollowing()
+  }, [userId, authUser, isOwnProfile])
+
+  const toggleFollow = async () => {
+    if (!authUser) return
+    try {
+      setSavingFollow(true)
+      if (isFollowing) {
+        await api.delete(`/api/users/${profile._id}/follow`)
+        setIsFollowing(false)
+        setProfile(prev => prev ? { ...prev, followers_count: Math.max(0, (prev.followers_count ?? 0) - 1) } : prev)
+        notify('Unfollowed.', 'info')
+      } else {
+        await api.post(`/api/users/${profile._id}/follow`)
+        setIsFollowing(true)
+        setProfile(prev => prev ? { ...prev, followers_count: (prev.followers_count ?? 0) + 1 } : prev)
+        notify('Following.', 'success')
+      }
+    } catch (err) {
+      console.error(err)
+      notify('Failed to update follow state.', 'error')
+    } finally {
+      setSavingFollow(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -88,6 +130,10 @@ export default function ProfilePage() {
     )
   )
 
+  const joinedText = profile.created_at
+    ? new Date(profile.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
+    : '...'
+
   return (
     <div className="mx-auto w-full max-w-5xl space-y-8 px-0 pb-10 font-sans md:space-y-10">
       <div className="flex items-center justify-between">
@@ -100,19 +146,50 @@ export default function ProfilePage() {
           {renderAvatar('h-24 w-24 md:h-28 md:w-28', 'text-3xl md:text-4xl')}
           <div className="flex-1 min-w-0">
             <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#b06f7f]">Story Store member</p>
-            <h1 className="break-words font-serif text-2xl font-semibold tracking-tight text-[#26231f] dark:text-gray-100 md:text-3xl">
-              {profile.username}
-            </h1>
-            <p className="mt-2 break-words text-sm text-[#5d584f] dark:text-gray-400 md:text-base">
-              {profile.email}
-            </p>
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="break-words font-serif text-2xl font-semibold tracking-tight text-[#26231f] dark:text-gray-100 md:text-3xl">
+                {profile.username}
+              </h1>
+              {authUser && !isOwnProfile && (
+                <>
+                  <button
+                    onClick={toggleFollow}
+                    disabled={savingFollow}
+                    className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-semibold transition disabled:opacity-60 ${isFollowing ? 'border-[#d9c7b4] bg-[#fffaf4] text-[#5d584f] hover:border-[#E87B5D] hover:text-[#c45e43]' : 'bg-gradient-to-r from-[#BDA6CE] to-[#b8a1c8] text-white shadow-sm hover:shadow-md'}`}
+                  >
+                    {savingFollow ? 'Updating...' : isFollowing ? 'Unfollow' : 'Follow'}
+                  </button>
+                  <button
+                    onClick={() => navigate(`/messages/${profile._id}`)}
+                    className="inline-flex items-center gap-2 rounded-full border border-[#BDA6CE] bg-white px-4 py-1.5 text-sm font-semibold text-[#7a5a9a] transition hover:bg-[#f7f1fb] hover:border-[#a98cc4]"
+                  >
+                    <FiMessageCircle />
+                    Message
+                  </button>
+                </>
+              )}
+              {authUser && isOwnProfile && (
+                <Link
+                  to="/settings"
+                  className="inline-flex items-center gap-2 rounded-full border border-[#BDA6CE] bg-white px-4 py-1.5 text-sm font-semibold text-[#7a5a9a] transition hover:bg-[#f7f1fb] hover:border-[#a98cc4]"
+                >
+                  <FiEdit3 />
+                  Edit Profile
+                </Link>
+              )}
+            </div>
+            {!isOwnProfile && (
+              <p className="mt-2 text-sm text-[#5d584f] dark:text-gray-400">
+                {profile.followers_count ?? 0} followers
+              </p>
+            )}
             {profile.bio && (
               <p className="text-[#5d584f] dark:text-gray-400 mt-2 text-sm leading-relaxed max-w-xl">
                 {profile.bio}
               </p>
             )}
             <p className="text-xs text-[#5d584f] dark:text-gray-500 mt-2">
-              Member since {profile.created_at ? new Date(profile.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' }) : '...'}
+              Member since {joinedText}
             </p>
           </div>
         </div>
@@ -136,8 +213,10 @@ export default function ProfilePage() {
       <section>
           <div className="mb-6 flex items-end justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#b06f7f]">Your collection</p>
-              <h2 className="mt-1 font-serif text-2xl font-semibold tracking-tight text-[#26231f] dark:text-gray-100">My Stories</h2>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#b06f7f]">{isOwnProfile ? 'Your collection' : "Stories"}</p>
+              <h2 className="mt-1 font-serif text-2xl font-semibold tracking-tight text-[#26231f] dark:text-gray-100">
+                {isOwnProfile ? 'My Stories' : `${profile.username}'s Stories`}
+              </h2>
             </div>
             <span className="rounded-full border border-[#d9c7b4] bg-[#fffaf4] px-3 py-1.5 text-xs font-semibold text-[#8b6b52]">
               {stories.length} {stories.length === 1 ? 'story' : 'stories'}
@@ -151,16 +230,22 @@ export default function ProfilePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                 </svg>
               </div>
-              <p className="text-[#5d584f] dark:text-gray-400 mb-5 text-sm">No stories yet. Start your creative journey!</p>
-              <Link
-                to="/write"
-                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#BDA6CE] to-[#b8a1c8] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:from-[#b397bf] hover:to-[#ad92b9] hover:shadow-md"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                </svg>
-                Write your first story
-              </Link>
+              {isOwnProfile ? (
+                <>
+                  <p className="text-[#5d584f] dark:text-gray-400 mb-5 text-sm">No stories yet. Start your creative journey!</p>
+                  <Link
+                    to="/write"
+                    className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#BDA6CE] to-[#b8a1c8] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:from-[#b397bf] hover:to-[#ad92b9] hover:shadow-md"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Write your first story
+                  </Link>
+                </>
+              ) : (
+                <p className="text-[#5d584f] dark:text-gray-400 mb-5 text-sm">No stories published yet.</p>
+              )}
             </div>
           ) : (
             <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4 md:gap-5">

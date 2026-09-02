@@ -117,6 +117,33 @@ async def add_story_comment(
     return await interaction_service.add_story_comment(current_user["_id"], story_id, content)
 
 
+@router.put("/stories/{story_id}/comments/{comment_id}", status_code=status.HTTP_200_OK)
+async def update_story_comment(
+    story_id: str,
+    comment_id: str,
+    payload: dict = Body(...),
+    current_user: dict = Depends(get_current_user),
+    interaction_service: InteractionService = Depends(get_interaction_service),
+):
+    content = (payload.get("content") or "").strip()
+    if not content:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Comment content is required")
+    return await interaction_service.update_comment(comment_id, current_user["_id"], content)
+
+
+@router.delete("/stories/{story_id}/comments/{comment_id}", status_code=status.HTTP_200_OK)
+async def delete_story_comment(
+    story_id: str,
+    comment_id: str,
+    current_user: dict = Depends(get_current_user),
+    interaction_service: InteractionService = Depends(get_interaction_service),
+):
+    deleted = await interaction_service.delete_comment(comment_id, current_user["_id"])
+    if not deleted:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Comment not found")
+    return {"message": "Comment deleted successfully"}
+
+
 @router.post("/users/{user_id}/follow", status_code=status.HTTP_200_OK)
 async def follow_user(
     user_id: str,

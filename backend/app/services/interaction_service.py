@@ -135,16 +135,44 @@ class InteractionService:
         comments = list(self.comment_collection.find({"story_id": {"$in": _id_query_values(story_id)}}).sort("created_at", -1).limit(100))
         results = []
         for comment in comments:
-            user = self.story_collection.database.users.find_one({"_id": comment["user_id"]}, {"username": 1})
+            username = "Unknown"
+            user_id = comment.get("user_id")
+            if user_id and ObjectId.is_valid(str(user_id)):
+                user = self.story_collection.database.users.find_one(
+                    {"_id": ObjectId(str(user_id))}, {"username": 1}
+                )
+                if user:
+                    username = user.get("username", "Unknown")
             results.append({
                 "_id": str(comment["_id"]),
                 "story_id": str(comment["story_id"]),
                 "user_id": str(comment["user_id"]),
-                "username": user.get("username", "Unknown") if user else "Unknown",
+                "username": username,
                 "content": comment.get("content", ""),
                 "created_at": comment.get("created_at"),
+                "updated_at": comment.get("updated_at"),
             })
         return results
+
+    async def update_comment(self, comment_id: str, user_id: str, content: str) -> dict:
+        comment = self.comment_collection.find_one({
+            "_id": {"$in": _id_query_values(comment_id)},
+            "user_id": {"$in": _id_query_values(user_id)},
+        })
+        if not comment:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Comment not found")
+        self.comment_collection.update_one(
+            {"_id": comment["_id"]},
+            {"$set": {"content": content, "updated_at": datetime.utcnow()}}
+        )
+        return {"message": "Comment updated successfully"}
+
+    async def delete_comment(self, comment_id: str, user_id: str) -> bool:
+        result = self.comment_collection.delete_one({
+            "_id": {"$in": _id_query_values(comment_id)},
+            "user_id": {"$in": _id_query_values(user_id)},
+        })
+        return result.deleted_count == 1
 
     async def follow_user(self, follower_id: str, following_id: str) -> dict:
         if follower_id == following_id:

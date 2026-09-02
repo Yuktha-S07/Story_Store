@@ -7,11 +7,13 @@ import StoryDetailsPage from './pages/StoryDetailsPage'
 import StoryEditorPage from './pages/StoryEditorPage'
 import EditStoryDetailsPage from './pages/EditStoryDetailsPage'
 import StoryChaptersPage from './pages/StoryChaptersPage'
+import ChapterEditorPage from './pages/ChapterEditorPage'
 import ReadingPage from './pages/ReadingPage'
 import DashboardPage from './pages/DashboardPage'
 import ProfilePage from './pages/ProfilePage'
 import SettingsPage from './pages/SettingsPage'
 import BookmarksPage from './pages/BookmarksPage'
+import MessagesPage from './pages/MessagesPage'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import { AuthProvider } from './context/AuthContext'
@@ -36,10 +38,14 @@ export default function App() {
               <Route path="/write" element={<ProtectedRoute><StoryEditorPage /></ProtectedRoute>} />
               <Route path="/stories/:id/edit" element={<ProtectedRoute><EditStoryDetailsPage /></ProtectedRoute>} />
               <Route path="/stories/:id/chapters" element={<ProtectedRoute><StoryChaptersPage /></ProtectedRoute>} />
+              <Route path="/stories/:id/chapters/new" element={<ProtectedRoute><ChapterEditorPage /></ProtectedRoute>} />
+              <Route path="/stories/:id/chapters/:chapterId" element={<ProtectedRoute><ChapterEditorPage /></ProtectedRoute>} />
               <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
               <Route path="/profile/:userId" element={<ProfilePage />} />
               <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
               <Route path="/bookmarks" element={<ProtectedRoute><BookmarksPage /></ProtectedRoute>} />
+              <Route path="/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
+              <Route path="/messages/:userId" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
             </Routes>
           </main>
           <Footer />

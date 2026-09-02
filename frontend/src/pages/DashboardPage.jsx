@@ -176,8 +176,22 @@ export default function DashboardPage() {
 
             <div className="mt-5 space-y-3">
               <Link
+                to={`/stories/${editingStory._id}/chapters`}
+                className="group flex items-center gap-4 rounded-2xl bg-gradient-to-r from-[#E87B5D] to-[#e59a7d] px-5 py-5 text-white shadow-[0_12px_28px_rgba(224,111,84,0.3)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(224,111,84,0.4)]"
+                onClick={() => setEditingStory(null)}
+              >
+                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/20">
+                  <FiList className="h-7 w-7" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block font-serif text-xl font-bold leading-tight">Edit chapters</span>
+                  <span className="block text-sm text-white/85">Add, edit or delete chapters</span>
+                </span>
+              </Link>
+
+              <Link
                 to={`/stories/${editingStory._id}/edit`}
-                className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white px-4 py-3.5 transition hover:-translate-y-0.5 hover:border-[#E87B5D]/50 hover:bg-[#FFF7F4] hover:shadow-md"
+                className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white px-4 py-3.5 transition hover:-translate-y-0.5 hover:border-[#BDA6CE]/60 hover:bg-[#FBF9FF] hover:shadow-md"
                 onClick={() => setEditingStory(null)}
               >
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#BDA6CE] to-[#b8a1c8] text-white shadow-sm">
@@ -186,20 +200,6 @@ export default function DashboardPage() {
                 <span className="min-w-0">
                   <span className="block font-serif text-base font-semibold text-slate-900">Edit story details</span>
                   <span className="block text-xs text-slate-500">Title, description, genre, tags &amp; cover</span>
-                </span>
-              </Link>
-
-              <Link
-                to={`/stories/${editingStory._id}/chapters`}
-                className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white px-4 py-3.5 transition hover:-translate-y-0.5 hover:border-[#E87B5D]/50 hover:bg-[#FFF7F4] hover:shadow-md"
-                onClick={() => setEditingStory(null)}
-              >
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#E87B5D] to-[#e59a7d] text-white shadow-sm">
-                  <FiList className="h-5 w-5" />
-                </span>
-                <span className="min-w-0">
-                  <span className="block font-serif text-base font-semibold text-slate-900">Edit chapters</span>
-                  <span className="block text-xs text-slate-500">Add, edit or delete chapters</span>
                 </span>
               </Link>
 

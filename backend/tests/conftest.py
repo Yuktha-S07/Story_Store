@@ -22,6 +22,8 @@ def client():
         db.likes.delete_many({})
         db.bookmarks.delete_many({})
         db.reading_history.delete_many({})
+        db.comments.delete_many({})
+        db.messages.delete_many({})
 
 
 @pytest.fixture()

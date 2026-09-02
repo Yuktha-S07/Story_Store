@@ -32,6 +32,7 @@ export default function Navbar() {
     { to: '/stories', label: 'Stories', auth: false },
     { to: '/dashboard', label: 'Dashboard', auth: true },
     { to: '/bookmarks', label: 'Bookmarks', auth: true },
+    { to: '/messages', label: 'Messages', auth: true },
     { to: user ? `/profile/${user._id}` : '', label: 'Profile', auth: true },
   ]
 

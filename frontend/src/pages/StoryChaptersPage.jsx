@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import api from '../services/api'
 import { AuthContext } from '../context/AuthContext'
 import { useNotification } from '../context/NotificationContext'
@@ -9,14 +9,11 @@ export default function StoryChaptersPage() {
   const { id } = useParams()
   const { user } = useContext(AuthContext)
   const { notify, confirmAction } = useNotification()
+  const navigate = useNavigate()
 
   const [loading, setLoading] = useState(true)
   const [storyTitle, setStoryTitle] = useState('')
   const [chapters, setChapters] = useState([])
-  const [chapterTitle, setChapterTitle] = useState('')
-  const [chapterContent, setChapterContent] = useState('')
-  const [savingChapter, setSavingChapter] = useState(false)
-  const [editingChapterId, setEditingChapterId] = useState(null)
 
   useEffect(() => {
     if (!id) return
@@ -34,57 +31,6 @@ export default function StoryChaptersPage() {
     }
     fetchStory()
   }, [id])
-
-  const startEditChapter = (ch) => {
-    setEditingChapterId(ch._id)
-    setChapterTitle(ch.title)
-    setChapterContent(ch.content)
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
-  }
-
-  const cancelEditChapter = () => {
-    setEditingChapterId(null)
-    setChapterTitle('')
-    setChapterContent('')
-  }
-
-  const saveDraftOrPublish = async (status) => {
-    if (!chapterTitle.trim() || !chapterContent.trim()) {
-      notify('Please add both a chapter title and chapter content.', 'info')
-      return
-    }
-    try {
-      setSavingChapter(true)
-      if (editingChapterId) {
-        await api.put(`/api/chapters/${editingChapterId}`, {
-          title: chapterTitle.trim(),
-          content: chapterContent.trim(),
-        })
-        setChapters(prev => prev.map(c => c._id === editingChapterId ? { ...c, title: chapterTitle.trim(), content: chapterContent.trim() } : c))
-        cancelEditChapter()
-        notify('Chapter updated.', 'success')
-      } else {
-        await addChapter(status)
-      }
-    } catch (err) {
-      const detail = err?.response?.data?.detail
-      notify(typeof detail === 'string' ? detail : 'Failed to save chapter.', 'error')
-    } finally {
-      setSavingChapter(false)
-    }
-  }
-
-  const addChapter = async (status) => {
-    const res = await api.post(`/api/stories/${id}/chapters`, {
-      title: chapterTitle.trim(),
-      content: chapterContent.trim(),
-      status,
-    })
-    setChapters(prev => [...prev, res.data])
-    setChapterTitle('')
-    setChapterContent('')
-    notify(status === 'published' ? 'Chapter published.' : 'Chapter saved as draft.', 'success')
-  }
 
   const publishChapter = async (ch) => {
     try {
@@ -108,7 +54,6 @@ export default function StoryChaptersPage() {
     try {
       await api.delete(`/api/chapters/${ch._id}`)
       setChapters(prev => prev.filter(c => c._id !== ch._id))
-      if (editingChapterId === ch._id) cancelEditChapter()
       notify('Chapter deleted.', 'info')
       window.dispatchEvent(new CustomEvent('story-store:story-updated', { detail: { storyId: id } }))
     } catch (err) {
@@ -147,7 +92,7 @@ export default function StoryChaptersPage() {
         ) : chapters.length > 0 ? (
           <div className="space-y-3">
             {chapters.map((ch) => (
-              <div key={ch._id} className={`flex items-center justify-between rounded-xl border p-4 transition ${editingChapterId === ch._id ? 'border-[#E87B5D]/60 bg-[#FFF7F4]' : 'border-slate-200 bg-white/60'}`}>
+              <div key={ch._id} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white/60 p-4 transition hover:border-slate-300">
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-serif text-sm font-semibold">{ch.title}</p>
                   <p className="text-xs text-slate-500 mt-0.5">
@@ -166,7 +111,7 @@ export default function StoryChaptersPage() {
                   )}
                   <button
                     type="button"
-                    onClick={() => startEditChapter(ch)}
+                    onClick={() => navigate(`/stories/${id}/chapters/${ch._id}`)}
                     className="rounded-md bg-slate-200 px-3 py-1.5 text-xs font-semibold transition hover:bg-slate-300"
                   >
                     Edit
@@ -187,50 +132,15 @@ export default function StoryChaptersPage() {
             No chapters yet. Add your first chapter below.
           </div>
         )}
-      </section>
 
-      <section className="w-full pt-2">
-        <div className="mb-6 flex items-center justify-between gap-4">
-          <h3 className="font-serif text-2xl font-semibold text-slate-900">{editingChapterId ? 'Edit Chapter' : 'Add a Chapter'}</h3>
-          {editingChapterId && (
-            <button type="button" onClick={cancelEditChapter} className="rounded-full border border-slate-300 px-3.5 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50">
-              Cancel editing
-            </button>
-          )}
-        </div>
-        <div className="space-y-4">
-          <input
-            value={chapterTitle}
-            onChange={e => setChapterTitle(e.target.value)}
-            placeholder="Chapter title"
-            className="w-full rounded-xl border border-slate-200 bg-white/50 px-4 py-3 outline-none transition placeholder:text-slate-400 focus:border-[#E87B5D] focus:ring-2 focus:ring-[#E87B5D]/20"
-          />
-          <textarea
-            value={chapterContent}
-            onChange={e => setChapterContent(e.target.value)}
-            placeholder="Chapter content"
-            className="h-40 w-full rounded-xl border border-slate-200 bg-white/50 px-4 py-3 outline-none transition placeholder:text-slate-400 focus:border-[#E87B5D] focus:ring-2 focus:ring-[#E87B5D]/20"
-          />
-          <div className="flex flex-wrap gap-3">
-            <button
-              type="button"
-              disabled={savingChapter}
-              onClick={() => saveDraftOrPublish('draft')}
-              className="btn-ghost disabled:opacity-60"
-            >
-              {editingChapterId ? 'Update chapter' : 'Save as draft'}
-            </button>
-            {!editingChapterId && (
-              <button
-                type="button"
-                disabled={savingChapter}
-                onClick={() => saveDraftOrPublish('published')}
-                className="btn-primary disabled:opacity-60"
-              >
-                Publish chapter
-              </button>
-            )}
-          </div>
+        <div className="mt-8 flex justify-end">
+          <button
+            type="button"
+            onClick={() => navigate(`/stories/${id}/chapters/new`)}
+            className="btn-primary px-7"
+          >
+            + Add a Chapter
+          </button>
         </div>
       </section>
     </div>

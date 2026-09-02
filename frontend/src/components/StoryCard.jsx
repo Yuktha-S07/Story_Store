@@ -76,7 +76,16 @@ export default function StoryCard({ story, compact = false }) {
                 {story.description}
               </p>
 
-              <p className="text-xs font-medium tracking-wide text-slate-500">By {authorText}</p>
+              <p className="text-xs font-medium tracking-wide text-slate-500">
+                By{' '}
+                {story.author?._id || story.user_id ? (
+                  <Link to={`/profile/${story.author?._id || story.user_id}`} className="font-semibold text-[#4f766f] hover:text-[#E87B5D] hover:underline">
+                    {authorText}
+                  </Link>
+                ) : (
+                  authorText
+                )}
+              </p>
             </div>
           </div>
 

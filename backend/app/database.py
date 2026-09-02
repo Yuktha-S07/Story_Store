@@ -74,6 +74,7 @@ def initialize_collections():
         "comments": ["story_id", "chapter_id", "user_id"],
         "votes": ["story_id", "user_id"],
         "follows": ["follower_id", "following_id"],
+        "messages": ["sender_id", "recipient_id"],
     }
 
     for collection_name, indexes in collections.items():
@@ -132,4 +133,9 @@ def get_vote_collection():
 def get_follow_collection():
     """Get the follows collection."""
     return get_database()["follows"]
+
+
+def get_message_collection():
+    """Get the messages collection."""
+    return get_database()["messages"]
 
