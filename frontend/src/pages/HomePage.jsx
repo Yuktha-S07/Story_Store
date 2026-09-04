@@ -27,7 +27,7 @@ const HomePage = () => {
               {!user && (
                 <Link
                   to="/login"
-                  className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-[linear-gradient(135deg,#C96D7D_0%,#E5A6AF_100%)] px-6 md:px-7 py-3 md:py-3.5 font-semibold text-white text-sm md:text-base shadow-[0_14px_30px_rgba(201,109,125,0.22)] ring-1 ring-white/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(201,109,125,0.28)]"
+                className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-[linear-gradient(135deg,#C96D7D_0%,#E5A6AF_100%)] px-6 md:px-7 py-3 md:py-3.5 font-semibold text-white text-sm md:text-base shadow-[0_14px_30px_rgba(201,109,125,0.22)] ring-1 ring-white/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(201,109,125,0.28)] dark:bg-[linear-gradient(135deg,#8a4b5c_0%,#a86a76_100%)] dark:text-white dark:ring-white/40"
                 >
                   <span className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.28),transparent_42%)] opacity-90 transition-opacity duration-300 group-hover:opacity-100" />
                   <span className="absolute -left-6 top-0 h-full w-12 -skew-x-12 bg-white/16 blur-md transition-all duration-500 group-hover:left-[110%]" />
@@ -37,7 +37,7 @@ const HomePage = () => {
               )}
               <Link
                 to="/stories"
-                className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-[linear-gradient(135deg,#C96D7D_0%,#E5A6AF_100%)] px-6 md:px-7 py-3 md:py-3.5 font-semibold text-white text-sm md:text-base shadow-[0_14px_30px_rgba(201,109,125,0.22)] ring-1 ring-white/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(201,109,125,0.28)]"
+                className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-[linear-gradient(135deg,#C96D7D_0%,#E5A6AF_100%)] px-6 md:px-7 py-3 md:py-3.5 font-semibold text-white text-sm md:text-base shadow-[0_14px_30px_rgba(201,109,125,0.22)] ring-1 ring-white/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(201,109,125,0.28)] dark:!text-white dark:bg-[linear-gradient(135deg,#8a4b5c_0%,#a86a76_100%)] dark:ring-white/40"
               >
                 <span className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.28),transparent_42%)] opacity-90 transition-opacity duration-300 group-hover:opacity-100" />
                 <span className="absolute -left-6 top-0 h-full w-12 -skew-x-12 bg-white/16 blur-md transition-all duration-500 group-hover:left-[110%]" />

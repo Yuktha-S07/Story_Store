@@ -1,6 +1,6 @@
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { FiChevronRight, FiMessageCircle, FiSend, FiUser, FiUsers, FiArrowLeft } from 'react-icons/fi'
+import { FiChevronRight, FiMessageCircle, FiSend, FiUser, FiUsers } from 'react-icons/fi'
 import { AuthContext } from '../context/AuthContext'
 import api from '../services/api'
 import { useNotification } from '../context/NotificationContext'
@@ -21,10 +21,7 @@ export default function MessagesPage() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
   const bottomRef = useRef(null)
-  const shouldAutoScroll = useRef(false)
-  const prevUserIdRef = useRef(null)
 
   useEffect(() => {
     if (!user) return
@@ -49,17 +46,8 @@ export default function MessagesPage() {
       setActiveUserId(null)
       setActiveUser(null)
       setMessages([])
-      shouldAutoScroll.current = false
-      prevUserIdRef.current = null
       return
     }
-
-    const isNewConversation = prevUserIdRef.current !== userId
-    prevUserIdRef.current = userId
-    if (isNewConversation) {
-      shouldAutoScroll.current = true
-    }
-
     setActiveUserId(userId)
     const fetchThread = async () => {
       try {
@@ -80,18 +68,9 @@ export default function MessagesPage() {
   }, [userId, user])
 
   useEffect(() => {
-    if (!shouldAutoScroll.current) return
-    const el = bottomRef.current
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' })
-      shouldAutoScroll.current = false
-    }
-  }, [messages])
-
-  const scrollToBottom = useCallback(() => {
     const el = bottomRef.current
     if (el) el.scrollIntoView({ behavior: 'smooth' })
-  }, [])
+  }, [messages])
 
   const sendMessage = async () => {
     if (!input.trim() || !activeUserId) return
@@ -101,7 +80,6 @@ export default function MessagesPage() {
       const res = await api.get(`/api/messages/with/${activeUserId}`)
       setMessages(Array.isArray(res.data) ? res.data : [])
       setInput('')
-      shouldAutoScroll.current = true
       refreshConversations()
     } catch (err) {
       console.error(err)
@@ -122,7 +100,6 @@ export default function MessagesPage() {
 
   const selectConversation = (otherId) => {
     navigate(`/messages/${otherId}`)
-    setSidebarOpen(false)
   }
 
   const tabs = [
@@ -131,33 +108,18 @@ export default function MessagesPage() {
   ]
 
   return (
-    <div className="messages-page w-full space-y-4 px-4 pb-10 font-sans">
-      <div className="message-page-header flex items-center gap-3">
+    <div className="messages-page w-full space-y-5 px-0 pb-10 font-sans">
+      <div className="message-page-header flex flex-wrap items-end justify-between gap-4">
         <BackButton />
-        {activeUser && (
-          <button
-            type="button"
-            onClick={() => { navigate('/messages'); setSidebarOpen(true) }}
-            className="md:hidden inline-flex items-center gap-1.5 rounded-full bg-[#f1eafa] px-3 py-1.5 text-xs font-semibold text-[#755b8b] transition active:scale-95"
-          >
-            <FiArrowLeft size={13} /> Inbox
-          </button>
-        )}
-        {!activeUser && (
-          <button
-            type="button"
-            onClick={() => setSidebarOpen((v) => !v)}
-            className="md:hidden inline-flex items-center gap-1.5 rounded-full bg-[#f1eafa] px-3 py-1.5 text-xs font-semibold text-[#755b8b] transition active:scale-95"
-          >
-            <FiUsers size={13} /> Conversations
-          </button>
-        )}
+          <div className="flex items-center gap-3">
+            <span className="message-count px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em]">Messages</span>
+          </div>
       </div>
 
       <div className="message-shell message-workspace overflow-hidden">
         <div className="grid h-full grid-cols-1 md:grid-cols-[360px_1fr]">
           {/* Side bar */}
-          <div className={`message-sidebar border-b md:border-b-0 md:border-r border-[#cfe1d9] ${activeUserId && !sidebarOpen ? 'hidden md:block' : ''} ${sidebarOpen ? 'block' : ''} max-md:absolute max-md:inset-0 max-md:z-10 max-md:h-full`}>
+          <div className="message-sidebar border-b md:border-b-0 md:border-r border-[#cfe1d9]">
             <div className="border-b border-[#ded2eb] px-4 pb-4 pt-5">
               <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-[#d9c9e8] text-[#6d4e88] shadow-sm">
                 <FiMessageCircle size={20} />
@@ -221,7 +183,7 @@ export default function MessagesPage() {
           </div>
 
           {/* Chat thread */}
-          <div className={`message-thread flex min-h-[520px] flex-col ${!activeUserId && !sidebarOpen ? '' : activeUserId ? '' : ''} max-md:${activeUserId ? 'block' : 'hidden'}`}>
+          <div className="message-thread flex min-h-[520px] flex-col">
             {activeUser ? (
               <>
                 <div className="message-thread-header flex items-center justify-between gap-3 border-b border-[#ded2eb] bg-white/80 px-5 py-4">

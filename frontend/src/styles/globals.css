@@ -152,36 +152,11 @@ a {
 }
 
 .messages-page {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
   padding-right: clamp(0.75rem, 4vw, 4rem);
   padding-left: clamp(0.75rem, 4vw, 4rem);
   box-sizing: border-box;
-}
-
-.message-workspace {
-  height: calc(100vh - 10rem);
-  min-height: 480px;
-}
-
-@media (max-width: 767px) {
-  .messages-page {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-  }
-  .message-workspace {
-    height: calc(100vh - 8rem);
-    min-height: 320px;
-    border-radius: 1rem;
-  }
-  .message-sidebar {
-    border-radius: 1rem;
-  }
-  .message-thread {
-    min-height: 400px;
-  }
-  .message-page-header {
-    border-bottom: none;
-    padding-bottom: 0.5rem;
-  }
 }
 
 .chapter-editor-page::before {
@@ -325,9 +300,19 @@ a {
   box-shadow: 0 24px 60px rgba(76, 55, 105, 0.1);
 }
 
+.dark .chapter-canvas {
+  border-color: #3b3047;
+  background: linear-gradient(145deg, #1d1824, #261e30);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
 .comment-card {
   border-left: 3px solid #e87b5d;
   background: linear-gradient(135deg, #fffdfb, #fff5ef);
+}
+
+.dark .comment-card {
+  background: linear-gradient(135deg, #1d1824, #211a29);
 }
 
 .comment-avatar {
@@ -346,6 +331,15 @@ a {
 /* Button Base Styles */
 button {
   transition: all 200ms ease;
+}
+
+/* Brighten button text in dark mode only. Light theme is left untouched. */
+.dark button,
+.dark [role='button'],
+.dark .btn-primary,
+.dark .btn-ghost,
+.dark .pill {
+  color: #f0e6fa;
 }
 
 /* Mobile touch polish */

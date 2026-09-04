@@ -231,7 +231,7 @@ const TrendingStories = () => {
                       {story.description || 'Open the story to start reading.'}
                     </p>
                     <div className="mt-auto flex items-center gap-2 pt-3">
-                      <Link to={storyId ? `/stories/${storyId}` : '/stories'} className="rounded-md bg-[#BDA6CE] px-2.5 py-1 text-xs font-semibold text-[#072935] transition hover:bg-[#aa93b6]">Read</Link>
+                      <Link to={storyId ? `/stories/${storyId}` : '/stories'} className="rounded-md bg-[#BDA6CE] px-2.5 py-1 text-xs font-semibold text-[#072935] transition hover:bg-[#aa93b6] dark:bg-[#6a4b85] dark:text-white dark:hover:bg-[#7c5a99]">Read</Link>
                       <button
                         onClick={() => handleSave(storyId)}
                         className="rounded-md bg-[#DC9B9B] px-2.5 py-1 text-xs font-semibold text-[#3a2626] transition hover:bg-[#c68585]"

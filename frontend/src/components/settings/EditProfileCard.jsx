@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { FiUser, FiMail, FiCalendar, FiLock, FiSave } from 'react-icons/fi'
 import api from '../../services/api'
 import { Card, Field, inputClass } from '../SettingsUI'
 
@@ -124,52 +123,44 @@ export default function EditProfileCard({ user, onUpdated, notify }) {
   }
 
   return (
-    <Card
-      title="Edit profile"
-      subtitle="Username, email, profile picture and password."
-      icon={FiUser}
-      iconColor="warm"
-      accent="rose"
-      onHeaderClick={() => setOpen((v) => !v)}
-      actions={
-        <button
-          type="button"
-          onClick={(e) => { e.stopPropagation(); setOpen((v) => !v) }}
-          className="shrink-0 cursor-pointer"
-          aria-expanded={open}
-        >
-          <ChevronIcon open={open} />
-        </button>
-      }
-    >
+    <Card tone="default">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between gap-3 text-left cursor-pointer"
+        aria-expanded={open}
+      >
+        <div>
+          <p className="font-semibold text-sm text-[#26231f] dark:text-gray-200">Edit profile</p>
+          <p className="text-xs text-[#5d584f] dark:text-gray-400 mt-0.5">
+            Username, email, profile picture and password.
+          </p>
+        </div>
+        <ChevronIcon open={open} />
+      </button>
+
       {open && (
         <div className="mt-5 space-y-5">
           {/* Profile picture */}
-          <div className="rounded-xl border border-[#efe8dd] dark:border-gray-700 bg-gradient-to-br from-white to-[#fdf9f5] dark:from-gray-900/40 dark:to-gray-900/20 p-5">
+          <div className="rounded-xl border border-[#efe8dd] dark:border-gray-700 bg-white/70 dark:bg-gray-900/40 p-4">
             <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[#8b6b52] dark:text-gray-400">Profile picture</p>
-            <div className="flex items-center gap-5">
+            <div className="flex items-center gap-4">
               {avatarPreview ? (
-                <div className="relative">
-                  <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-[#e07a5f] via-[#b891cc] to-[#9c78b9] opacity-70 blur-[2px]" />
-                  <img
-                    src={avatarPreview}
-                    alt="Profile picture preview"
-                    className="relative h-16 w-16 rounded-full object-cover ring-2 ring-white"
-                  />
-                </div>
+                <img
+                  src={avatarPreview}
+                  alt="Profile picture preview"
+                  className="h-16 w-16 rounded-full object-cover ring-2 ring-white shadow-md"
+                />
               ) : (
-                <div className="relative">
-                  <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-[#e07a5f] via-[#b891cc] to-[#9c78b9] opacity-60 blur-[2px]" />
-                  <div className={`relative flex h-16 w-16 items-center justify-center rounded-full text-2xl font-bold ring-2 ring-white ${avatarColorClass}`}>
-                    {avatarLetter}
-                  </div>
+                <div className={`flex h-16 w-16 items-center justify-center rounded-full text-2xl font-bold shadow-md ring-2 ring-white ${avatarColorClass}`}>
+                  {avatarLetter}
                 </div>
               )}
               <div>
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="rounded-full bg-gradient-to-r from-[#b891cc] to-[#9c78b9] px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:from-[#a780bc] hover:to-[#8d69aa] hover:shadow-md"
+                  className="rounded-full border border-[#d9c7b4] bg-white dark:bg-gray-800 px-4 py-2 text-xs font-semibold text-[#8b6b52] dark:text-gray-300 transition hover:bg-[#fffaf4] hover:shadow-sm"
                 >
                   {avatarPreview ? 'Replace picture' : 'Upload picture'}
                 </button>
@@ -180,10 +171,7 @@ export default function EditProfileCard({ user, onUpdated, notify }) {
                   onChange={handleAvatarChange}
                   className="hidden"
                 />
-                <p className="mt-1.5 flex items-center gap-1 text-[10px] text-[#5d584f]/70 dark:text-gray-500">
-                  <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                  JPG, PNG or WEBP - max 5MB
-                </p>
+                <p className="text-[10px] text-[#5d584f]/70 dark:text-gray-500 mt-1.5">JPG, PNG or WEBP - max 5MB</p>
               </div>
             </div>
           </div>
@@ -191,7 +179,7 @@ export default function EditProfileCard({ user, onUpdated, notify }) {
           {/* Username / Email / Member since */}
           <form onSubmit={handleSaveProfile} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Field label="Username" icon={FiUser}>
+              <Field label="Username">
                 <input
                   type="text"
                   value={username}
@@ -200,7 +188,7 @@ export default function EditProfileCard({ user, onUpdated, notify }) {
                   placeholder="Username"
                 />
               </Field>
-              <Field label="Email" icon={FiMail}>
+              <Field label="Email">
                 <input
                   type="email"
                   value={email}
@@ -210,13 +198,13 @@ export default function EditProfileCard({ user, onUpdated, notify }) {
                 />
               </Field>
               <div className="sm:col-span-2">
-                <Field label="Member since" icon={FiCalendar}>
+                <Field label="Member since">
                   <input
                     type="text"
                     value={memberSince}
                     readOnly
                     disabled
-                    className={`${inputClass} bg-gradient-to-r from-[#f4efe7] to-[#f0ebe3] dark:from-gray-800/60 dark:to-gray-800/40 cursor-not-allowed`}
+                    className={`${inputClass} bg-[#f4efe7] dark:bg-gray-800/60 cursor-not-allowed`}
                   />
                 </Field>
               </div>
@@ -225,44 +213,32 @@ export default function EditProfileCard({ user, onUpdated, notify }) {
             <button
               type="submit"
               disabled={savingProfile}
-              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#9c78b9] via-[#b891cc] to-[#c9a8d8] px-7 py-2.5 text-sm font-semibold text-white shadow-[0_4px_14px_rgba(156,120,185,0.35)] transition-all duration-300 hover:from-[#8d69aa] hover:via-[#a780bc] hover:to-[#b891cc] hover:shadow-[0_6px_20px_rgba(156,120,185,0.45)] hover:-translate-y-0.5 disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+              className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-[#BDA6CE] to-[#b8a1c8] px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:from-[#b397bf] hover:to-[#ad92b9] hover:shadow-md disabled:opacity-60 disabled:hover:shadow-sm"
             >
-              {savingProfile ? (
-                <><svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg> Saving...</>
-              ) : (
-                <><FiSave size={15} /> Save changes</>
-              )}
+              {savingProfile ? 'Saving...' : 'Save changes'}
             </button>
           </form>
 
-          <div className="relative">
-            <div className="h-px bg-gradient-to-r from-transparent via-[#d8c9e8] to-transparent dark:via-[#4b3b5d]" />
-            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-3 text-[10px] text-[#a89f92] dark:bg-gray-800/50 dark:text-gray-500">or</span>
-          </div>
+          <div className="border-t border-[#e8e0d5] dark:border-gray-700" />
 
           {/* Change password sub-option */}
-          <div className="rounded-xl border border-[#efe8dd] dark:border-gray-700 bg-gradient-to-br from-white to-[#fdf9f5] dark:from-gray-900/40 dark:to-gray-900/20 p-5">
+          <div className="rounded-xl border border-[#efe8dd] dark:border-gray-700 bg-white/70 dark:bg-gray-900/40 p-4">
             <button
               type="button"
               onClick={() => setPwOpen((v) => !v)}
               className="flex w-full items-center justify-between gap-3 text-left cursor-pointer"
               aria-expanded={pwOpen}
             >
-              <div className="flex items-center gap-3">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#f1eafa] text-[#755b8b] dark:bg-[#3b2d4b] dark:text-[#d9c5eb]">
-                  <FiLock size={15} />
-                </span>
-                <div>
-                  <p className="font-semibold text-sm text-[#26231f] dark:text-gray-200">Change password</p>
-                  <p className="text-xs text-[#5d584f] dark:text-gray-400 mt-0.5">Verify your current password to set a new one</p>
-                </div>
+              <div>
+                <p className="font-semibold text-sm text-[#26231f] dark:text-gray-200">Change password</p>
+                <p className="text-xs text-[#5d584f] dark:text-gray-400 mt-0.5">Verify your current password to set a new one</p>
               </div>
               <ChevronIcon open={pwOpen} />
             </button>
 
             {pwOpen && (
               <form onSubmit={handleChangePassword} className="mt-4 space-y-4">
-                <Field label="Current password" icon={FiLock}>
+                <Field label="Current password">
                   <input
                     type="password"
                     value={currentPassword}
@@ -274,7 +250,7 @@ export default function EditProfileCard({ user, onUpdated, notify }) {
                   />
                 </Field>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Field label="New password" icon={FiLock}>
+                  <Field label="New password">
                     <input
                       type="password"
                       value={newPassword}
@@ -285,7 +261,7 @@ export default function EditProfileCard({ user, onUpdated, notify }) {
                       required
                     />
                   </Field>
-                  <Field label="Confirm new password" icon={FiLock}>
+                  <Field label="Confirm new password">
                     <input
                       type="password"
                       value={confirmPassword}
@@ -301,13 +277,9 @@ export default function EditProfileCard({ user, onUpdated, notify }) {
                 <button
                   type="submit"
                   disabled={savingPassword}
-                  className="inline-flex items-center gap-2 rounded-full border border-[#c9b8dd]/60 bg-gradient-to-r from-[#F3EDFA] to-[#E4D9F0] dark:from-[#3a3047] dark:to-[#2d2438] px-6 py-2.5 text-sm font-semibold text-[#6b4f8c] dark:text-[#cbb7e8] transition-all duration-300 hover:shadow-[0_4px_14px_rgba(107,79,140,0.2)] hover:-translate-y-0.5 disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                  className="inline-flex items-center justify-center rounded-full border border-[#c9b8dd]/60 bg-[linear-gradient(135deg,#F3EDFA_0%,#E4D9F0_100%)] dark:bg-[linear-gradient(135deg,#3a3047_0%,#2d2438_100%)] px-6 py-2.5 text-sm font-semibold text-[#6b4f8c] dark:text-[#cbb7e8] transition hover:shadow-md disabled:opacity-60 disabled:hover:shadow-none"
                 >
-                  {savingPassword ? (
-                    <><svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg> Updating...</>
-                  ) : (
-                    <><FiLock size={14} /> Update password</>
-                  )}
+                  {savingPassword ? 'Updating...' : 'Update password'}
                 </button>
               </form>
             )}

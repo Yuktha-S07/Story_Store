@@ -138,7 +138,7 @@ export default function ProfilePage() {
     <div className="mx-auto w-full max-w-5xl space-y-8 px-0 pb-10 font-sans md:space-y-10">
       <div className="flex items-center justify-between">
         <BackButton />
-        <span className="rounded-full border border-[#d9c7b4] bg-[#fffaf4] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#8b6b52]">Profile</span>
+        <span className="rounded-full border border-[#d9c7b4] bg-[#fffaf4] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#8b6b52] dark:border-[#4b3b5d] dark:bg-[#211a29] dark:text-[#d3c2df]">Profile</span>
       </div>
 
       <section className="pb-2">
@@ -155,13 +155,13 @@ export default function ProfilePage() {
                   <button
                     onClick={toggleFollow}
                     disabled={savingFollow}
-                    className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-semibold transition disabled:opacity-60 ${isFollowing ? 'border-[#d9c7b4] bg-[#fffaf4] text-[#5d584f] hover:border-[#E87B5D] hover:text-[#c45e43]' : 'bg-gradient-to-r from-[#BDA6CE] to-[#b8a1c8] text-white shadow-sm hover:shadow-md'}`}
+                    className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-semibold transition disabled:opacity-60 ${isFollowing ? 'border-[#d9c7b4] bg-[#fffaf4] text-[#5d584f] hover:border-[#E87B5D] hover:text-[#c45e43] dark:border-[#4b3b5d] dark:bg-[#211a29] dark:text-[#d3c2df]' : 'bg-gradient-to-r from-[#BDA6CE] to-[#b8a1c8] text-white shadow-sm hover:shadow-md'}`}
                   >
                     {savingFollow ? 'Updating...' : isFollowing ? 'Unfollow' : 'Follow'}
                   </button>
                   <button
                     onClick={() => navigate(`/messages/${profile._id}`)}
-                    className="inline-flex items-center gap-2 rounded-full border border-[#BDA6CE] bg-white px-4 py-1.5 text-sm font-semibold text-[#7a5a9a] transition hover:bg-[#f7f1fb] hover:border-[#a98cc4]"
+                    className="inline-flex items-center gap-2 rounded-full border border-[#BDA6CE] bg-white px-4 py-1.5 text-sm font-semibold text-[#7a5a9a] transition hover:bg-[#f7f1fb] hover:border-[#a98cc4] dark:border-[#6a4b85] dark:bg-[#1d1824] dark:text-[#cbb9d9] dark:hover:bg-[#261e30] dark:hover:border-[#8a5f9e]"
                   >
                     <FiMessageCircle />
                     Message
@@ -171,7 +171,7 @@ export default function ProfilePage() {
               {authUser && isOwnProfile && (
                 <Link
                   to="/settings"
-                  className="inline-flex items-center gap-2 rounded-full border border-[#BDA6CE] bg-white px-4 py-1.5 text-sm font-semibold text-[#7a5a9a] transition hover:bg-[#f7f1fb] hover:border-[#a98cc4]"
+                  className="inline-flex items-center gap-2 rounded-full border border-[#BDA6CE] bg-white px-4 py-1.5 text-sm font-semibold text-[#7a5a9a] transition hover:bg-[#f7f1fb] hover:border-[#a98cc4] dark:border-[#6a4b85] dark:bg-[#1d1824] dark:text-[#cbb9d9] dark:hover:bg-[#261e30] dark:hover:border-[#8a5f9e]"
                 >
                   <FiEdit3 />
                   Edit Profile
@@ -195,17 +195,17 @@ export default function ProfilePage() {
         </div>
 
         <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <div className="rounded-2xl border border-[#d9ebe4] bg-[#f2faf6] px-4 py-3 text-center">
-            <p className="font-serif text-3xl font-semibold text-[#29463d]">{profile.story_count ?? 0}</p>
-            <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#628477]">Stories</p>
+          <div className="rounded-2xl border border-[#d9ebe4] bg-[#f2faf6] px-4 py-3 text-center dark:border-[#3b3047] dark:bg-[#1d1824]">
+            <p className="font-serif text-3xl font-semibold text-[#29463d] dark:text-[#9fd7c1]">{profile.story_count ?? 0}</p>
+            <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#628477] dark:text-[#8fb9a5]">Stories</p>
           </div>
-          <div className="rounded-2xl border border-[#f1dcc9] bg-[#fff7ed] px-4 py-3 text-center">
-            <p className="font-serif text-3xl font-semibold text-[#8c4f2d]">{profile.followers_count ?? 0}</p>
-            <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#a56c43]">Followers</p>
+          <div className="rounded-2xl border border-[#f1dcc9] bg-[#fff7ed] px-4 py-3 text-center dark:border-[#4b3b5d] dark:bg-[#211a29]">
+            <p className="font-serif text-3xl font-semibold text-[#8c4f2d] dark:text-[#e8b98e]">{profile.followers_count ?? 0}</p>
+            <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#a56c43] dark:text-[#cf9d6e]">Followers</p>
           </div>
-          <div className="rounded-2xl border border-[#ddd8ec] bg-[#f7f5fc] px-4 py-3 text-center">
-            <p className="font-serif text-3xl font-semibold text-[#514970]">{profile.following_count ?? 0}</p>
-            <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#776d9a]">Following</p>
+          <div className="rounded-2xl border border-[#ddd8ec] bg-[#f7f5fc] px-4 py-3 text-center dark:border-[#6a4b85] dark:bg-[#261e30]">
+            <p className="font-serif text-3xl font-semibold text-[#514970] dark:text-[#c4b5fd]">{profile.following_count ?? 0}</p>
+            <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#776d9a] dark:text-[#a99bc9]">Following</p>
           </div>
         </div>
       </section>
@@ -218,13 +218,13 @@ export default function ProfilePage() {
                 {isOwnProfile ? 'My Stories' : `${profile.username}'s Stories`}
               </h2>
             </div>
-            <span className="rounded-full border border-[#d9c7b4] bg-[#fffaf4] px-3 py-1.5 text-xs font-semibold text-[#8b6b52]">
+            <span className="rounded-full border border-[#d9c7b4] bg-[#fffaf4] px-3 py-1.5 text-xs font-semibold text-[#8b6b52] dark:border-[#4b3b5d] dark:bg-[#211a29] dark:text-[#d3c2df]">
               {stories.length} {stories.length === 1 ? 'story' : 'stories'}
             </span>
           </div>
 
           {stories.length === 0 ? (
-            <div className="border-y border-dashed border-[#d9d2c6] py-10 text-center md:py-14">
+            <div className="border-y border-dashed border-[#d9d2c6] py-10 text-center md:py-14 dark:border-[#3b3047]">
               <div className="w-14 h-14 mx-auto rounded-full bg-[#f0ece4] dark:bg-gray-700 flex items-center justify-center mb-4">
                 <svg className="w-7 h-7 text-[#5d584f] dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -252,20 +252,20 @@ export default function ProfilePage() {
               {isOwnProfile && (
                 <Link
                   to="/write"
-                  className="group flex min-h-[250px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-[#d9c7b4] bg-[#fffaf4] p-6 text-center transition hover:-translate-y-1 hover:border-[#E87B5D] hover:bg-[#fff7f1] hover:shadow-[0_16px_35px_rgba(73,48,20,0.1)]"
+                  className="group flex min-h-[250px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-[#d9c7b4] bg-[#fffaf4] p-6 text-center transition hover:-translate-y-1 hover:border-[#E87B5D] hover:bg-[#fff7f1] hover:shadow-[0_16px_35px_rgba(73,48,20,0.1)] dark:border-[#4b3b5d] dark:bg-[#211a29] dark:hover:border-[#8a5f9e] dark:hover:bg-[#261e30]"
                 >
-                  <span className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-[#d9c7b4] text-3xl font-light text-[#9b8877] transition group-hover:border-[#E87B5D] group-hover:text-[#c45e43]">
+                  <span className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-[#d9c7b4] text-3xl font-light text-[#9b8877] transition group-hover:border-[#E87B5D] group-hover:text-[#c45e43] dark:border-[#5a4a6e] dark:text-[#b6a3c4] dark:group-hover:border-[#8a5f9e] dark:group-hover:text-[#cbb9d9]">
                     +
                   </span>
-                  <span className="mt-4 font-serif text-base font-semibold text-[#4b4a48]">Create a new story</span>
-                  <span className="mt-1 text-xs text-[#817970]">Start writing something memorable</span>
+                  <span className="mt-4 font-serif text-base font-semibold text-[#4b4a48] dark:text-[#eadff1]">Create a new story</span>
+                  <span className="mt-1 text-xs text-[#817970] dark:text-[#9f8caf]">Start writing something memorable</span>
                 </Link>
               )}
               {stories.map((s) => (
                 <Link
                   key={s._id}
                   to={`/stories/${s._id}`}
-                  className="group block overflow-hidden rounded-2xl border border-[#e8e0d5] bg-[#FBF9F1] transition-all hover:-translate-y-1 hover:border-[#d9cfc1] hover:shadow-[0_16px_35px_rgba(73,48,20,0.1)]"
+                  className="group block overflow-hidden rounded-2xl border border-[#e8e0d5] bg-[#FBF9F1] transition-all hover:-translate-y-1 hover:border-[#d9cfc1] hover:shadow-[0_16px_35px_rgba(73,48,20,0.1)] dark:border-[#3b3047] dark:bg-[#1d1824] dark:hover:border-[#4b3b5d]"
                 >
                   <div className="aspect-[3/2] overflow-hidden bg-[#f0ece4] dark:bg-gray-700">
                     <img

@@ -4,7 +4,6 @@ import api from '../services/api'
 import { AuthContext } from '../context/AuthContext'
 import { useNotification } from '../context/NotificationContext'
 import { getSampleChapter, getSampleStory } from '../data/sampleStories'
-import BackButton from '../components/BackButton'
 
 export default function ReadingPage() {
   const { chapterId } = useParams()
@@ -64,15 +63,6 @@ export default function ReadingPage() {
 
   const isOwner = Boolean(user && chapter && String(user._id) === String(chapter.user_id))
 
-  useEffect(() => {
-    if (chapter?.title) {
-      document.title = `${chapter.title} | Story Store`
-    }
-    return () => {
-      document.title = 'Story Store'
-    }
-  }, [chapter?.title])
-
   const toggleChapterStatus = async () => {
     if (!isOwner) return
 
@@ -100,9 +90,6 @@ export default function ReadingPage() {
 
   return (
     <div className="surface relative px-4 py-6 sm:p-8 md:p-10 max-w-3xl mx-auto">
-      <div className="mb-4">
-        <BackButton />
-      </div>
       <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-4">
         <div className="min-w-0 w-full sm:w-auto">
           <div className="text-xs sm:text-sm text-slate-500">Reading</div>
@@ -114,14 +101,14 @@ export default function ReadingPage() {
               type="button"
               onClick={toggleChapterStatus}
               disabled={savingStatus}
-              className={`shrink-0 rounded-full px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold transition disabled:opacity-60 ${chapter.status === 'published' ? 'bg-amber-100 text-amber-800 hover:bg-amber-200' : 'bg-green-100 text-green-800 hover:bg-green-200'}`}
+              className={`shrink-0 rounded-full px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold transition disabled:opacity-60 ${chapter.status === 'published' ? 'bg-amber-100 text-amber-800 hover:bg-amber-200 dark:bg-amber-900/40 dark:text-amber-200 dark:hover:bg-amber-900/60' : 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/40 dark:text-green-200 dark:hover:bg-green-900/60'}`}
             >
               {savingStatus ? 'Saving...' : chapter.status === 'published' ? 'Unpublish' : 'Publish'}
             </button>
           )}
           <Link
             to="/dashboard"
-            className="shrink-0 rounded-full bg-slate-100 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
+            className="shrink-0 rounded-full bg-slate-100 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-slate-700 transition hover:bg-slate-200 dark:bg-[#2b2235] dark:text-[#eadff1] dark:hover:bg-[#3a3047]"
           >
             Done
           </Link>
@@ -129,7 +116,7 @@ export default function ReadingPage() {
       </div>
       <div className="mt-3 flex items-center gap-2">
         {isOwner && (
-          <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${chapter.status === 'published' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+          <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${chapter.status === 'published' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-200' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-200'}`}>
             {chapter.status === 'published' ? 'Published' : 'Draft'}
           </span>
         )}

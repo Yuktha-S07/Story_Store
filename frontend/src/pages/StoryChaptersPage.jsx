@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+﻿import React, { useContext, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import api from '../services/api'
 import { AuthContext } from '../context/AuthContext'
@@ -92,10 +92,10 @@ export default function StoryChaptersPage() {
         ) : chapters.length > 0 ? (
           <div className="space-y-3">
             {chapters.map((ch) => (
-              <div key={ch._id} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white/60 p-4 transition hover:border-slate-300">
+              <div key={ch._id} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white/60 p-4 transition hover:border-slate-300 dark:border-[#3b3047] dark:bg-[#211a29] dark:hover:border-[#4b3b5d]">
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-serif text-sm font-semibold">{ch.title}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">
+                  <p className="truncate font-serif text-sm font-semibold text-slate-900 dark:text-gray-100">{ch.title}</p>
+                  <p className="text-xs text-slate-500 mt-0.5 dark:text-gray-400">
                     Ch. {ch.chapter_number} &middot; {ch.status === 'published' ? 'Published' : 'Draft'}
                   </p>
                 </div>
@@ -104,7 +104,7 @@ export default function StoryChaptersPage() {
                     <button
                       type="button"
                       onClick={() => publishChapter(ch)}
-                      className="rounded-md bg-emerald-100 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-200"
+                      className="rounded-md bg-emerald-100 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-200 dark:bg-emerald-900/50 dark:text-emerald-300 dark:hover:bg-emerald-800/60"
                     >
                       Publish
                     </button>
@@ -112,14 +112,14 @@ export default function StoryChaptersPage() {
                   <button
                     type="button"
                     onClick={() => navigate(`/stories/${id}/chapters/${ch._id}`)}
-                    className="rounded-md bg-slate-200 px-3 py-1.5 text-xs font-semibold transition hover:bg-slate-300"
+                    className="rounded-md bg-slate-200 px-3 py-1.5 text-xs font-semibold transition hover:bg-slate-300 dark:bg-slate-700 dark:text-gray-100 dark:hover:bg-slate-600"
                   >
                     Edit
                   </button>
                   <button
                     type="button"
                     onClick={() => deleteChapter(ch)}
-                    className="rounded-md bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-200"
+                    className="rounded-md bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-200 dark:bg-red-900/50 dark:text-red-300 dark:hover:bg-red-800/60"
                   >
                     Delete
                   </button>

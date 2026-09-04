@@ -1,14 +1,16 @@
 import React, { useContext, useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { FiSettings, FiSun, FiMoon } from 'react-icons/fi'
 import { AuthContext } from '../context/AuthContext'
 import api from '../services/api'
+import { getStoredTheme } from '../utils/theme'
 
 export default function Navbar() {
   const { user, logout } = useContext(AuthContext)
   const navigate = useNavigate()
+  const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
-  const [theme, setTheme] = useState('light')
+  const [theme, setTheme] = useState(() => getStoredTheme())
   const [unreadCount, setUnreadCount] = useState(0)
 
   const closeMenu = () => setMenuOpen(false)
@@ -40,12 +42,12 @@ export default function Navbar() {
     } else {
       document.documentElement.classList.remove('dark')
     }
+    try {
+      window.localStorage.setItem('story-store:theme', next)
+    } catch {
+      /* ignore storage errors */
+    }
   }
-
-  useEffect(() => {
-    document.documentElement.classList.remove('dark')
-    setTheme('light')
-  }, [])
 
   const navLinks = [
     { to: '/', label: 'Home', auth: false },
@@ -56,6 +58,14 @@ export default function Navbar() {
     { to: '/messages', label: 'Messages', auth: true },
     { to: user ? `/profile/${user._id}` : '', label: 'Profile', auth: true },
   ]
+
+  const isActive = (to) => {
+    if (to === '/') return location.pathname === '/'
+    if (to.startsWith('/profile')) return location.pathname.startsWith('/profile')
+    if (to.startsWith('/stories')) return location.pathname.startsWith('/stories')
+    if (to.startsWith('/write')) return location.pathname.startsWith('/write')
+    return location.pathname.startsWith(to)
+  }
 
   return (
     <nav className="sticky top-0 z-20 border-b border-white/70 bg-[linear-gradient(90deg,rgba(255,255,255,0.92)_0%,rgba(255,247,247,0.92)_100%)] backdrop-blur-xl shadow-[0_10px_30px_rgba(111,68,80,0.06)] dark:border-[#3b3047] dark:bg-[linear-gradient(90deg,rgba(29,24,36,0.96)_0%,rgba(43,31,49,0.96)_100%)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.35)]">
@@ -70,7 +80,15 @@ export default function Navbar() {
           <div className="flex items-center gap-2 rounded-full border border-white/70 bg-white/70 p-1.5 text-sm shadow-[0_14px_30px_rgba(111,68,80,0.08)] backdrop-blur-md dark:border-[#4b3b5d] dark:bg-[#2b2235]/90 dark:shadow-[0_14px_30px_rgba(0,0,0,0.28)]">
             {navLinks.map((link) =>
               (!link.auth || user) && (
-                <Link key={link.to} to={link.to} className="relative rounded-full px-4 py-2 text-[#5b5160] inline-flex items-center gap-1.5 whitespace-nowrap transition-all duration-300 hover:bg-[linear-gradient(135deg,#F7D0D7_0%,#F0B5C2_100%)] hover:text-[#5a2f3d] dark:text-[#d8c9e4] dark:hover:bg-[linear-gradient(135deg,#4c385b_0%,#654672_100%)] dark:hover:text-[#fff2fc]">
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className={`relative rounded-full px-4 py-2 inline-flex items-center gap-1.5 whitespace-nowrap transition-all duration-300 ${
+                    isActive(link.to)
+                      ? 'bg-[linear-gradient(135deg,#F7D0D7_0%,#F0B5C2_100%)] text-[#5a2f3d] font-semibold shadow-[0_8px_20px_rgba(201,109,125,0.18)] dark:bg-[linear-gradient(135deg,#6a4b85_0%,#8a5f9e_100%)] dark:text-white dark:shadow-[0_8px_20px_rgba(0,0,0,0.3)]'
+                      : 'text-[#5b5160] hover:bg-[linear-gradient(135deg,#F7D0D7_0%,#F0B5C2_100%)] hover:text-[#5a2f3d] dark:text-[#d8c9e4] dark:hover:bg-[linear-gradient(135deg,#4c385b_0%,#654672_100%)] dark:hover:text-[#fff2fc]'
+                  }`}
+                >
                   {link.label}
                   {link.auth && link.to === '/messages' && unreadCount > 0 && (
                     <span className="inline-flex min-w-[18px] items-center justify-center rounded-full bg-[#E87B5D] px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
@@ -140,7 +158,16 @@ export default function Navbar() {
         <div className="md:hidden border-t border-white/70 bg-white/98 backdrop-blur-xl px-3 pb-4 pt-2 space-y-1 dark:border-[#3b3047] dark:bg-[#211a29]">
           {navLinks.map((link) =>
             (!link.auth || user) && (
-              <Link key={link.to} to={link.to} onClick={closeMenu} className="flex items-center justify-between rounded-xl px-4 py-3 text-[#5b5160] font-medium transition active:scale-[0.98] hover:bg-[#FFF2F4] dark:text-[#eadff1] dark:hover:bg-[#3a2c49]">
+              <Link
+                key={link.to}
+                to={link.to}
+                onClick={closeMenu}
+                className={`flex items-center justify-between rounded-xl px-4 py-3 font-medium transition active:scale-[0.98] ${
+                  isActive(link.to)
+                    ? 'bg-[linear-gradient(135deg,#F7D0D7_0%,#F0B5C2_100%)] text-[#5a2f3d] dark:bg-[linear-gradient(135deg,#6a4b85_0%,#8a5f9e_100%)] dark:text-white'
+                    : 'text-[#5b5160] hover:bg-[#FFF2F4] dark:text-[#eadff1] dark:hover:bg-[#3a2c49]'
+                }`}
+              >
                 <span>{link.label}</span>
                 {link.auth && link.to === '/messages' && unreadCount > 0 && (
                   <span className="inline-flex min-w-[20px] items-center justify-center rounded-full bg-[#E87B5D] px-2 py-0.5 text-xs font-bold text-white">

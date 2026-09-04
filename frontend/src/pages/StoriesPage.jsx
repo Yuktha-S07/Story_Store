@@ -147,12 +147,12 @@ const StoriesPage = () => {
           <BackButton />
         </div>
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-serif font-bold text-[#26231f]">Discover Stories</h1>
-          <p className="mt-2 text-lg text-[#5d584f]">Explore a universe of stories from writers around the world.</p>
+          <h1 className="text-4xl font-serif font-bold text-[#26231f] dark:text-gray-100">Discover Stories</h1>
+          <p className="mt-2 text-lg text-[#5d584f] dark:text-gray-400">Explore a universe of stories from writers around the world.</p>
           {normalizedSelectedGenre && (
-            <div className="mt-4 inline-flex items-center gap-3 rounded-full border border-[#d9d2c6] bg-white px-4 py-2 text-sm text-[#5d584f] shadow-sm">
+            <div className="mt-4 inline-flex items-center gap-3 rounded-full border border-[#d9d2c6] bg-white px-4 py-2 text-sm text-[#5d584f] shadow-sm dark:border-[#4b3b5d] dark:bg-[#2b2235] dark:text-gray-300">
               <span>Filtering by {selectedGenreLabel}</span>
-              <Link to="/stories" className="font-semibold text-[#26231f] underline underline-offset-4">
+              <Link to="/stories" className="font-semibold text-[#26231f] underline underline-offset-4 dark:text-gray-100">
                 Clear filter
               </Link>
             </div>
@@ -163,14 +163,14 @@ const StoriesPage = () => {
               placeholder="Search by title or genre..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-3 rounded-full border border-black/10 bg-[#fbfaf7] text-[#3a3a3a] outline-none transition focus:border-[#3a3a3a]"
+              className="w-full px-4 py-3 rounded-full border border-black/10 bg-[#fbfaf7] text-[#3a3a3a] outline-none transition focus:border-[#3a3a3a] dark:border-white/15 dark:bg-gray-800/70 dark:text-gray-100 dark:placeholder:text-gray-400 dark:focus:border-[#9c78b9]"
             />
           </div>
         </div>
 
         {loading && (
           <div className="text-center py-12">
-            <p className="text-[#5d584f]">Loading stories...</p>
+            <p className="text-[#5d584f] dark:text-gray-400">Loading stories...</p>
           </div>
         )}
 
@@ -182,7 +182,7 @@ const StoriesPage = () => {
 
         {!loading && stories.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-[#5d584f]">No stories found. Check back soon!</p>
+            <p className="text-[#5d584f] dark:text-gray-400">No stories found. Check back soon!</p>
           </div>
         )}
 

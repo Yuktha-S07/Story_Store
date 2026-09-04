@@ -2,7 +2,6 @@ import React, { useState, useContext } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
 import { useNotification } from '../context/NotificationContext'
-import BackButton from '../components/BackButton'
 
 const toErrorMessage = (detail, fallback) => {
   if (typeof detail === 'string') return detail
@@ -23,16 +22,13 @@ export default function SignupPage() {
   const [password, setPassword] = useState('')
   const [username, setUsername] = useState('')
   const [error, setError] = useState('')
-  const [submitting, setSubmitting] = useState(false)
   const { register } = useContext(AuthContext)
   const { notify } = useNotification()
   const navigate = useNavigate()
 
   const submit = async (e) => {
     e.preventDefault()
-    if (submitting) return
     setError('')
-    setSubmitting(true)
     try {
       await register({ email, password, username })
       notify('Account created. Please login.', 'success')
@@ -40,17 +36,12 @@ export default function SignupPage() {
     } catch (err) {
       const message = toErrorMessage(err?.response?.data?.detail || err?.response?.data, 'Registration failed')
       setError(message)
-    } finally {
-      setSubmitting(false)
     }
   }
 
   return (
     <div className="relative flex min-h-[calc(100vh-4rem)] w-full items-center justify-center overflow-hidden px-4 py-8">
       {/* decorative circles removed for cleaner auth pages */}
-      <div className="absolute left-4 top-4 sm:left-6 sm:top-6">
-        <BackButton />
-      </div>
 
       <div className="relative w-full max-w-md">
         <div className="rounded-[28px] bg-white/95 p-8 shadow-[0_30px_80px_rgba(62,46,26,0.08)] backdrop-blur-lg md:p-10">
@@ -75,9 +66,7 @@ export default function SignupPage() {
                 value={username}
                 onChange={e => setUsername(e.target.value)}
                 placeholder="Your display name"
-                autoComplete="username"
-                required
-                className="w-full rounded-full border border-black/8 bg-[#fbfaf7] px-5 py-3 text-base text-[#3a3a3a] outline-none transition-shadow duration-200 placeholder:text-[#a7a29a] focus:border-transparent focus:ring-2 focus:ring-[#C2D099]/35 focus:shadow-[0_8px_30px_rgba(194,208,153,0.16)]"
+                className="w-full rounded-full border border-black/8 bg-[#fbfaf7] px-5 py-3 text-[#3a3a3a] outline-none transition-shadow duration-200 placeholder:text-[#a7a29a] focus:border-transparent focus:ring-2 focus:ring-[#C2D099]/35 focus:shadow-[0_8px_30px_rgba(194,208,153,0.16)]"
               />
             </div>
 
@@ -88,10 +77,7 @@ export default function SignupPage() {
                 onChange={e => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 type="email"
-                inputMode="email"
-                autoComplete="email"
-                required
-                className="w-full rounded-full border border-black/8 bg-[#fbfaf7] px-5 py-3 text-base text-[#3a3a3a] outline-none transition-shadow duration-200 placeholder:text-[#a7a29a] focus:border-transparent focus:ring-2 focus:ring-[#E06B80]/30 focus:shadow-[0_8px_30px_rgba(224,107,128,0.12)]"
+                className="w-full rounded-full border border-black/8 bg-[#fbfaf7] px-5 py-3 text-[#3a3a3a] outline-none transition-shadow duration-200 placeholder:text-[#a7a29a] focus:border-transparent focus:ring-2 focus:ring-[#E06B80]/30 focus:shadow-[0_8px_30px_rgba(224,107,128,0.12)]"
               />
             </div>
 
@@ -102,25 +88,14 @@ export default function SignupPage() {
                 onChange={e => setPassword(e.target.value)}
                 placeholder="Create a password"
                 type="password"
-                autoComplete="new-password"
-                minLength={6}
-                required
-                className="w-full rounded-full border border-black/8 bg-[#fbfaf7] px-5 py-3 text-base text-[#3a3a3a] outline-none transition-shadow duration-200 placeholder:text-[#a7a29a] focus:border-transparent focus:ring-2 focus:ring-[#E06B80]/30 focus:shadow-[0_8px_30px_rgba(224,107,128,0.12)]"
+                className="w-full rounded-full border border-black/8 bg-[#fbfaf7] px-5 py-3 text-[#3a3a3a] outline-none transition-shadow duration-200 placeholder:text-[#a7a29a] focus:border-transparent focus:ring-2 focus:ring-[#E06B80]/30 focus:shadow-[0_8px_30px_rgba(224,107,128,0.12)]"
               />
             </div>
 
             <button
-              type="submit"
-              disabled={submitting}
-              className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#E06B80] to-[#C2D099] px-5 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-white shadow-[0_10px_30px_rgba(192,107,118,0.14)] transition-transform duration-200 active:scale-[0.98] hover:-translate-y-0.5 hover:shadow-[0_14px_40px_rgba(192,107,118,0.18)] disabled:cursor-not-allowed disabled:opacity-70"
+              className="w-full rounded-full bg-gradient-to-r from-[#E06B80] to-[#C2D099] px-5 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-white shadow-[0_10px_30px_rgba(192,107,118,0.14)] transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_40px_rgba(192,107,118,0.18)]"
             >
-              {submitting && (
-                <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-                </svg>
-              )}
-              {submitting ? 'Creating account...' : 'Create account'}
+              Create account
             </button>
           </form>
 

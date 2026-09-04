@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+﻿import React, { useEffect, useRef, useState } from 'react'
 import { FiBold, FiItalic, FiUnderline } from 'react-icons/fi'
 
 const FONTS = [
@@ -50,12 +50,12 @@ export default function RichTextEditor({ value, onChange }) {
 
   const toolbarButton =
     'flex h-9 w-9 items-center justify-center rounded-lg border text-sm transition focus:outline-none'
-  const activeButton = 'border-[#E87B5D] bg-[#FFF1EC] text-[#E87B5D]'
-  const idleButton = 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+  const activeButton = 'border-[#E87B5D] bg-[#FFF1EC] text-[#E87B5D] dark:bg-[#3a2a23]'
+  const idleButton = 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-600 dark:bg-[#2d2438] dark:text-gray-200 dark:hover:border-slate-500 dark:hover:bg-[#3a3050]'
 
   return (
-    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white/50 focus-within:border-[#E87B5D] focus-within:ring-2 focus-within:ring-[#E87B5D]/20">
-      <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 bg-[#fffdf9] px-3 py-2.5">
+    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white/50 focus-within:border-[#E87B5D] focus-within:ring-2 focus-within:ring-[#E87B5D]/20 dark:border-slate-700 dark:bg-[#1d1824]/60">
+      <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 bg-[#fffdf9] px-3 py-2.5 dark:border-slate-700 dark:bg-[#221f2d]">
         <button
           type="button"
           title="Bold"
@@ -83,13 +83,13 @@ export default function RichTextEditor({ value, onChange }) {
         >
           <FiUnderline />
         </button>
-        <div className="mx-1 h-6 w-px bg-slate-200" />
+        <div className="mx-1 h-6 w-px bg-slate-200 dark:bg-slate-600" />
         <select
           aria-label="Font family"
           onMouseDown={(e) => e.stopPropagation()}
           onChange={applyFont}
           value=""
-          className="h-9 rounded-lg border border-slate-200 bg-white px-2 text-sm text-slate-700 outline-none focus:border-[#E87B5D]"
+          className="h-9 rounded-lg border border-slate-200 bg-white px-2 text-sm text-slate-700 outline-none focus:border-[#E87B5D] dark:border-slate-600 dark:bg-[#2d2438] dark:text-gray-200"
         >
           <option value="" disabled>
             Font
@@ -108,7 +108,7 @@ export default function RichTextEditor({ value, onChange }) {
         onInput={emitChange}
         onKeyUp={updateActiveStates}
         onMouseUp={updateActiveStates}
-        className="rich-editor min-h-[24rem] w-full px-5 py-4 text-base leading-7 text-slate-800 outline-none [&_b]:font-bold [&_i]:italic [&_u]:underline"
+        className="rich-editor min-h-[24rem] w-full px-5 py-4 text-base leading-7 text-slate-800 outline-none dark:text-gray-200 [&_b]:font-bold [&_i]:italic [&_u]:underline"
         data-placeholder="Chapter content..."
       />
     </div>
