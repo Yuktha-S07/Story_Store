@@ -132,7 +132,6 @@ a {
   position: relative;
 }
 
-.messages-page::before,
 .chapter-editor-page::before {
   content: '';
   position: absolute;
@@ -143,12 +142,6 @@ a {
   border-radius: 50%;
   filter: blur(1px);
   opacity: 0.65;
-}
-
-.messages-page::before {
-  top: 7rem;
-  left: -8rem;
-  background: #d8c9e8;
 }
 
 .messages-page {
@@ -166,10 +159,10 @@ a {
 }
 
 .message-shell {
-  border-radius: 1.5rem;
-  border: 1px solid #d8c9e8;
-  background: rgba(250, 247, 253, 0.95);
-  box-shadow: 0 24px 60px rgba(91, 64, 119, 0.12);
+  border-radius: 1.25rem;
+  border: 1px solid #95CCDD;
+  background: #D6F4ED;
+  box-shadow: 0 20px 45px rgba(95, 149, 152, 0.18);
 }
 
 .message-workspace {
@@ -177,20 +170,27 @@ a {
   min-height: 680px;
 }
 
+@media (max-width: 767px) {
+  .message-workspace {
+    height: calc(100vh - 6rem);
+    min-height: 0;
+  }
+}
+
 .message-page-header {
-  border-bottom: 1px solid #ded2eb;
+  border-bottom: 1px solid #95CCDD;
   padding-bottom: 1.25rem;
 }
 
 .message-count {
-  border: 1px solid #d8c9e8;
+  border: 1px solid #F7A5A5;
   border-radius: 999px;
-  background: #f1eafa;
-  color: #755b8b;
+  background: #F5CBCB;
+  color: #5F9598;
 }
 
 .message-sidebar-title {
-  color: #604579;
+  color: #5F9598;
 }
 
 .message-recipient-meta {
@@ -206,19 +206,87 @@ a {
 }
 
 .message-thread-header {
-  box-shadow: 0 5px 18px rgba(91, 64, 119, 0.06);
+  box-shadow: 0 5px 18px rgba(95, 149, 152, 0.12);
 }
 
 .message-sidebar {
-  background: linear-gradient(180deg, #f1eafa 0%, #fbf9fd 100%);
+  background: #EEEEEE;
+}
+
+.messages-page .message-sidebar {
+  border-color: #E8C4C4;
+}
+
+.messages-page .message-sidebar > div {
+  border-color: #E8C4C4;
+}
+
+.messages-page .message-sidebar .bg-\[\#95CCDD\] {
+  background: #E8C4C4;
+}
+
+.messages-page .message-sidebar,
+.messages-page .message-sidebar p,
+.messages-page .message-sidebar span,
+.messages-page .message-sidebar button,
+.messages-page .message-sidebar svg {
+  color: #315D5E;
+}
+
+.messages-page .message-sidebar .message-conversation .comment-avatar {
+  background: #E8C4C4;
+  color: #315D5E;
+}
+
+.messages-page .message-sidebar button:hover {
+  background: #FBEFEF;
+  color: #315D5E;
+}
+
+.messages-page .message-sidebar .message-conversation[aria-current='true'] {
+  background: #FBEFEF;
+  color: #315D5E;
 }
 
 .message-thread {
-  background: radial-gradient(circle at 85% 10%, rgba(220, 207, 237, 0.46), transparent 28%), #fdfbff;
+  background: #EEEEEE;
 }
 
 .message-empty {
-  background: linear-gradient(135deg, #faf7fd, #eee5f7);
+  background: linear-gradient(135deg, #D0E7E6, #F5CBCB);
+}
+
+.messages-page .message-thread-header,
+.messages-page .message-thread > div:last-child {
+  border-color: #95CCDD;
+}
+
+.messages-page .message-sidebar button {
+  color: #315D5E;
+}
+
+.messages-page .message-sidebar button:hover {
+  background: #FBEFEF;
+  color: #315D5E;
+}
+
+.messages-page .message-conversation .comment-avatar {
+  background: #E8C4C4;
+  color: #315D5E;
+}
+
+.messages-page .message-thread textarea {
+  border-color: #95CCDD;
+  background: #D0E7E6;
+}
+
+.messages-page .message-thread textarea:focus {
+  border-color: #5F9598;
+  box-shadow: 0 0 0 3px rgba(149, 204, 221, 0.35);
+}
+
+.messages-page .message-empty .rounded-full {
+  background: #F5CBCB;
 }
 
 .dark .message-shell {
@@ -228,12 +296,57 @@ a {
 }
 
 .dark .message-sidebar {
-  background: linear-gradient(180deg, #2c2438 0%, #211c29 100%);
+  background: #211c29;
   border-color: #4b3b5d;
 }
 
+.dark .messages-page .message-sidebar,
+.dark .messages-page .message-sidebar p,
+.dark .messages-page .message-sidebar span,
+.dark .messages-page .message-sidebar button,
+.dark .messages-page .message-sidebar svg {
+  color: #F4F2F2;
+}
+
+.dark .messages-page .message-sidebar > div {
+  border-color: #4b3b5d;
+}
+
+.dark .messages-page .message-sidebar .bg-\[\#E8C4C4\] {
+  background: #3B3047;
+}
+
+.dark .messages-page .message-sidebar .message-conversation .comment-avatar {
+  background: #3B3047;
+  color: #F4F2F2;
+}
+
+.dark .messages-page .message-sidebar button:hover {
+  background: #30263D;
+  color: #F4F2F2;
+}
+
+.dark .messages-page .message-sidebar .message-conversation[aria-current='true'] {
+  background: #30263D;
+  color: #F4F2F2;
+}
+
+.dark .messages-page .message-sidebar button:hover span,
+.dark .messages-page .message-sidebar button:hover svg {
+  color: #F4F2F2;
+}
+
+.dark .messages-page .message-sidebar .message-conversation[aria-current='true'] span,
+.dark .messages-page .message-sidebar .message-conversation[aria-current='true'] svg,
+.dark .messages-page .message-sidebar .message-conversation[aria-current='true'] span,
+.dark .messages-page .message-sidebar .message-conversation[aria-current='true'] svg,
+.dark .messages-page .message-sidebar .message-conversation-active span,
+.dark .messages-page .message-sidebar .message-conversation-active svg {
+  color: #F4F2F2;
+}
+
 .dark .message-thread {
-  background: radial-gradient(circle at 85% 10%, rgba(104, 77, 133, 0.28), transparent 28%), #18151e;
+  background: #18151e;
 }
 
 .dark .message-empty {
@@ -262,9 +375,19 @@ a {
   color: #f0e8f6;
 }
 
-.dark .message-conversation:hover,
-.dark .message-conversation[aria-current='true'] {
-  background: #30263d;
+.dark .message-conversation:hover {
+  background: #30263D;
+}
+
+.dark .messages-page button:hover,
+.dark .messages-page .message-sidebar button:hover,
+.dark .messages-page a:hover {
+  background-color: transparent;
+  color: inherit;
+}
+
+.dark .messages-page .message-conversation:hover {
+  background-color: transparent;
 }
 
 .dark .message-thread-header,
@@ -280,6 +403,25 @@ a {
 
 .dark .message-thread textarea::placeholder {
   color: #9f8caf;
+}
+
+.dark .message-thread .message-bubble {
+  color: #E2B4BD;
+}
+
+.dark .message-thread .message-bubble.bg-\[\#D6F4ED\] {
+  border-color: #554363;
+  background: #F4CEFF;
+  color: #850E35;
+}
+
+.dark .message-thread .message-bubble.bg-\[\#5F9598\] {
+  background: #C8DFDB;
+  color: #112E81;
+}
+
+.dark .message-thread .message-bubble p {
+  color: inherit;
 }
 
 .dark .message-thread .bg-\[\#f1eafa\] {
