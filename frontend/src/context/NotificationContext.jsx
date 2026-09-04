@@ -38,10 +38,15 @@ export function NotificationProvider({ children }) {
   }, [notify])
 
   useEffect(() => {
+    let audioCtx = null
+
     const playSound = (soundName) => {
-      const AudioContext = window.AudioContext || window.webkitAudioContext
-      if (!AudioContext) return
-      const audio = new AudioContext()
+      const AudioCtx = window.AudioContext || window.webkitAudioContext
+      if (!AudioCtx) return
+      if (!audioCtx || audioCtx.state === 'closed') {
+        audioCtx = new AudioCtx()
+      }
+      if (audioCtx.state === 'suspended') audioCtx.resume()
       const patterns = {
         chime: [[523, 0], [659, 0.12]],
         pop: [[440, 0]],
@@ -50,17 +55,17 @@ export function NotificationProvider({ children }) {
         whistle: [[880, 0], [1175, 0.12]],
       }
       ;(patterns[soundName] || patterns.chime).forEach(([frequency, delay]) => {
-        const oscillator = audio.createOscillator()
-        const gain = audio.createGain()
+        const oscillator = audioCtx.createOscillator()
+        const gain = audioCtx.createGain()
         oscillator.type = 'sine'
         oscillator.frequency.value = frequency
-        gain.gain.setValueAtTime(0.0001, audio.currentTime + delay)
-        gain.gain.exponentialRampToValueAtTime(0.08, audio.currentTime + delay + 0.02)
-        gain.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + delay + 0.28)
+        gain.gain.setValueAtTime(0.0001, audioCtx.currentTime + delay)
+        gain.gain.exponentialRampToValueAtTime(0.08, audioCtx.currentTime + delay + 0.02)
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + delay + 0.28)
         oscillator.connect(gain)
-        gain.connect(audio.destination)
-        oscillator.start(audio.currentTime + delay)
-        oscillator.stop(audio.currentTime + delay + 0.3)
+        gain.connect(audioCtx.destination)
+        oscillator.start(audioCtx.currentTime + delay)
+        oscillator.stop(audioCtx.currentTime + delay + 0.3)
       })
     }
 

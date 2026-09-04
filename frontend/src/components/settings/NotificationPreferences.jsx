@@ -25,10 +25,16 @@ export default function NotificationPreferences() {
   const [sound, setSound] = useState(() => localStorage.getItem('story-store:notification-sound') || 'chime')
   const [saving, setSaving] = useState(false)
 
+  const audioCtxRef = React.useRef(null)
+
   const playSound = (soundName = sound) => {
-    const AudioContext = window.AudioContext || window.webkitAudioContext
-    if (!AudioContext) return
-    const audio = new AudioContext()
+    const AudioCtx = window.AudioContext || window.webkitAudioContext
+    if (!AudioCtx) return
+    if (!audioCtxRef.current || audioCtxRef.current.state === 'closed') {
+      audioCtxRef.current = new AudioCtx()
+    }
+    const audio = audioCtxRef.current
+    if (audio.state === 'suspended') audio.resume()
     const patterns = {
       chime: [[523, 0], [659, 0.12]],
       pop: [[440, 0]],
@@ -79,20 +85,24 @@ export default function NotificationPreferences() {
   }
 
   return (
-    <Card>
-      <button
-        type="button"
-        onClick={() => setExpanded((value) => !value)}
-        aria-expanded={expanded}
-        className="flex w-full items-center gap-3 text-left"
-      >
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#eee5f7] text-[#755b8b] dark:bg-[#3b2d4b] dark:text-[#d9c5eb]"><FiBell size={18} /></span>
-        <span className="min-w-0 flex-1">
-          <span className="block text-sm font-semibold text-[#26231f] dark:text-[#f0e8f6]">Notifications</span>
-          <span className="mt-0.5 block text-xs text-[#5d584f] dark:text-[#c8b8d2]">Choose which activity reaches you and how it sounds.</span>
-        </span>
-        <FiChevronDown className={`shrink-0 text-[#876da0] dark:text-[#d3bce4] transition-transform ${expanded ? 'rotate-180' : ''}`} size={19} />
-      </button>
+    <Card
+      title="Notifications"
+      subtitle="Choose which activity reaches you and how it sounds."
+      icon={FiBell}
+      iconColor="purple"
+      accent="purple"
+      onHeaderClick={() => setExpanded((value) => !value)}
+      actions={
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); setExpanded((value) => !value) }}
+          aria-expanded={expanded}
+          className="shrink-0 cursor-pointer p-1 rounded-lg hover:bg-[#eee5f7] dark:hover:bg-[#3b2d4b] transition"
+        >
+          <FiChevronDown className={`text-[#876da0] dark:text-[#d3bce4] transition-transform ${expanded ? 'rotate-180' : ''}`} size={19} />
+        </button>
+      }
+    >
       {expanded && <div className="mt-4 border-t border-[#e6dcd2] pt-4 dark:border-[#4b3b5d]">
       <div className="grid gap-2 sm:grid-cols-2">
         {EVENT_OPTIONS.map(({ key, label, description, icon: Icon, color }) => (

@@ -152,11 +152,36 @@ a {
 }
 
 .messages-page {
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
   padding-right: clamp(0.75rem, 4vw, 4rem);
   padding-left: clamp(0.75rem, 4vw, 4rem);
   box-sizing: border-box;
+}
+
+.message-workspace {
+  height: calc(100vh - 10rem);
+  min-height: 480px;
+}
+
+@media (max-width: 767px) {
+  .messages-page {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  .message-workspace {
+    height: calc(100vh - 8rem);
+    min-height: 320px;
+    border-radius: 1rem;
+  }
+  .message-sidebar {
+    border-radius: 1rem;
+  }
+  .message-thread {
+    min-height: 400px;
+  }
+  .message-page-header {
+    border-bottom: none;
+    padding-bottom: 0.5rem;
+  }
 }
 
 .chapter-editor-page::before {
