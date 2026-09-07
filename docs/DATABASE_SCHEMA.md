@@ -226,6 +226,26 @@ Tracks the reading progress of users.
 }
 ```
 
+### Push Subscriptions Collection
+Stores browser Web Push subscriptions so users can receive system notifications even when they are not on the website.
+
+```javascript
+{
+  _id: ObjectId,
+  recipient_id: String (user id, references users._id),
+  endpoint: String (push service endpoint, required),
+  keys: Object ({ p256dh: String, auth: String }),
+  expiration_time: Date (nullable),
+  created_at: ISODate,
+}
+```
+
+**Indexes:**
+- `recipient_id`
+- `endpoint`
+
+Subscriptions are removed automatically (status 404/410) when the push service reports them expired.
+
 ---
 
 ## Database Connection String Examples

@@ -76,6 +76,7 @@ def initialize_collections():
         "follows": ["follower_id", "following_id"],
         "messages": ["sender_id", "recipient_id"],
         "notifications": ["recipient_id", "read", "created_at"],
+        "push_subscriptions": ["recipient_id", "endpoint"],
     }
 
     for collection_name, indexes in collections.items():
@@ -139,4 +140,9 @@ def get_follow_collection():
 def get_message_collection():
     """Get the messages collection."""
     return get_database()["messages"]
+
+
+def get_push_subscriptions_collection():
+    """Get the push subscriptions collection."""
+    return get_database()["push_subscriptions"]
 

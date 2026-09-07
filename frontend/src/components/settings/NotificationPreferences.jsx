@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { FiBell, FiCheck, FiChevronDown, FiMessageCircle, FiPlay, FiThumbsUp, FiVolume2 } from 'react-icons/fi'
+import { FiBell, FiCheck, FiChevronDown, FiLoader, FiMessageCircle, FiPlay, FiSmartphone, FiThumbsUp, FiVolume2, FiX } from 'react-icons/fi'
 import { Card } from '../SettingsUI'
 import api from '../../services/api'
+import { getPushStatus, isPushSupported, requestPushPermission, unsubscribeFromPush } from '../../services/push'
 
 const DEFAULTS = { comments: true, messages: true, likes: true, votes: true }
 const EVENT_OPTIONS = [
@@ -24,6 +25,10 @@ export default function NotificationPreferences() {
   const [preferences, setPreferences] = useState(DEFAULTS)
   const [sound, setSound] = useState(() => localStorage.getItem('story-store:notification-sound') || 'chime')
   const [saving, setSaving] = useState(false)
+  const [pushSupported, setPushSupported] = useState(isPushSupported())
+  const [pushEnabled, setPushEnabled] = useState(false)
+  const [pushUpdating, setPushUpdating] = useState(false)
+  const [pushError, setPushError] = useState('')
 
   const playSound = (soundName = sound) => {
     const AudioContext = window.AudioContext || window.webkitAudioContext
@@ -56,6 +61,49 @@ export default function NotificationPreferences() {
       .then((res) => setPreferences({ ...DEFAULTS, ...res.data }))
       .catch((err) => console.error(err))
   }, [])
+
+  useEffect(() => {
+    let mounted = true
+    getPushStatus()
+      .then((status) => {
+        if (!mounted) return
+        setPushSupported(status.supported)
+        setPushEnabled(status.enabled)
+        if (status.denied) setPushError('Notifications are blocked in your browser settings.')
+      })
+      .catch(() => {
+        if (mounted) setPushSupported(false)
+      })
+    return () => {
+      mounted = false
+    }
+  }, [])
+
+  const togglePush = async () => {
+    setPushUpdating(true)
+    setPushError('')
+    try {
+      if (!pushEnabled) {
+        const result = await requestPushPermission()
+        if (result.status === 'granted') {
+          setPushEnabled(true)
+        } else if (result.status === 'denied') {
+          setPushError('Notifications are blocked. Enable them in your browser settings for this site.')
+        } else if (result.status === 'unsupported') {
+          setPushError('Push notifications are not supported on this browser or device.')
+          setPushSupported(false)
+        } else if (result.status === 'error') {
+          setPushError('Could not enable notifications. Please try again.')
+        }
+      } else {
+        const result = await unsubscribeFromPush()
+        if (result.status === 'disabled') setPushEnabled(false)
+        else setPushError('Could not disable notifications. Please try again.')
+      }
+    } finally {
+      setPushUpdating(false)
+    }
+  }
 
   const updatePreferences = async (key) => {
     const next = { ...preferences, [key]: !preferences[key] }
@@ -116,6 +164,39 @@ export default function NotificationPreferences() {
           </button>
         ))}
       </div>
+      <div className="mt-4 flex items-center gap-3 rounded-xl border border-[#ded2eb] bg-[#f8f3fc] p-3 dark:border-[#4b3b5d] dark:bg-[#2d2438]">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#e3d8ef] text-[#755b8b] dark:bg-[#49375b] dark:text-[#d9c5eb]"><FiSmartphone size={17} /></span>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold text-[#604579] dark:text-[#eadff1]">Device notifications</p>
+          <p className="mt-0.5 text-xs leading-4 text-[#7b7470] dark:text-[#c8b8d2]">
+            {pushSupported
+              ? pushEnabled
+                ? 'On: you get notifications here even when you are not on Story Store.'
+                : 'Off: receive a system notification on this device when you are away.'
+              : 'Push notifications are not supported on this browser or device.'}
+          </p>
+        </div>
+        {pushSupported && (
+          <button
+            type="button"
+            role="switch"
+            aria-checked={pushEnabled}
+            onClick={togglePush}
+            disabled={pushUpdating}
+            className={`h-6 w-11 shrink-0 rounded-full p-0.5 transition ${pushEnabled ? 'bg-[#9c78b9]' : 'bg-[#d8d1d9]'} ${pushUpdating ? 'cursor-wait opacity-60' : ''}`}
+            aria-label="Toggle device notifications"
+          >
+            {pushUpdating
+              ? <FiLoader className="mx-auto mt-0.5 h-3.5 w-3.5 animate-spin text-[#755b8b] dark:text-[#d9c5eb]" />
+              : <span className={`block h-5 w-5 rounded-full bg-white shadow-sm transition ${pushEnabled ? 'translate-x-5' : ''}`} />}
+          </button>
+        )}
+      </div>
+      {pushError && (
+        <p className="mt-2 flex items-start gap-1.5 px-1 text-xs leading-5 text-[#a45145] dark:text-[#e0a6a6]">
+          <FiX size={13} className="mt-0.5 shrink-0" /> {pushError}
+        </p>
+      )}
       <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-[#ded2eb] bg-[#f8f3fc] p-3 dark:border-[#4b3b5d] dark:bg-[#2d2438]">
         <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#e3d8ef] text-[#755b8b] dark:bg-[#49375b] dark:text-[#d9c5eb]"><FiVolume2 size={17} /></span>
         <label htmlFor="notification-sound" className="text-sm font-semibold text-[#604579] dark:text-[#eadff1]">Notification sound</label>

@@ -62,6 +62,12 @@ def create_notification(
     }
     result = get_database().notifications.insert_one(document)
     document["_id"] = result.inserted_id
+
+    from .push_service import send_push
+    try:
+        send_push(recipient_id, document)
+    except Exception:
+        pass
     return document
 
 

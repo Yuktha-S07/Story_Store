@@ -1,0 +1,17 @@
+{
+  "name": "Story Store",
+  "short_name": "Story Store",
+  "description": "A story reading and writing platform.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fbf8f2",
+  "theme_color": "#3a3a3a",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

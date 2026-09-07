@@ -22,6 +22,11 @@ cd backend
 - Collections are cleared after each test run.
 - If you use a different MongoDB URI, set `MONGODB_URI` before running tests.
 
+### Web Push
+
+- Push subscription tests: `.\venv\Scripts\python.exe -m pytest tests/test_push_service.py`
+- To test real push delivery, set a VAPID key pair in `backend/.env` (generate with `python scripts/generate_vapid_keys.py`), run the backend + frontend on `https://` or `localhost`, open **Settings → Notifications → Device notifications**, and trigger a like/comment on another account.
+
 ## Run Frontend (Manual Verification)
 
 ```

@@ -37,6 +37,11 @@ class Settings:
     AWS_SECRET_ACCESS_KEY: str = os.getenv("AWS_SECRET_ACCESS_KEY", "")
     AWS_S3_BUCKET_NAME: str = os.getenv("AWS_S3_BUCKET_NAME", "")
     
+    # Web Push (VAPID) Configuration
+    VAPID_PUBLIC_KEY: str = os.getenv("VAPID_PUBLIC_KEY", "")
+    VAPID_PRIVATE_KEY: str = os.getenv("VAPID_PRIVATE_KEY", "")
+    VAPID_SUBJECT_EMAIL: str = os.getenv("VAPID_SUBJECT_EMAIL", "")
+
     # CORS Configuration
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173")
     ALLOWED_ORIGINS: list = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:5174,http://localhost:3000,https://storystore.vercel.app").split(",")
