@@ -9,29 +9,47 @@ import json
 import logging
 from datetime import datetime
 
+from bson import ObjectId
+
 from app.config import settings
 from app.database import get_push_subscriptions_collection
 
 logger = logging.getLogger("storystore.push")
 
 
+def _user_id_values(user_id: str) -> list:
+    as_str = str(user_id)
+    values = [as_str]
+    if ObjectId.is_valid(as_str):
+        values.insert(0, ObjectId(as_str))
+    return values
+
+
 def _recipient_query(user_id: str) -> dict:
-    return {"recipient_id": user_id}
+    return {"recipient_id": {"$in": _user_id_values(user_id)}}
 
 
 def save_subscription(user_id: str, subscription: dict) -> dict:
     endpoint = subscription.get("endpoint", "")
     if not endpoint:
         raise ValueError("Subscription is missing an endpoint")
+    user_key = str(user_id)
     document = {
-        "recipient_id": user_id,
+        "recipient_id": user_key,
         "endpoint": endpoint,
         "keys": subscription.get("keys", {}),
         "expiration_time": subscription.get("expirationTime"),
         "created_at": datetime.utcnow(),
     }
-    get_push_subscriptions_collection().update_one(
-        {"recipient_id": user_id, "endpoint": endpoint},
+    collection = get_push_subscriptions_collection()
+    collection.delete_many(
+        {
+            "endpoint": endpoint,
+            "recipient_id": {"$in": _user_id_values(user_id), "$ne": user_key},
+        }
+    )
+    collection.update_one(
+        {"recipient_id": user_key, "endpoint": endpoint},
         {"$set": document},
         upsert=True,
     )
@@ -39,7 +57,7 @@ def save_subscription(user_id: str, subscription: dict) -> dict:
 
 
 def delete_subscription(user_id: str, endpoint: str | None = None) -> int:
-    query: dict = {"recipient_id": user_id}
+    query: dict = _recipient_query(user_id)
     if endpoint:
         query["endpoint"] = endpoint
     result = get_push_subscriptions_collection().delete_many(query)
@@ -49,7 +67,7 @@ def delete_subscription(user_id: str, endpoint: str | None = None) -> int:
 def list_subscriptions(user_id: str) -> list[dict]:
     return list(
         get_push_subscriptions_collection().find(
-            {"recipient_id": user_id}
+            _recipient_query(user_id)
         )
     )
 

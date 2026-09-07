@@ -1,5 +1,6 @@
 import os
 import pytest
+from bson import ObjectId
 
 os.environ.setdefault("MONGODB_URI", "mongodb://localhost:27017/story_store_test")
 os.environ.setdefault("VAPID_PUBLIC_KEY", "x")
@@ -46,6 +47,20 @@ def test_delete_subscription(db_ready):
     deleted = push_service.delete_subscription("user-1", sub["endpoint"])
     assert deleted == 1
     assert len(push_service.list_subscriptions("user-1")) == 1
+
+
+def test_subscription_lookup_across_id_formats(db_ready):
+    user_id = ObjectId()
+    sub = {
+        "endpoint": "https://push.example.com/dev4",
+        "expirationTime": None,
+        "keys": {"p256dh": "g" * 43, "auth": "h" * 22},
+    }
+    push_service.save_subscription(user_id, sub)
+    assert len(push_service.list_subscriptions(str(user_id))) == 1
+
+    push_service.save_subscription(str(user_id), sub)
+    assert len(push_service.list_subscriptions(user_id)) == 1
 
 
 def test_send_push_does_not_raise(db_ready):
