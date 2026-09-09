@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { FiChevronLeft, FiChevronRight, FiMessageCircle, FiSend, FiUser, FiUsers } from 'react-icons/fi'
+import { FiChevronLeft, FiChevronRight, FiMessageCircle, FiSend, FiSmile, FiUser, FiUsers } from 'react-icons/fi'
 import { AuthContext } from '../context/AuthContext'
 import api from '../services/api'
 import { useNotification } from '../context/NotificationContext'
@@ -21,8 +21,10 @@ export default function MessagesPage() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
+  const [showEmojis, setShowEmojis] = useState(false)
   const bottomRef = useRef(null)
   const threadScrollRef = useRef(null)
+  const inputRef = useRef(null)
 
   useEffect(() => {
     if (!user) return
@@ -50,6 +52,7 @@ export default function MessagesPage() {
       return
     }
     setActiveUserId(userId)
+    setShowEmojis(false)
     const fetchThread = async () => {
       try {
         const [threadRes, profileRes] = await Promise.all([
@@ -117,10 +120,41 @@ export default function MessagesPage() {
     navigate(`/messages/${otherId}`)
   }
 
+  const insertEmoji = (emoji) => {
+    const el = inputRef.current
+    const start = el?.selectionStart ?? input.length
+    const end = el?.selectionEnd ?? input.length
+    const next = input.slice(0, start) + emoji + input.slice(end)
+    setInput(next)
+    el?.focus()
+    requestAnimationFrame(() => {
+      if (el) el.selectionStart = el.selectionEnd = start + emoji.length
+    })
+  }
+
   const tabs = [
     { key: 'all', label: 'All' },
     { key: 'received', label: 'Received' },
     { key: 'sent', label: 'Sent' },
+  ]
+
+  const EMOJI_CATEGORIES = [
+    {
+      label: 'Smileys',
+      emojis: ['😀','😄','😁','😆','😂','🤣','😊','😇','🙂','😉','😍','🥰','😘','😜','🤪','😎','🤩','🥳','😅','🤔','🥺','😢','😭','😤','😡','🤯','😴','😱','🙃'],
+    },
+    {
+      label: 'Gestures & hands',
+      emojis: ['👍','👎','👌','✌️','🤞','🤝','👏','🙌','🙏','💪','👋','🫶','🤟','👊','✊','🤙','💯','🔥'],
+    },
+    {
+      label: 'Hearts & feelings',
+      emojis: ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','💖','💕','💔','💫','✨','⭐','🌟','🌈'],
+    },
+    {
+      label: 'Everyday',
+      emojis: ['🎉','🎊','🎁','🎂','🍕','☕','🍰','🍿','🍎','🌹','🌻','🍀','⚽','🎮','🎵','🎶','📚','💡','📱','💻','🧸','🚀','☀️','🌙'],
+    },
   ]
 
   return (
@@ -250,19 +284,51 @@ export default function MessagesPage() {
                 </div>
 
                 <div className="border-t border-[#95CCDD] bg-[#EEEEEE] p-4">
+                  {showEmojis && (
+                    <div className="mb-3 max-h-52 overflow-y-auto rounded-2xl border border-[#95CCDD] bg-[#F4F2F2] p-3 shadow-inner">
+                      {EMOJI_CATEGORIES.map((category) => (
+                        <div key={category.label} className="mb-2 last:mb-0">
+                          <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#5F9598]">{category.label}</p>
+                          <div className="flex flex-wrap gap-1">
+                            {category.emojis.map((emoji) => (
+                              <button
+                                key={emoji}
+                                type="button"
+                                onClick={() => insertEmoji(emoji)}
+                                className="flex h-9 w-9 items-center justify-center rounded-lg text-xl transition hover:bg-[#D6F4ED] hover:scale-110"
+                                aria-label={`Insert emoji ${emoji}`}
+                              >
+                                {emoji}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   <form
                     onSubmit={(e) => { e.preventDefault(); sendMessage() }}
                     className="flex items-end gap-3"
                   >
                     <span className="hidden pb-3 text-[10px] font-bold uppercase tracking-[0.16em] text-[#5F9598] sm:block">Reply</span>
                     <textarea
+                      ref={inputRef}
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
                       placeholder="Write a message..."
                       rows={1}
                       className="flex-1 resize-none rounded-2xl border border-[#95CCDD] bg-[#F4F2F2] px-4 py-3 text-sm text-[#5F9598] outline-none transition focus:border-[#5F9598] focus:ring-2 focus:ring-[#95CCDD]/30"
                     />
-                    <button type="submit" disabled={sending || !input.trim()} className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[#F7A5A5] text-[#5F9598] shadow-sm transition hover:bg-[#EEEEEE] disabled:opacity-50">
+                    <button
+                      type="button"
+                      onClick={() => setShowEmojis((value) => !value)}
+                      aria-label="Toggle emoji picker"
+                      aria-expanded={showEmojis}
+                      className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl transition disabled:opacity-50 ${showEmojis ? 'bg-[#5F9598] text-[#F4F2F2]' : 'bg-[#95CCDD] text-[#5F9598] hover:bg-[#D6F4ED]'}`}
+                    >
+                      <FiSmile size={19} />
+                    </button>
+                    <button type="submit" disabled={sending || !input.trim()} className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#F7A5A5] text-[#5F9598] shadow-sm transition hover:bg-[#EEEEEE] disabled:opacity-50">
                       <FiSend />
                     </button>
                   </form>
