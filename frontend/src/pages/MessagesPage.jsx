@@ -132,7 +132,7 @@ export default function MessagesPage() {
   }, [messages])
 
   const sendMessage = async () => {
-    if (!input.trim() || !activeUserId) return
+    if (sending || !input.trim() || !activeUserId) return
     const content = input.trim()
     setSending(true)
     let sent = false
@@ -389,6 +389,12 @@ export default function MessagesPage() {
                       ref={inputRef}
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault()
+                          sendMessage()
+                        }
+                      }}
                       placeholder="Write a message..."
                       rows={1}
                       className="flex-1 resize-none rounded-2xl border border-[#95CCDD] bg-[#F4F2F2] px-4 py-3 text-sm text-[#5F9598] outline-none transition focus:border-[#5F9598] focus:ring-2 focus:ring-[#95CCDD]/30"

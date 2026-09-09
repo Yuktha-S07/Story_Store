@@ -18,12 +18,13 @@ def verify_password(password: str, hashed: bytes) -> bool:
 
 
 def _serialize_user(user: dict) -> dict:
+    avatar_url = f"/api/users/{user['_id']}/avatar-image" if user.get("avatar_image") is not None else user.get("avatar_url", "")
     return {
         "_id": str(user["_id"]),
         "email": user["email"],
         "username": user["username"],
         "bio": user.get("bio", ""),
-        "avatar_url": user.get("avatar_url", ""),
+        "avatar_url": avatar_url,
         "created_at": user.get("created_at"),
         "encryption_public_key": user.get("encryption_public_key", ""),
     }

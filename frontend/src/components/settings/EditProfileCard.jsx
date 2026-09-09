@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import api from '../../services/api'
 import { Card, Field, inputClass } from '../SettingsUI'
+import { buildAvatarUrl } from '../../utils/avatar'
 
 function ChevronIcon({ open }) {
   return (
@@ -22,7 +23,7 @@ export default function EditProfileCard({ user, onUpdated, notify }) {
   const [username, setUsername] = useState(user?.username || '')
   const [email, setEmail] = useState(user?.email || '')
   const [avatarFile, setAvatarFile] = useState(null)
-  const [avatarPreview, setAvatarPreview] = useState(user?.avatar_url || '')
+  const [avatarPreview, setAvatarPreview] = useState(buildAvatarUrl(user?.avatar_url || ''))
   const [savingProfile, setSavingProfile] = useState(false)
   const fileInputRef = useRef(null)
 
@@ -35,7 +36,7 @@ export default function EditProfileCard({ user, onUpdated, notify }) {
   useEffect(() => {
     setUsername(user?.username || '')
     setEmail(user?.email || '')
-    if (!avatarFile) setAvatarPreview(user?.avatar_url || '')
+    if (!avatarFile) setAvatarPreview(buildAvatarUrl(user?.avatar_url || ''))
   }, [user])
 
   const memberSince = user?.created_at
@@ -84,11 +85,22 @@ export default function EditProfileCard({ user, onUpdated, notify }) {
       const res = await api.put(`/api/users/${user._id}`, formData)
       onUpdated(res.data)
       setAvatarFile(null)
-      setAvatarPreview(res.data.avatar_url || '')
+      setAvatarPreview(buildAvatarUrl(res.data.avatar_url || ''))
       notify('Profile updated successfully.', 'success')
     } catch (err) {
       const detail = err?.response?.data?.detail
-      notify(typeof detail === 'string' ? detail : 'Error updating profile.', 'error')
+      const status = err?.response?.status
+      let message = ''
+      if (typeof detail === 'string') {
+        message = detail
+      } else if (Array.isArray(detail)) {
+        message = detail.map((item) => item?.msg || item?.message || '').filter(Boolean).join(', ')
+      } else if (err?.response) {
+        message = `Request failed (HTTP ${status})`
+      } else if (err?.message) {
+        message = err.message
+      }
+      notify(message || 'Error updating profile.', 'error')
     } finally {
       setSavingProfile(false)
     }

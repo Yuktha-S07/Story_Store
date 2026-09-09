@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Response, UploadFile, status
 from bson import ObjectId
+from bson.binary import Binary
 from datetime import datetime
 from pymongo.errors import DuplicateKeyError
 
@@ -7,9 +8,15 @@ from app.database import get_database
 from app.middleware.auth_middleware import get_current_user
 from app.models.user import ChangePasswordRequest, DeleteAccountRequest
 from app.services.auth_service import get_user_by_id, hash_password, verify_password
-from app.services.file_service import save_profile_image
 
 router = APIRouter()
+
+AVATAR_CONTENT_TYPES = {
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".png": "image/png",
+    ".webp": "image/webp",
+}
 
 
 @router.put("/users/me/encryption-key")
@@ -32,6 +39,17 @@ async def update_encryption_key(
         }},
     )
     return {"message": "Encryption key updated successfully"}
+
+
+@router.get("/users/{user_id}/avatar-image")
+async def get_avatar_image_endpoint(user_id: str):
+    if not ObjectId.is_valid(user_id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    db = get_database()
+    user = db.users.find_one({"_id": ObjectId(user_id)}, {"avatar_image": 1, "avatar_image_mime": 1})
+    if not user or user.get("avatar_image") is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Avatar not found")
+    return Response(content=user["avatar_image"], media_type=user.get("avatar_image_mime", "image/jpeg"))
 
 
 @router.get("/users/{user_id}")
@@ -93,10 +111,17 @@ async def update_user_profile(
         update_data["bio"] = bio
 
     if avatar is not None and avatar.filename:
-        try:
-            update_data["avatar_url"] = await save_profile_image(avatar)
-        except ValueError as err:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
+        ext = ("." + (avatar.filename or "").rsplit(".", 1)[-1]).lower()
+        media_type = AVATAR_CONTENT_TYPES.get(ext)
+        if not media_type:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unsupported image format. Use jpg, jpeg, png, or webp")
+        content = await avatar.read()
+        if not content:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Uploaded file is empty")
+        if len(content) > 5 * 1024 * 1024:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Profile picture must be smaller than 5MB")
+        update_data["avatar_image"] = Binary(content)
+        update_data["avatar_image_mime"] = media_type
 
     if not update_data:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No fields to update")

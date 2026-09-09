@@ -5,6 +5,7 @@ import { AuthContext } from '../context/AuthContext'
 import api from '../services/api'
 import { useNotification } from '../context/NotificationContext'
 import { buildStoryCoverAlt, buildStoryCoverUrl, buildStoryFallbackUrl } from '../utils/storyCover'
+import { buildAvatarUrl } from '../utils/avatar'
 import BackButton from '../components/BackButton'
 
 export default function ProfilePage() {
@@ -18,8 +19,13 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true)
   const [isFollowing, setIsFollowing] = useState(false)
   const [savingFollow, setSavingFollow] = useState(false)
+  const [avatarFailed, setAvatarFailed] = useState(false)
 
   const isOwnProfile = Boolean(authUser && String(authUser._id) === String(userId))
+
+  useEffect(() => {
+    setAvatarFailed(false)
+  }, [userId])
 
   useEffect(() => {
     if (!userId) return
@@ -117,10 +123,11 @@ export default function ProfilePage() {
   const avatarColorClass = avatarColors[profile.username ? profile.username.length % avatarColors.length : 0]
 
   const renderAvatar = (sizeClass, letterClass) => (
-    profile.avatar_url ? (
+    profile.avatar_url && !avatarFailed ? (
       <img
-        src={profile.avatar_url}
+        src={buildAvatarUrl(profile.avatar_url)}
         alt={`${profile.username}'s profile picture`}
+        onError={() => setAvatarFailed(true)}
         className={`${sizeClass} shrink-0 rounded-full object-cover shadow-md ring-8 ring-white/40`}
       />
     ) : (
