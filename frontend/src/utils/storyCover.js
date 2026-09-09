@@ -28,6 +28,8 @@ const allImages = [
   'download (18).jpg',
 ]
 
+const API_URL = import.meta.env.VITE_API_URL || ''
+
 function hashId(str) {
   let h = 0
   for (let i = 0; i < (str || '').length; i++) {
@@ -37,12 +39,21 @@ function hashId(str) {
   return Math.abs(h)
 }
 
+function resolveCoverUrl(url) {
+  if (!url) return ''
+  if (/^https?:\/\//.test(url)) return url
+  if (url.startsWith('/uploads/')) return `${API_URL}${url}`
+  return url
+}
+
 function pickImage(story) {
   const id = String(story?._id || story?.id || story?.title || 'story')
   return `/${allImages[hashId(id) % allImages.length]}`
 }
 
 export function buildStoryCoverUrl(story) {
+  const uploaded = story?.cover_image_url
+  if (uploaded) return resolveCoverUrl(uploaded)
   return pickImage(story)
 }
 
