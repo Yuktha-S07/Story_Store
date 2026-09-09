@@ -1,4 +1,5 @@
 from datetime import datetime
+import asyncio
 
 from bson import ObjectId
 
@@ -11,6 +12,8 @@ DEFAULT_PREFERENCES = {
     "votes": True,
 }
 
+VALID_SOUNDS = {"chime", "pop", "sparkle", "pulse", "whistle"}
+
 
 def _id_values(value: str) -> list:
     values = [value]
@@ -20,9 +23,14 @@ def _id_values(value: str) -> list:
 
 
 def get_preferences(user_id: str) -> dict:
-    user = get_database().users.find_one({"_id": {"$in": _id_values(user_id)}}, {"notification_preferences": 1})
+    user = get_database().users.find_one({"_id": {"$in": _id_values(user_id)}}, {"notification_preferences": 1, "notification_sound": 1})
     stored = (user or {}).get("notification_preferences", {})
-    return {key: bool(stored.get(key, default)) for key, default in DEFAULT_PREFERENCES.items()}
+    toggles = {key: bool(stored.get(key, default)) for key, default in DEFAULT_PREFERENCES.items()}
+    sound = (user or {}).get("notification_sound") or stored.get("sound") or "chime"
+    if sound not in VALID_SOUNDS:
+        sound = "chime"
+    toggles["sound"] = sound
+    return toggles
 
 
 def update_preferences(user_id: str, preferences: dict) -> dict:
@@ -30,11 +38,43 @@ def update_preferences(user_id: str, preferences: dict) -> dict:
         key: bool(preferences.get(key, DEFAULT_PREFERENCES[key]))
         for key in DEFAULT_PREFERENCES
     }
+    sound = preferences.get("sound", "chime")
+    if sound not in VALID_SOUNDS:
+        sound = "chime"
+    cleaned["sound"] = sound
     get_database().users.update_one(
         {"_id": {"$in": _id_values(user_id)}},
-        {"$set": {"notification_preferences": cleaned, "updated_at": datetime.utcnow()}},
+        {
+            "$set": {
+                "notification_preferences": cleaned,
+                "notification_sound": sound,
+                "updated_at": datetime.utcnow(),
+            }
+        },
     )
     return cleaned
+
+
+def _safe_send_push(recipient_id: str, document: dict) -> None:
+    from .push_service import send_push
+    try:
+        send_push(recipient_id, document)
+    except Exception:
+        pass
+
+
+def _dispatch_push(recipient_id: str, document: dict) -> None:
+    """Send the push notification without blocking the request handler.
+
+    webpush() performs network I/O with a multi-second timeout per device, so it
+    must never run synchronously inside an async endpoint.
+    """
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        _safe_send_push(recipient_id, document)
+        return
+    loop.run_in_executor(None, _safe_send_push, recipient_id, document)
 
 
 def create_notification(
@@ -63,11 +103,7 @@ def create_notification(
     result = get_database().notifications.insert_one(document)
     document["_id"] = result.inserted_id
 
-    from .push_service import send_push
-    try:
-        send_push(recipient_id, document)
-    except Exception:
-        pass
+    _dispatch_push(recipient_id, document)
     return document
 
 

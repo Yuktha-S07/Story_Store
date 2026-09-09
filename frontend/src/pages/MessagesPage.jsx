@@ -13,7 +13,7 @@ export default function MessagesPage() {
   const { notify } = useNotification()
   const navigate = useNavigate()
 
-  const [direction, setDirection] = useState('received')
+  const [direction, setDirection] = useState('all')
   const [conversations, setConversations] = useState([])
   const [messages, setMessages] = useState([])
   const [activeUserId, setActiveUserId] = useState(null)
@@ -81,18 +81,26 @@ export default function MessagesPage() {
 
   const sendMessage = async () => {
     if (!input.trim() || !activeUserId) return
+    const content = input.trim()
+    setSending(true)
+    let sent = false
     try {
-      setSending(true)
-      await api.post('/api/messages', { recipient_id: activeUserId, content: input.trim() })
-      const res = await api.get(`/api/messages/with/${activeUserId}`)
-      setMessages(Array.isArray(res.data) ? res.data : [])
+      await api.post('/api/messages', { recipient_id: activeUserId, content })
+      sent = true
       setInput('')
-      refreshConversations()
     } catch (err) {
       console.error(err)
       notify('Failed to send message.', 'error')
     } finally {
       setSending(false)
+    }
+    if (!sent) return
+    refreshConversations()
+    try {
+      const res = await api.get(`/api/messages/with/${activeUserId}`)
+      setMessages(Array.isArray(res.data) ? res.data : [])
+    } catch (err) {
+      console.error(err)
     }
   }
 
@@ -110,6 +118,7 @@ export default function MessagesPage() {
   }
 
   const tabs = [
+    { key: 'all', label: 'All' },
     { key: 'received', label: 'Received' },
     { key: 'sent', label: 'Sent' },
   ]
@@ -154,11 +163,16 @@ export default function MessagesPage() {
                 <p className="p-4 text-sm text-[#315D5E] italic">Loading...</p>
               ) : conversations.length === 0 ? (
                 <p className="p-4 text-sm text-[#315D5E] italic">
-                  No {direction === 'sent' ? 'sent' : 'received'} messages yet.
+                  No {direction === 'sent' ? 'sent' : direction === 'received' ? 'received' : ''} messages yet.
                 </p>
               ) : (
                 conversations.map((c) => {
-                  const count = direction === 'sent' ? c.sent_count : c.received_count
+                  const count =
+                    direction === 'sent'
+                      ? c.sent_count
+                      : direction === 'received'
+                        ? c.received_count
+                        : (c.sent_count || 0) + (c.received_count || 0)
                   return (
                     <button
                       key={c.user_id}
@@ -167,7 +181,7 @@ export default function MessagesPage() {
                     >
                       <div className="flex items-center justify-between gap-2">
                           <span className="flex min-w-0 items-center gap-2 truncate text-sm font-semibold text-[#315D5E]"><span className="comment-avatar h-7 w-7 bg-[#E8C4C4] text-[#315D5E]">{(c.username || 'U')[0].toUpperCase()}</span>{c.username}</span>
-                        {direction === 'received' && c.unread_count > 0 && (
+                        {c.unread_count > 0 && (
                           <span className="inline-flex items-center justify-center rounded-full bg-[#F7A5A5] px-2 py-0.5 text-[10px] font-bold text-[#5F9598]">
                             {c.unread_count}
                           </span>

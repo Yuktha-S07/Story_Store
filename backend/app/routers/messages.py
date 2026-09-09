@@ -35,15 +35,6 @@ async def get_conversations(
     return await message_service.list_conversations(current_user["_id"], direction)
 
 
-@router.get("/messages/with/{other_id}")
-async def get_thread(
-    other_id: str,
-    current_user: dict = Depends(get_current_user),
-    message_service: MessageService = Depends(get_message_service),
-):
-    return await message_service.get_thread(current_user["_id"], other_id)
-
-
 @router.get("/messages/unread-count")
 async def get_unread(
     current_user: dict = Depends(get_current_user),
@@ -51,3 +42,12 @@ async def get_unread(
 ):
     count = await message_service.get_unread_count(current_user["_id"])
     return {"unread_count": count}
+
+
+@router.get("/messages/with/{other_id}")
+async def get_thread(
+    other_id: str,
+    current_user: dict = Depends(get_current_user),
+    message_service: MessageService = Depends(get_message_service),
+):
+    return await message_service.get_thread(current_user["_id"], other_id)

@@ -3,6 +3,7 @@ import { FiBell, FiCheck, FiChevronDown, FiLoader, FiMessageCircle, FiPlay, FiSm
 import { Card } from '../SettingsUI'
 import api from '../../services/api'
 import { getPushStatus, isPushSupported, requestPushPermission, unsubscribeFromPush } from '../../services/push'
+import { playSound } from '../../utils/notificationSound'
 
 const DEFAULTS = { comments: true, messages: true, likes: true, votes: true }
 const EVENT_OPTIONS = [
@@ -25,40 +26,22 @@ export default function NotificationPreferences() {
   const [preferences, setPreferences] = useState(DEFAULTS)
   const [sound, setSound] = useState(() => localStorage.getItem('story-store:notification-sound') || 'chime')
   const [saving, setSaving] = useState(false)
+  const [soundSyncError, setSoundSyncError] = useState(false)
   const [pushSupported, setPushSupported] = useState(isPushSupported())
   const [pushEnabled, setPushEnabled] = useState(false)
   const [pushUpdating, setPushUpdating] = useState(false)
   const [pushError, setPushError] = useState('')
 
-  const playSound = (soundName = sound) => {
-    const AudioContext = window.AudioContext || window.webkitAudioContext
-    if (!AudioContext) return
-    const audio = new AudioContext()
-    const patterns = {
-      chime: [[523, 0], [659, 0.12]],
-      pop: [[440, 0]],
-      sparkle: [[659, 0], [784, 0.1], [988, 0.2]],
-      pulse: [[220, 0], [330, 0.18]],
-      whistle: [[880, 0], [1175, 0.12]],
-    }
-    ;(patterns[soundName] || patterns.chime).forEach(([frequency, delay]) => {
-      const oscillator = audio.createOscillator()
-      const gain = audio.createGain()
-      oscillator.type = 'sine'
-      oscillator.frequency.value = frequency
-      gain.gain.setValueAtTime(0.0001, audio.currentTime + delay)
-      gain.gain.exponentialRampToValueAtTime(0.08, audio.currentTime + delay + 0.02)
-      gain.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + delay + 0.28)
-      oscillator.connect(gain)
-      gain.connect(audio.destination)
-      oscillator.start(audio.currentTime + delay)
-      oscillator.stop(audio.currentTime + delay + 0.3)
-    })
-  }
-
   useEffect(() => {
     api.get('/api/notifications/preferences')
-      .then((res) => setPreferences({ ...DEFAULTS, ...res.data }))
+      .then((res) => {
+        const data = res.data || {}
+        setPreferences({ ...DEFAULTS, ...data })
+        if (data.sound) {
+          setSound(data.sound)
+          localStorage.setItem('story-store:notification-sound', data.sound)
+        }
+      })
       .catch((err) => console.error(err))
   }, [])
 
@@ -119,11 +102,17 @@ export default function NotificationPreferences() {
     }
   }
 
-  const updateSound = (event) => {
+  const updateSound = async (event) => {
     const next = event.target.value
     setSound(next)
     localStorage.setItem('story-store:notification-sound', next)
-    window.dispatchEvent(new CustomEvent('story-store:notification-settings', { detail: { sound: next } }))
+    setSoundSyncError(false)
+    try {
+      await api.put('/api/notifications/preferences', { ...preferences, sound: next })
+    } catch (err) {
+      console.error(err)
+      setSoundSyncError(true)
+    }
   }
 
   return (
@@ -207,6 +196,11 @@ export default function NotificationPreferences() {
           <FiPlay size={13} /> Listen
         </button>
       </div>
+      {soundSyncError && (
+        <p className="mt-2 flex items-start gap-1.5 px-1 text-xs leading-5 text-[#a45145] dark:text-[#e0a6a6]">
+          <FiX size={13} className="mt-0.5 shrink-0" /> Could not sync your sound preference. It still applies for this browser.
+        </p>
+      )}
       <div className="mt-3 flex flex-wrap gap-2">
         {SOUND_OPTIONS.map((option) => (
           <button key={option.value} type="button" onClick={() => playSound(option.value)} className="inline-flex items-center gap-1.5 rounded-full border border-[#d8c9e8] bg-white px-3 py-1.5 text-xs font-medium text-[#755b8b] transition hover:-translate-y-0.5 hover:bg-[#f1eafa] dark:border-[#604b73] dark:bg-[#2d2438] dark:text-[#d9c5eb] dark:hover:bg-[#423351]">

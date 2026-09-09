@@ -12,7 +12,7 @@ from datetime import datetime
 from bson import ObjectId
 
 from app.config import settings
-from app.database import get_push_subscriptions_collection
+from app.database import get_database, get_push_subscriptions_collection
 
 logger = logging.getLogger("storystore.push")
 
@@ -88,6 +88,13 @@ def send_push(recipient_id: str, document: dict) -> None:
         logger.warning("VAPID_PRIVATE_KEY is not configured; skipping push")
         return
 
+    user = get_database().users.find_one(
+        {"_id": {"$in": _user_id_values(recipient_id)}},
+        {"notification_preferences": 1, "notification_sound": 1},
+    ) or {}
+    stored_prefs = user.get("notification_preferences", {})
+    sound = user.get("notification_sound") or stored_prefs.get("sound") or "chime"
+
     payload = {
         "title": "Story Store",
         "body": document.get("message", ""),
@@ -95,6 +102,7 @@ def send_push(recipient_id: str, document: dict) -> None:
         "badge": "/favicon.svg",
         "tag": str(document.get("_id", "")),
         "url": _notification_url(settings.FRONTEND_URL, document),
+        "sound": sound,
     }
 
     try:
@@ -119,7 +127,7 @@ def send_push(recipient_id: str, document: dict) -> None:
                 vapid_private_key=private_key,
                 vapid_claims=vapid_claims,
                 ttl=60 * 24,
-                timeout=10,
+                timeout=5,
             )
         except WebPushException as exc:
             status = exc.status_code
