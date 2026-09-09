@@ -1,15 +1,16 @@
-from fastapi import APIRouter, Body, Depends, File, HTTPException, Query, UploadFile, status
+from fastapi import APIRouter, Body, Depends, File, HTTPException, Query, Response, UploadFile, status
 from bson import ObjectId
 
 from app.middleware.auth_middleware import get_current_user, get_current_user_optional
 from app.models.story import StoryCreate, StoryUpdate
-from app.services.file_service import save_cover_image
 from app.services.story_service import (
     create_story,
     delete_story,
+    get_story_cover,
     get_story_for_owner_or_published,
     list_stories,
     publish_story,
+    store_story_cover,
     update_story,
 )
 
@@ -88,20 +89,49 @@ async def update_story_endpoint(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
 
 
+COVER_CONTENT_TYPES = {
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".png": "image/png",
+    ".webp": "image/webp",
+}
+
+
 @router.post("/{story_id}/cover")
 async def upload_cover_endpoint(
     story_id: str,
     cover_image: UploadFile = File(...),
     current_user: dict = Depends(get_current_user),
 ):
+    ext = ("." + (cover_image.filename or "").rsplit(".", 1)[-1]).lower() if cover_image.filename else ""
+    media_type = COVER_CONTENT_TYPES.get(ext)
+    if not media_type:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unsupported image format. Use jpg, jpeg, png, or webp")
+
+    content = await cover_image.read()
+    if not content:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Uploaded file is empty")
+
     try:
-        cover_url = await save_cover_image(cover_image)
-        updated = update_story(story_id, current_user["_id"], {}, cover_url)
-        if not updated:
+        stored = store_story_cover(story_id, current_user["_id"], content, media_type)
+        if not stored:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Story not found")
-        return updated
+        return get_story_for_owner_or_published(story_id, current_user["_id"])
     except ValueError as err:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
+
+
+@router.get("/{story_id}/cover-image")
+async def get_cover_image_endpoint(story_id: str):
+    if not ObjectId.is_valid(story_id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Story not found")
+    try:
+        content, media_type = get_story_cover(story_id)
+    except ValueError:
+        content, media_type = None, None
+    if content is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Cover not found")
+    return Response(content=content, media_type=media_type)
 
 
 @router.delete("/{story_id}", status_code=status.HTTP_204_NO_CONTENT)

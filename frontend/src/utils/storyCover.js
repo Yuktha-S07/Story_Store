@@ -42,7 +42,7 @@ function hashId(str) {
 function resolveCoverUrl(url) {
   if (!url) return ''
   if (/^https?:\/\//.test(url)) return url
-  if (url.startsWith('/uploads/')) return `${API_URL}${url}`
+  if (url.startsWith('/uploads/') || url.startsWith('/api/')) return `${API_URL}${url}`
   return url
 }
 

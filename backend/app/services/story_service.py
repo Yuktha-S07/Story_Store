@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from bson import ObjectId
+from bson.binary import Binary
 from pymongo import ReturnDocument
 
 from app.database import get_database
@@ -32,6 +33,9 @@ def _serialize_author(user_id: ObjectId | str | None) -> dict:
 
 def _serialize_story(doc: dict) -> dict:
     user_id = doc.get("user_id")
+    cover_url = doc.get("cover_image_url", "")
+    if doc.get("cover_image") is not None:
+        cover_url = f"/api/stories/{doc['_id']}/cover-image"
     return {
         "_id": str(doc["_id"]),
         "user_id": str(user_id) if user_id else "",
@@ -41,7 +45,7 @@ def _serialize_story(doc: dict) -> dict:
         "genre": doc.get("genre", ""),
         "tags": doc.get("tags", []),
         "status": doc.get("status", "draft"),
-        "cover_image_url": doc.get("cover_image_url", ""),
+        "cover_image_url": cover_url,
         "chapter_count": doc.get("chapter_count", 0),
         "likes_count": doc.get("likes_count", 0),
         "created_at": doc.get("created_at"),
@@ -226,6 +230,30 @@ def get_story_for_owner_or_published(story_id: str, requester_id: str | None) ->
         return _serialize_story(story)
 
     return None
+
+
+def store_story_cover(story_id: str, owner_id: str, content: bytes, media_type: str) -> bool:
+    db = get_database()
+    story = db.stories.find_one({"_id": _to_object_id(story_id), "user_id": _to_object_id(owner_id)})
+    if not story:
+        return False
+    db.stories.update_one(
+        {"_id": story["_id"]},
+        {"$set": {
+            "cover_image": Binary(content),
+            "cover_image_mime": media_type,
+            "updated_at": datetime.utcnow(),
+        }},
+    )
+    return True
+
+
+def get_story_cover(story_id: str) -> tuple[bytes | None, str | None]:
+    db = get_database()
+    story = db.stories.find_one({"_id": _to_object_id(story_id)}, {"cover_image": 1, "cover_image_mime": 1})
+    if not story or story.get("cover_image") is None:
+        return None, None
+    return story["cover_image"], story.get("cover_image_mime", "image/jpeg")
 
 
 def update_story(story_id: str, owner_id: str, payload: dict, cover_image_url: str | None = None) -> dict | None:
