@@ -11,6 +11,9 @@ class Message(BaseModel):
     content: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
     read_at: Optional[datetime] = None
+    iv: Optional[str] = None
+    is_encrypted: bool = False
+    sender_public_key: Optional[str] = None
 
     class Config:
         populate_by_name = True

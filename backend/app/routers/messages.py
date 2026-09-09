@@ -21,7 +21,14 @@ async def send_message(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Message content is required")
     if recipient_id == current_user["_id"]:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You cannot message yourself")
-    return await message_service.send_message(current_user["_id"], recipient_id, content)
+    return await message_service.send_message(
+        current_user["_id"],
+        recipient_id,
+        content,
+        iv=(payload.get("iv") or None),
+        is_encrypted=bool(payload.get("is_encrypted", False)),
+        sender_public_key=(payload.get("sender_public_key") or None),
+    )
 
 
 @router.get("/messages/conversations")

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { FiChevronLeft, FiChevronRight, FiMessageCircle, FiSend, FiSmile, FiUser, FiUsers } from 'react-icons/fi'
 import { AuthContext } from '../context/AuthContext'
@@ -6,6 +6,7 @@ import api from '../services/api'
 import { useNotification } from '../context/NotificationContext'
 import { formatCommentDate } from '../utils/formatDate'
 import BackButton from '../components/BackButton'
+import { ensureKeyPair, encryptMessage, decryptMessage } from '../utils/messageCrypto'
 
 export default function MessagesPage() {
   const { userId } = useParams()
@@ -22,9 +23,22 @@ export default function MessagesPage() {
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
   const [showEmojis, setShowEmojis] = useState(false)
+  const [myKeys, setMyKeys] = useState(null)
+  const warnedNoKeyRef = useRef(false)
   const bottomRef = useRef(null)
   const threadScrollRef = useRef(null)
   const inputRef = useRef(null)
+
+  useEffect(() => {
+    if (!user?._id) return
+    let cancelled = false
+    ensureKeyPair(user._id).then((kp) => {
+      if (!cancelled && kp) setMyKeys(kp)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [user])
 
   useEffect(() => {
     if (!user) return
@@ -44,6 +58,50 @@ export default function MessagesPage() {
     return () => window.clearInterval(interval)
   }, [user, direction])
 
+  const loadThread = useCallback(async (otherId) => {
+    const [threadRes, profileRes] = await Promise.all([
+      api.get(`/api/messages/with/${otherId}`),
+      api.get(`/api/users/${otherId}`),
+    ])
+    const profile = profileRes.data
+    let list = Array.isArray(threadRes.data) ? threadRes.data : []
+    if (list.some((m) => m.is_encrypted)) {
+      let kp = myKeys
+      if (!kp && user?._id) {
+        kp = await ensureKeyPair(user._id)
+        if (kp && !myKeys) setMyKeys(kp)
+      }
+      let peerJwk = null
+      try {
+        peerJwk = JSON.parse(profile?.encryption_public_key)
+      } catch {
+        peerJwk = null
+      }
+      if (kp && peerJwk) {
+        list = await Promise.all(
+          list.map(async (m) => {
+            if (!m.is_encrypted) return m
+            return {
+              ...m,
+              content: await decryptMessage({
+                ciphertext: m.content,
+                iv: m.iv,
+                myPrivateKey: kp.privateKey,
+                peerPublicJwk: peerJwk,
+              }),
+            }
+          })
+        )
+      } else {
+        list = list.map((m) =>
+          m.is_encrypted ? { ...m, content: '[Unable to decrypt this message]' } : m
+        )
+      }
+    }
+    setMessages(list)
+    setActiveUser(profile)
+  }, [myKeys, user])
+
   useEffect(() => {
     if (!userId) {
       setActiveUserId(null)
@@ -53,23 +111,14 @@ export default function MessagesPage() {
     }
     setActiveUserId(userId)
     setShowEmojis(false)
-    const fetchThread = async () => {
-      try {
-        const [threadRes, profileRes] = await Promise.all([
-          api.get(`/api/messages/with/${userId}`),
-          api.get(`/api/users/${userId}`),
-        ])
-        setMessages(Array.isArray(threadRes.data) ? threadRes.data : [])
-        setActiveUser(profileRes.data)
-      } catch (err) {
-        console.error(err)
-        notify('Failed to load conversation.', 'error')
-      }
-    }
-    fetchThread()
-    const interval = window.setInterval(fetchThread, 5000)
+    warnedNoKeyRef.current = false
+    loadThread(userId).catch((err) => {
+      console.error(err)
+      notify('Failed to load conversation.', 'error')
+    })
+    const interval = window.setInterval(() => loadThread(userId), 5000)
     return () => window.clearInterval(interval)
-  }, [userId, user])
+  }, [userId, user, myKeys, loadThread])
 
   useEffect(() => {
     const el = bottomRef.current
@@ -88,7 +137,37 @@ export default function MessagesPage() {
     setSending(true)
     let sent = false
     try {
-      await api.post('/api/messages', { recipient_id: activeUserId, content })
+      let kp = myKeys
+      if (!kp && user?._id) {
+        kp = await ensureKeyPair(user._id)
+        if (kp && !myKeys) setMyKeys(kp)
+      }
+      let payload = null
+      let peerJwk = null
+      try {
+        peerJwk = JSON.parse(activeUser?.encryption_public_key)
+      } catch {
+        peerJwk = null
+      }
+      if (kp && activeUser?.encryption_public_key && peerJwk) {
+        const enc = await encryptMessage({
+          content,
+          myPrivateKey: kp.privateKey,
+          myPublicJwk: kp.publicJwk,
+          peerPublicJwk: peerJwk,
+        })
+        payload = { recipient_id: activeUserId, ...enc }
+      } else {
+        payload = { recipient_id: activeUserId, content }
+        if (!warnedNoKeyRef.current) {
+          warnedNoKeyRef.current = true
+          notify(
+            `${activeUser?.username || 'This user'} hasn't set up encrypted messaging yet, so this message will be sent unencrypted.`,
+            'warning'
+          )
+        }
+      }
+      await api.post('/api/messages', payload)
       sent = true
       setInput('')
     } catch (err) {
@@ -99,12 +178,7 @@ export default function MessagesPage() {
     }
     if (!sent) return
     refreshConversations()
-    try {
-      const res = await api.get(`/api/messages/with/${activeUserId}`)
-      setMessages(Array.isArray(res.data) ? res.data : [])
-    } catch (err) {
-      console.error(err)
-    }
+    loadThread(activeUserId).catch(() => {})
   }
 
   const refreshConversations = async () => {
@@ -222,7 +296,7 @@ export default function MessagesPage() {
                         )}
                       </div>
                       <div className="mt-1 flex items-center justify-between gap-2">
-                        <span className="truncate text-xs text-[#315D5E]">{c.last_message}</span>
+                        <span className="truncate text-xs text-[#315D5E]">{c.last_encrypted ? '🔒 Encrypted message' : c.last_message}</span>
                         {count > 0 && (
                             <span className="shrink-0 text-[10px] font-semibold text-[#315D5E]">
                             {count} {count === 1 ? 'message' : 'messages'}
@@ -257,7 +331,7 @@ export default function MessagesPage() {
                     <Link to={`/profile/${activeUser._id}`} className="block truncate text-sm font-semibold text-[#5F9598] hover:text-[#F7A5A5]">
                       {activeUser.username}
                     </Link>
-                    <span className="text-xs text-[#5F9598]">{activeUser.followers_count ?? 0} followers · private conversation</span>
+                    <span className="text-xs text-[#5F9598]">{activeUser.followers_count ?? 0} followers · {activeUser.encryption_public_key ? '🔒 end-to-end encrypted' : '⚠️ not encrypted'}</span>
                   </div>
                   </div>
                   <Link to={`/profile/${activeUser._id}`} aria-label="View profile" title="View profile" className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#95CCDD] text-[#5F9598] transition hover:bg-[#EEEEEE] sm:flex">

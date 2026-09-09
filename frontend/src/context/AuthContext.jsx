@@ -1,7 +1,20 @@
 import React, { createContext, useState, useEffect } from 'react'
 import api from '../services/api'
+import { ensureKeyPair, publicKeyString } from '../utils/messageCrypto'
 
 export const AuthContext = createContext()
+
+const keyPublishedFor = new Set()
+
+async function publishEncryptionKey(userId) {
+  try {
+    const kp = await ensureKeyPair(userId)
+    if (!kp || !api.defaults.headers.common['Authorization']) return
+    await api.put('/api/users/me/encryption-key', { public_key: publicKeyString(kp.publicJwk) })
+  } catch (err) {
+    console.warn('Failed to publish encryption key:', err)
+  }
+}
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
@@ -22,6 +35,13 @@ export function AuthProvider({ children }) {
       delete api.defaults.headers.common['Authorization']
     }
   }, [token])
+
+  useEffect(() => {
+    if (user?._id && token && !keyPublishedFor.has(user._id)) {
+      keyPublishedFor.add(user._id)
+      publishEncryptionKey(user._id)
+    }
+  }, [user, token])
 
   useEffect(() => {
     const handleAuthInvalid = (event) => {

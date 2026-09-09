@@ -25,6 +25,7 @@ def _serialize_user(user: dict) -> dict:
         "bio": user.get("bio", ""),
         "avatar_url": user.get("avatar_url", ""),
         "created_at": user.get("created_at"),
+        "encryption_public_key": user.get("encryption_public_key", ""),
     }
 
 

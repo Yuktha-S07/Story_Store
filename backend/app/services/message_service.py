@@ -31,7 +31,7 @@ class MessageService:
     def __init__(self):
         self.message_collection = get_message_collection()
 
-    async def send_message(self, sender_id: str, recipient_id: str, content: str) -> dict:
+    async def send_message(self, sender_id: str, recipient_id: str, content: str, iv: str | None = None, is_encrypted: bool = False, sender_public_key: str | None = None) -> dict:
         recipient = get_user_collection().find_one({"_id": {"$in": _id_query_values(recipient_id)}})
         if not recipient:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Recipient not found")
@@ -40,6 +40,9 @@ class MessageService:
             sender_id=ObjectId(sender_id),
             recipient_id=ObjectId(recipient_id),
             content=content,
+            iv=iv,
+            is_encrypted=is_encrypted,
+            sender_public_key=sender_public_key,
         )
         self.message_collection.insert_one(message.dict(by_alias=True))
         sender = get_user_collection().find_one({"_id": {"$in": _id_query_values(sender_id)}}, {"username": 1})
@@ -88,6 +91,7 @@ class MessageService:
             conv["last_message"] = msg.get("content", "")
             conv["last_message_at"] = msg.get("created_at")
             conv["last_is_mine"] = is_mine
+            conv["last_encrypted"] = bool(msg.get("is_encrypted", False))
 
         results = [conversations[k] for k in order]
         if direction == "sent":
@@ -121,6 +125,9 @@ class MessageService:
                 "content": msg.get("content", ""),
                 "created_at": msg.get("created_at"),
                 "read_at": msg.get("read_at"),
+                "iv": msg.get("iv"),
+                "is_encrypted": bool(msg.get("is_encrypted", False)),
+                "sender_public_key": msg.get("sender_public_key"),
                 "is_mine": str(msg["sender_id"]) == str(user_id),
             })
 

@@ -14,6 +14,15 @@ export default function StoryChaptersPage() {
   const [loading, setLoading] = useState(true)
   const [storyTitle, setStoryTitle] = useState('')
   const [chapters, setChapters] = useState([])
+  const [deleting, setDeleting] = useState(false)
+  const [showEmptyPrompt, setShowEmptyPrompt] = useState(() => {
+    if (!id) return true
+    try {
+      return sessionStorage.getItem(`story-store:empty-story:${id}`) !== 'kept'
+    } catch {
+      return true
+    }
+  })
 
   useEffect(() => {
     if (!id) return
@@ -58,6 +67,35 @@ export default function StoryChaptersPage() {
       window.dispatchEvent(new CustomEvent('story-store:story-updated', { detail: { storyId: id } }))
     } catch (err) {
       notify('Failed to delete chapter.', 'error')
+    }
+  }
+
+  const keepStoryEmpty = () => {
+    setShowEmptyPrompt(false)
+    try {
+      sessionStorage.setItem(`story-store:empty-story:${id}`, 'kept')
+    } catch { /* ignore storage errors */ }
+  }
+
+  const deleteEmptyStory = async () => {
+    const shouldDelete = await confirmAction({
+      title: 'Delete story',
+      message: `"${storyTitle}" has no chapters yet. Are you sure you want to delete it? This cannot be undone.`,
+      confirmText: 'Delete story',
+      cancelText: 'Keep it empty',
+    })
+    if (!shouldDelete) return
+    setDeleting(true)
+    try {
+      await api.delete(`/api/stories/${id}`)
+      notify('Story deleted.', 'success')
+      window.dispatchEvent(new CustomEvent('story-store:story-updated', { detail: { storyId: id } }))
+      navigate('/dashboard')
+    } catch (err) {
+      const detail = err?.response?.data?.detail
+      notify(typeof detail === 'string' ? detail : 'Error deleting story.', 'error')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -127,8 +165,34 @@ export default function StoryChaptersPage() {
               </div>
             ))}
           </div>
+        ) : chapters.length === 0 && showEmptyPrompt ? (
+          <div className="rounded-2xl border border-[#f0c990] bg-[#fff8ec] p-6 text-center dark:border-[#6b5533] dark:bg-[#2b2518]">
+            <p className="text-sm font-semibold text-slate-800 dark:text-gray-100">
+              {storyTitle ? `"${storyTitle}" has no chapters yet.` : 'This story has no chapters yet.'}
+            </p>
+            <p className="mt-1 text-sm text-slate-500 dark:text-gray-400">
+              Would you like to delete this story or keep it empty while you write?
+            </p>
+            <div className="mt-4 flex items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={deleteEmptyStory}
+                disabled={deleting}
+                className="rounded-md bg-red-100 px-4 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-200 disabled:opacity-60 dark:bg-red-900/50 dark:text-red-300 dark:hover:bg-red-800/60"
+              >
+                {deleting ? 'Deleting...' : 'Delete story'}
+              </button>
+              <button
+                type="button"
+                onClick={keepStoryEmpty}
+                className="rounded-md bg-slate-200 px-4 py-2 text-xs font-semibold transition hover:bg-slate-300 dark:bg-slate-700 dark:text-gray-100 dark:hover:bg-slate-600"
+              >
+                Keep it empty
+              </button>
+            </div>
+          </div>
         ) : (
-          <div className="border-y border-dashed border-slate-300 py-10 text-center text-sm text-slate-500">
+          <div className="border-y border-dashed border-slate-300 py-10 text-center text-sm text-slate-500 dark:border-slate-600 dark:text-gray-400">
             No chapters yet. Add your first chapter below.
           </div>
         )}
