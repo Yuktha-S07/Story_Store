@@ -5,6 +5,7 @@ import { AuthContext } from '../context/AuthContext'
 import api from '../services/api'
 import { useNotification } from '../context/NotificationContext'
 import { formatCommentDate } from '../utils/formatDate'
+import { ensureKeyPair, encryptMessage, decryptMessage } from '../utils/messageCrypto'
 import BackButton from '../components/BackButton'
 
 export default function MessagesPage() {
@@ -23,6 +24,27 @@ export default function MessagesPage() {
   const [sending, setSending] = useState(false)
   const bottomRef = useRef(null)
   const threadScrollRef = useRef(null)
+
+  const decryptMessages = async (msgs) => {
+    if (!user) return msgs
+    const keyPair = await ensureKeyPair(user._id)
+    if (!keyPair) return msgs
+    const decrypted = []
+    for (const m of msgs) {
+      if (m.is_encrypted && m.iv && m.sender_public_key) {
+        try {
+          const peerJwk = JSON.parse(m.sender_public_key)
+          const text = await decryptMessage({ ciphertext: m.content, iv: m.iv, myPrivateKey: keyPair.privateKey, peerPublicJwk: peerJwk })
+          decrypted.push({ ...m, content: text })
+        } catch {
+          decrypted.push({ ...m, content: '[Unable to decrypt this message]' })
+        }
+      } else {
+        decrypted.push(m)
+      }
+    }
+    return decrypted
+  }
 
   useEffect(() => {
     if (!user) return
@@ -56,7 +78,9 @@ export default function MessagesPage() {
           api.get(`/api/messages/with/${userId}`),
           api.get(`/api/users/${userId}`),
         ])
-        setMessages(Array.isArray(threadRes.data) ? threadRes.data : [])
+        const raw = Array.isArray(threadRes.data) ? threadRes.data : []
+        const decrypted = await decryptMessages(raw)
+        setMessages(decrypted)
         setActiveUser(profileRes.data)
       } catch (err) {
         console.error(err)
@@ -83,9 +107,26 @@ export default function MessagesPage() {
     if (!input.trim() || !activeUserId) return
     try {
       setSending(true)
-      await api.post('/api/messages', { recipient_id: activeUserId, content: input.trim() })
+      const keyPair = await ensureKeyPair(user._id)
+      let payload = { recipient_id: activeUserId, content: input.trim() }
+      if (keyPair) {
+        try {
+          const recipientRes = await api.get(`/api/users/${activeUserId}`)
+          const recipientPublicKey = recipientRes.data?.encryption_public_key
+          if (recipientPublicKey) {
+            const peerJwk = JSON.parse(recipientPublicKey)
+            const encrypted = await encryptMessage({ content: input.trim(), myPrivateKey: keyPair.privateKey, myPublicJwk: keyPair.publicJwk, peerPublicJwk: peerJwk })
+            payload = { recipient_id: activeUserId, ...encrypted }
+          }
+        } catch {
+          // fall back to plaintext
+        }
+      }
+      await api.post('/api/messages', payload)
       const res = await api.get(`/api/messages/with/${activeUserId}`)
-      setMessages(Array.isArray(res.data) ? res.data : [])
+      const raw = Array.isArray(res.data) ? res.data : []
+      const decrypted = await decryptMessages(raw)
+      setMessages(decrypted)
       setInput('')
       refreshConversations()
     } catch (err) {
@@ -174,7 +215,7 @@ export default function MessagesPage() {
                         )}
                       </div>
                       <div className="mt-1 flex items-center justify-between gap-2">
-                        <span className="truncate text-xs text-[#315D5E]">{c.last_message}</span>
+                        <span className="truncate text-xs text-[#315D5E]">{c.last_encrypted ? '[encrypted message]' : c.last_message}</span>
                         {count > 0 && (
                             <span className="shrink-0 text-[10px] font-semibold text-[#315D5E]">
                             {count} {count === 1 ? 'message' : 'messages'}
