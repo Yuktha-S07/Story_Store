@@ -20,6 +20,7 @@ class StoryUpdate(BaseModel):
     genre: Optional[str] = Field(default=None, min_length=1, max_length=100)
     tags: Optional[list[str]] = None
     status: Optional[str] = Field(default=None, pattern="^(draft|published)$")
+    is_completed: Optional[bool] = None
 
 
 class StoryResponse(BaseModel):
@@ -30,6 +31,7 @@ class StoryResponse(BaseModel):
     genre: str
     tags: list[str]
     status: str
+    is_completed: bool
     cover_image_url: str
     chapter_count: int
     created_at: Optional[datetime] = None

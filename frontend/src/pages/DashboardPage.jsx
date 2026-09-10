@@ -209,7 +209,7 @@ export default function DashboardPage() {
                 </span>
               </Link>
 
-              {editingStory.status !== 'published' && (
+              {editingStory.status !== 'published' && editingStory.chapter_count > 0 ? (
                 <button
                   type="button"
                   onClick={async () => {
@@ -227,7 +227,32 @@ export default function DashboardPage() {
                     <span className="block text-xs text-slate-500 dark:text-gray-400">Make this draft visible to everyone</span>
                   </span>
                 </button>
-              )}
+              ) : editingStory.status !== 'published' ? (
+                <div className="space-y-2 rounded-xl border border-amber-200 bg-amber-50 p-3 dark:border-amber-900/60 dark:bg-amber-950/20">
+                  <p className="text-xs text-amber-800 dark:text-amber-200">This story has no chapters yet. Keep it to continue writing, or delete it.</p>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setEditingStory(null)}
+                      className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-[#1f1b22] dark:text-gray-200 dark:hover:bg-slate-800"
+                    >
+                      Keep story
+                    </button>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const storyId = editingStory._id
+                        setEditingStory(null)
+                        await deleteStory(storyId)
+                      }}
+                      className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-[#f0caca] bg-[#fff3f1] px-3 py-2 text-sm font-semibold text-[#b34f4f] transition hover:border-[#d98787] hover:bg-[#ffe5e2] dark:border-[#633c45] dark:bg-[#3a222b] dark:text-[#ffaaa3] dark:hover:bg-[#4a2933]"
+                    >
+                      <FiTrash2 className="h-3.5 w-3.5" />
+                      Delete story
+                    </button>
+                  </div>
+                </div>
+              ) : null}
             </div>
 
             <button

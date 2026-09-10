@@ -14,6 +14,7 @@ export default function StoryChaptersPage() {
   const [loading, setLoading] = useState(true)
   const [storyTitle, setStoryTitle] = useState('')
   const [chapters, setChapters] = useState([])
+  const [isCompleted, setIsCompleted] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [showEmptyPrompt, setShowEmptyPrompt] = useState(() => {
     if (!id) return true
@@ -31,6 +32,7 @@ export default function StoryChaptersPage() {
         const res = await api.get(`/api/stories/${id}`)
         setStoryTitle(res.data?.title || '')
         setChapters(res.data?.chapters || [])
+        setIsCompleted(Boolean(res.data?.is_completed))
       } catch (err) {
         console.error(err)
         notify('Failed to load chapters.', 'error')
@@ -49,6 +51,29 @@ export default function StoryChaptersPage() {
       window.dispatchEvent(new CustomEvent('story-store:story-updated', { detail: { storyId: id } }))
     } catch (err) {
       notify('Failed to publish chapter.', 'error')
+    }
+  }
+
+  const markCompleted = async () => {
+    try {
+      const res = await api.put(`/api/stories/${id}`, { is_completed: true })
+      setIsCompleted(Boolean(res.data?.is_completed))
+      notify('Story marked as completed.', 'success')
+      window.dispatchEvent(new CustomEvent('story-store:story-updated', { detail: { storyId: id } }))
+    } catch (err) {
+      const detail = err?.response?.data?.detail
+      notify(typeof detail === 'string' ? detail : 'Failed to mark story as completed.', 'error')
+    }
+  }
+
+  const markOngoing = async () => {
+    try {
+      const res = await api.put(`/api/stories/${id}`, { is_completed: false })
+      setIsCompleted(Boolean(res.data?.is_completed))
+      notify('Story marked as ongoing.', 'info')
+      window.dispatchEvent(new CustomEvent('story-store:story-updated', { detail: { storyId: id } }))
+    } catch (err) {
+      notify('Failed to update story status.', 'error')
     }
   }
 
@@ -121,6 +146,9 @@ export default function StoryChaptersPage() {
             <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600 md:text-base">
               Add, edit, or delete chapters{storyTitle ? <> for <span className="font-semibold text-slate-800">{storyTitle}</span></> : null}.
             </p>
+            <span className={`mt-4 inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] ${isCompleted ? 'bg-[#e1f2e8] text-[#397356]' : 'bg-[#fff0d8] text-[#9b6728]'}`}>
+              {isCompleted ? 'Completed' : 'Ongoing'}
+            </span>
           </div>
           <span className="pill">Writer tools</span>
         </div>
@@ -197,13 +225,43 @@ export default function StoryChaptersPage() {
           </div>
         )}
 
-        <div className="mt-8 flex justify-end">
+        <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
+          {chapters.length > 0 ? (
+            <div className="flex flex-wrap items-center gap-3">
+              {isCompleted ? (
+                <button
+                  type="button"
+                  onClick={markOngoing}
+                  className="rounded-xl bg-[#df818f] px-4 py-2 text-sm font-semibold text-white shadow-[0_8px_18px_rgba(223,129,143,0.22)] transition hover:-translate-y-0.5 hover:bg-[#d47080] hover:shadow-[0_12px_22px_rgba(223,129,143,0.3)]"
+                >
+                  Mark as ongoing
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={markCompleted}
+                  className="rounded-xl bg-[#df818f] px-4 py-2 text-sm font-semibold text-white shadow-[0_8px_18px_rgba(223,129,143,0.22)] transition hover:-translate-y-0.5 hover:bg-[#d47080] hover:shadow-[0_12px_22px_rgba(223,129,143,0.3)]"
+                >
+                  Mark as completed
+                </button>
+              )}
+              <p className="text-xs text-slate-500 dark:text-gray-400">
+                {isCompleted
+                  ? 'Readers will see this story as completed.'
+                  : 'Readers still see this story as ongoing until you mark it completed.'}
+              </p>
+            </div>
+          ) : (
+            <p className="text-xs text-slate-400 dark:text-gray-500">
+              You can mark this story as completed once it has at least one chapter.
+            </p>
+          )}
           <button
             type="button"
             onClick={() => navigate(`/stories/${id}/chapters/new`)}
-            className="btn-primary px-7"
+            className="rounded-xl bg-[#df818f] px-7 py-3 text-sm font-semibold text-white shadow-[0_10px_22px_rgba(223,129,143,0.22)] transition hover:-translate-y-0.5 hover:bg-[#d47080] hover:shadow-[0_14px_26px_rgba(223,129,143,0.3)]"
           >
-            + Add a Chapter
+            Add a Chapter
           </button>
         </div>
       </section>

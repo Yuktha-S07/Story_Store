@@ -17,7 +17,6 @@ export default function EditStoryDetailsPage() {
   const [description, setDescription] = useState('')
   const [genre, setGenre] = useState('')
   const [tags, setTags] = useState('')
-  const [status, setStatus] = useState('draft')
   const [coverFile, setCoverFile] = useState(null)
   const [coverPreview, setCoverPreview] = useState('')
   const [saving, setSaving] = useState(false)
@@ -50,7 +49,6 @@ export default function EditStoryDetailsPage() {
         setDescription(data.description || '')
         setGenre(data.genre || '')
         setTags(data.tags?.join(', ') || '')
-        setStatus(data.status === 'published' ? 'published' : 'draft')
         setCoverPreview(resolveImage(data.cover_image_url))
       } catch (err) {
         console.error(err)
@@ -75,7 +73,6 @@ export default function EditStoryDetailsPage() {
       description,
       genre: genre.trim(),
       tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),
-      status,
     }
 
     try {
@@ -131,7 +128,12 @@ export default function EditStoryDetailsPage() {
             <h2 className="font-serif text-3xl font-semibold tracking-tight text-slate-900 md:text-4xl">Edit Story Details</h2>
             <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600 md:text-base">Update the cover, genre, and summary for your readers.</p>
           </div>
-          <span className="pill">Story</span>
+          <div className="flex flex-col items-end gap-2">
+            <span className="pill">Story</span>
+            <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${story.status === 'published' ? 'bg-[#e1f2e8] text-[#397356] dark:bg-emerald-900/50 dark:text-emerald-300' : 'bg-[#fff0d8] text-[#9b6728] dark:bg-amber-900/50 dark:text-amber-300'}`}>
+              {story.status === 'published' ? 'Published' : 'Draft'}
+            </span>
+          </div>
         </div>
 
         <form onSubmit={submit} className="space-y-7">
@@ -144,7 +146,7 @@ export default function EditStoryDetailsPage() {
               className="w-full rounded-2xl border border-slate-200/90 bg-white/50 px-4 py-3.5 outline-none transition placeholder:text-slate-400 focus:border-[#E87B5D] focus:ring-2 focus:ring-[#E87B5D]/20"
             />
           </div>
-          <div className="grid gap-5 md:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-2">
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-700">Genre</label>
               <input
@@ -162,18 +164,6 @@ export default function EditStoryDetailsPage() {
                 placeholder="friendships, tragedy, emotional"
                 className="w-full rounded-2xl border border-slate-200/90 bg-white/50 px-4 py-3.5 outline-none transition placeholder:text-slate-400 focus:border-[#E87B5D] focus:ring-2 focus:ring-[#E87B5D]/20"
               />
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="story-status" className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-700">Story status</label>
-              <select
-                id="story-status"
-                value={status}
-                onChange={e => setStatus(e.target.value)}
-                className="w-full rounded-2xl border border-slate-200/90 bg-white/50 px-4 py-3.5 outline-none transition focus:border-[#E87B5D] focus:ring-2 focus:ring-[#E87B5D]/20"
-              >
-                <option value="published">Ongoing</option>
-                <option value="draft">Completed</option>
-              </select>
             </div>
           </div>
           <div className="space-y-2">

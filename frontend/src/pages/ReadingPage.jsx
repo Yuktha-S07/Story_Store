@@ -4,6 +4,7 @@ import api from '../services/api'
 import { AuthContext } from '../context/AuthContext'
 import { useNotification } from '../context/NotificationContext'
 import { getSampleChapter, getSampleStory } from '../data/sampleStories'
+import { FiArrowLeft, FiArrowRight, FiBookOpen, FiCheck } from 'react-icons/fi'
 
 export default function ReadingPage() {
   const { chapterId } = useParams()
@@ -73,7 +74,6 @@ export default function ReadingPage() {
       const res = await api.put(`/api/chapters/${chapterId}`, { status: nextStatus })
       setChapter(res.data)
       notify(nextStatus === 'published' ? 'Chapter published.' : 'Chapter moved to draft.', 'success')
-      // Notify other pages that chapter/story status changed
       const storyId = res?.data?.story_id
       window.dispatchEvent(new CustomEvent('story-store:story-updated', { detail: { chapterId, storyId } }))
     } catch (err) {
@@ -89,55 +89,53 @@ export default function ReadingPage() {
   if (!chapter) return <div>Loading...</div>
 
   return (
-    <div className="surface relative px-4 py-6 sm:p-8 md:p-10 max-w-3xl mx-auto">
-      <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-4">
-        <div className="min-w-0 w-full sm:w-auto">
-          <div className="text-xs sm:text-sm text-slate-500">Reading</div>
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mt-1 sm:mt-2 break-words">{chapter.title}</h1>
-        </div>
-        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-          {isOwner && (
-            <button
-              type="button"
-              onClick={toggleChapterStatus}
-              disabled={savingStatus}
-              className={`shrink-0 rounded-full px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold transition disabled:opacity-60 ${chapter.status === 'published' ? 'bg-amber-100 text-amber-800 hover:bg-amber-200 dark:bg-amber-900/40 dark:text-amber-200 dark:hover:bg-amber-900/60' : 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/40 dark:text-green-200 dark:hover:bg-green-900/60'}`}
-            >
-              {savingStatus ? 'Saving...' : chapter.status === 'published' ? 'Unpublish' : 'Publish'}
-            </button>
+    <main className="reading-page">
+      <article className="reading-shell">
+        <header className="reading-header">
+          <div className="reading-heading">
+            <div className="reading-eyebrow"><FiBookOpen size={15} /> Reading</div>
+            <h1>{chapter.title}</h1>
+            {isOwner && (
+              <span className={`reading-status ${chapter.status === 'published' ? 'reading-status-published' : 'reading-status-draft'}`}>
+                {chapter.status === 'published' ? 'Published' : 'Draft'}
+              </span>
+            )}
+          </div>
+          <div className="reading-actions">
+            {isOwner && (
+              <button
+                type="button"
+                onClick={toggleChapterStatus}
+                disabled={savingStatus}
+                className={`reading-action reading-status-button disabled:opacity-60 ${chapter.status === 'published' ? 'reading-unpublish' : 'reading-publish'}`}
+              >
+                {savingStatus ? 'Saving...' : chapter.status === 'published' ? 'Unpublish' : 'Publish'}
+              </button>
+            )}
+            <Link to="/dashboard" className="reading-action reading-done">
+              <FiCheck size={15} /> Done
+            </Link>
+          </div>
+        </header>
+        <div className="reading-divider" />
+        <div className="reading-content prose" dangerouslySetInnerHTML={{ __html: chapter.content }} />
+        <nav className="reading-navigation" aria-label="Chapter navigation">
+          {previousChapterHref ? (
+            <Link to={previousChapterHref} className="reading-nav-button reading-nav-previous">
+              <FiArrowLeft size={17} /> Previous chapter
+            </Link>
+          ) : (
+            <span className="reading-nav-button reading-nav-previous is-disabled"><FiArrowLeft size={17} /> Previous chapter</span>
           )}
-          <Link
-            to="/dashboard"
-            className="shrink-0 rounded-full bg-slate-100 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-slate-700 transition hover:bg-slate-200 dark:bg-[#2b2235] dark:text-[#eadff1] dark:hover:bg-[#3a3047]"
-          >
-            Done
-          </Link>
-        </div>
-      </div>
-      <div className="mt-3 flex items-center gap-2">
-        {isOwner && (
-          <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${chapter.status === 'published' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-200' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-200'}`}>
-            {chapter.status === 'published' ? 'Published' : 'Draft'}
-          </span>
-        )}
-      </div>
-      <div className="prose mt-6 max-w-none" dangerouslySetInnerHTML={{ __html: chapter.content }} />
-      <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
-        {previousChapterHref ? (
-          <Link to={previousChapterHref} className="btn-ghost">
-            Previous chapter
-          </Link>
-        ) : (
-          <span className="btn-ghost opacity-60 cursor-not-allowed">Previous chapter</span>
-        )}
-        {nextChapterHref ? (
-          <Link to={nextChapterHref} className="btn-primary">
-            Next chapter
-          </Link>
-        ) : (
-          <span className="btn-primary opacity-60 cursor-not-allowed">Next chapter</span>
-        )}
-      </div>
-    </div>
+          {nextChapterHref ? (
+            <Link to={nextChapterHref} className="reading-nav-button reading-nav-next">
+              Next chapter <FiArrowRight size={17} />
+            </Link>
+          ) : (
+            <span className="reading-nav-button reading-nav-next is-disabled">Next chapter <FiArrowRight size={17} /></span>
+          )}
+        </nav>
+      </article>
+    </main>
   )
 }

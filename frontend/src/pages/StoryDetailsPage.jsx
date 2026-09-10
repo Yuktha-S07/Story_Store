@@ -7,7 +7,7 @@ import { buildStoryCoverAlt, buildStoryCoverUrl, buildStoryFallbackUrl } from '.
 import { formatCommentDate } from '../utils/formatDate'
 import { getSampleStory } from '../data/sampleStories'
 import BackButton from '../components/BackButton'
-import { FiMessageCircle, FiEdit2, FiTrash2 } from 'react-icons/fi'
+import { FiBookOpen, FiHeart, FiMessageCircle, FiEdit2, FiTrash2, FiUserPlus } from 'react-icons/fi'
 
 export default function StoryDetailsPage() {
   const { id } = useParams()
@@ -22,9 +22,6 @@ export default function StoryDetailsPage() {
   const [isFollowing, setIsFollowing] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [chapterTitle, setChapterTitle] = useState('')
-  const [chapterContent, setChapterContent] = useState('')
-  const [savingChapter, setSavingChapter] = useState(false)
   const [savingComment, setSavingComment] = useState(false)
   const [editingCommentId, setEditingCommentId] = useState(null)
   const [editingCommentText, setEditingCommentText] = useState('')
@@ -272,39 +269,6 @@ export default function StoryDetailsPage() {
     }
   }
 
-  const addChapter = async (status) => {
-    if (!user || !isOwner) {
-      navigate('/login')
-      return
-    }
-    if (!chapterTitle.trim() || !chapterContent.trim()) {
-      notify('Please add both a chapter title and chapter content.', 'info')
-      return
-    }
-
-    try {
-      setSavingChapter(true)
-      const res = await api.post(`/api/stories/${id}/chapters`, {
-        title: chapterTitle.trim(),
-        content: chapterContent.trim(),
-        status,
-      })
-      setStory(prev => prev ? {
-        ...prev,
-        chapters: [...(prev.chapters || []), res.data],
-      } : prev)
-      setChapterTitle('')
-      setChapterContent('')
-      notify(status === 'published' ? 'Chapter published.' : 'Chapter saved as draft.', 'success')
-    } catch (err) {
-      const detail = err?.response?.data?.detail
-      const message = typeof detail === 'string' ? detail : 'Failed to add chapter.'
-      notify(message, 'error')
-    } finally {
-      setSavingChapter(false)
-    }
-  }
-
   if (loading) return <div className="flex items-center justify-center min-h-screen text-slate-600"><p>Loading story details...</p></div>
   
   if (error) return <div className="flex items-center justify-center min-h-screen"><div className="text-center"><p className="text-red-600">{error}</p></div></div>
@@ -313,8 +277,7 @@ export default function StoryDetailsPage() {
 
   const isLocalSample = Boolean(getSampleStory(id))
   const authorName = story.author?.username || story.username || 'Unknown author'
-  const hasVisibleParts = (story.chapters || []).length > 0
-  const bookStatus = story.status === 'published' || hasVisibleParts ? 'Ongoing' : 'Completed'
+  const bookStatus = story.is_completed ? 'Completed' : 'Ongoing'
   const startReadingHref = story.chapters?.[0]?._id ? `/read/${story.chapters[0]._id}` : null
   const coverSrc = isLocalSample ? story.cover_image_url : buildStoryCoverUrl(story)
   const coverAlt = buildStoryCoverAlt(story)
@@ -324,77 +287,86 @@ export default function StoryDetailsPage() {
       <div>
         <BackButton />
       </div>
-      <section className="surface overflow-hidden border border-[#eadfd5] bg-gradient-to-br from-white via-[#fffaf5] to-[#f8efe6] p-4 md:p-8 shadow-[0_22px_70px_rgba(73,48,20,0.08)]">
-        <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-4 md:gap-6 items-start">
-          <img
-            src={coverSrc}
-            alt={coverAlt}
-            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = buildStoryFallbackUrl(story) }}
-            className="w-full h-56 sm:h-72 md:h-80 object-cover rounded-2xl shadow-[0_18px_40px_rgba(77,52,28,0.18)] border border-white/70"
-          />
-          <div>
-            <div className="flex items-center gap-3">
-              <span className="pill bg-[#f3e7de] text-[#7f4f38] border border-[#e7d3c3]">{story.genre}</span>
-              <span className="pill bg-[#fff0dd] text-[#a15a22] border border-[#f0c990]">{bookStatus}</span>
-              <span className="text-xs text-[#8b7764]">{story.tags?.join(', ')}</span>
+      <section className="story-hero surface relative overflow-hidden border border-[#e8d8d0] bg-[#fffaf5] p-4 shadow-[0_28px_80px_rgba(92,58,39,0.14)] md:p-8">
+        <div className="relative grid grid-cols-1 items-start gap-7 md:grid-cols-[250px_1fr] md:gap-10">
+          <div className="story-cover-frame">
+            <img
+              src={coverSrc}
+              alt={coverAlt}
+              onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = buildStoryFallbackUrl(story) }}
+              className="relative h-72 w-full rounded-[1.4rem] border border-white/80 object-cover shadow-[0_22px_45px_rgba(77,52,28,0.24)] sm:h-80"
+            />
+          </div>
+          <div className="min-w-0 pt-1 md:pt-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="story-chip story-chip-genre">{story.genre}</span>
+              <span className="story-chip story-chip-status"><span className="story-status-dot" />{bookStatus}</span>
+              {story.tags?.length > 0 && <span className="story-tags">{story.tags.join('  /  ')}</span>}
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold mt-3 text-[#1e2430]">{story.title}</h1>
-            <p className="text-[#5e6675] mt-3 max-w-2xl leading-7">{story.description}</p>
-            <p className="mt-3 text-sm text-[#7c8796]">
+            <p className="story-kicker">A story to wander into</p>
+            <h1 className="story-title">{story.title}</h1>
+            <p className="story-description">{story.description}</p>
+            <p className="mt-4 flex items-center gap-2 text-sm text-[#766b70]">
+              <span className="story-author-mark">{authorName.charAt(0).toUpperCase()}</span>
               By{' '}
               {story.author?._id || story.user_id ? (
-                <Link to={`/profile/${story.author?._id || story.user_id}`} className="font-medium text-[#E87B5D] hover:underline">
+                <Link to={`/profile/${story.author?._id || story.user_id}`} className="font-semibold text-[#b95e4f] hover:text-[#8f3e36] hover:underline">
                   {authorName}
                 </Link>
               ) : (
                 authorName
               )}
             </p>
-            <div className="mt-5 flex flex-wrap gap-3">
+            <div className="mt-6 flex flex-wrap gap-2.5">
               {startReadingHref ? (
-                <Link to={startReadingHref} className="btn-primary shadow-[0_14px_30px_rgba(229,123,92,0.28)]">
+                <Link to={startReadingHref} className="story-action story-action-primary">
+                  <FiBookOpen size={17} />
                   Start reading
                 </Link>
               ) : (
-                <span className="btn-primary opacity-60 cursor-not-allowed">Start reading</span>
+                <span className="story-action story-action-primary cursor-not-allowed opacity-50"><FiBookOpen size={17} />Start reading</span>
               )}
               {isOwner && (
-                <Link to={`/stories/${id}/edit`} className="btn-ghost">
+                <Link to={`/stories/${id}/edit`} className="story-action story-action-soft">
+                  <FiEdit2 size={16} />
                   Edit details
                 </Link>
               )}
               {user && (
                 <button
                   onClick={toggleLike}
-                  className={`btn-ghost inline-flex items-center gap-2 ${isLiked ? 'text-rose-600' : ''}`}
+                  className={`story-action story-action-soft ${isLiked ? 'story-action-liked' : ''}`}
                 >
-                  <span aria-hidden="true">{isLiked ? '♥' : '♡'}</span>
-                  {isLiked ? 'Liked' : 'Like'} ({likeCount})
+                  <FiHeart size={16} fill={isLiked ? 'currentColor' : 'none'} />
+                  <span>{isLiked ? 'Liked' : 'Like'}</span>
+                  <span className="story-action-count">{likeCount}</span>
                 </button>
               )}
               {user && story?.author?._id && String(user._id) !== String(story.author._id) && (
-                <button onClick={toggleFollow} disabled={savingFollow} className="btn-ghost disabled:opacity-60">
+                <button onClick={toggleFollow} disabled={savingFollow} className="story-action story-action-soft disabled:opacity-60">
+                  <FiUserPlus size={16} />
                   {isFollowing ? 'Unfollow' : 'Follow author'}
                 </button>
               )}
               {user && (
-                <button onClick={toggleVote} disabled={savingVote} className="btn-ghost disabled:opacity-60">
-                  {savingVote ? 'Voting...' : `Vote (${voteCount})`}
+                <button onClick={toggleVote} disabled={savingVote} className="story-action story-action-vote disabled:opacity-60">
+                  <span>{savingVote ? 'Voting...' : 'Vote'}</span>
+                  {!savingVote && <span className="story-action-count">{voteCount}</span>}
                 </button>
               )}
             </div>
-            <div className="mt-5 grid grid-cols-2 gap-3 max-w-lg rounded-2xl border border-[#eadfd5] bg-white/80 p-3 shadow-sm sm:grid-cols-3">
-              <div className="rounded-xl bg-[#fff6f0] px-4 py-3">
-                <div className="text-[11px] uppercase tracking-[0.2em] text-[#b56a43]">Votes</div>
-                <div className="mt-1 text-2xl font-semibold text-[#22262f]">{voteCount}</div>
+            <div className="story-stat-rail mt-6">
+              <div className="story-stat story-stat-votes">
+                <div className="story-stat-label">Votes</div>
+                <div className="story-stat-value">{voteCount}</div>
               </div>
-              <div className="rounded-xl bg-[#f3f8ff] px-4 py-3">
-                <div className="text-[11px] uppercase tracking-[0.2em] text-[#5977a9]">Reads</div>
-                <div className="mt-1 text-2xl font-semibold text-[#22262f]">{readCount}</div>
+              <div className="story-stat story-stat-reads">
+                <div className="story-stat-label">Reads</div>
+                <div className="story-stat-value">{readCount}</div>
               </div>
-              <div className="rounded-xl bg-[#f7f2ff] px-4 py-3">
-                <div className="text-[11px] uppercase tracking-[0.2em] text-[#7d66a6]">Parts</div>
-                <div className="mt-1 text-2xl font-semibold text-[#22262f]">{story.chapters?.length || 0}</div>
+              <div className="story-stat story-stat-parts">
+                <div className="story-stat-label">Parts</div>
+                <div className="story-stat-value">{story.chapters?.length || 0}</div>
               </div>
             </div>
           </div>
@@ -515,36 +487,12 @@ export default function StoryDetailsPage() {
       </section>
 
       {isOwner && (
-        <section id="add-chapter" className="surface border border-[#eadfd5] bg-[#fffaf5]/90 p-4 shadow-[0_16px_45px_rgba(73,48,20,0.06)] sm:p-5 md:p-6">
-          <div>
-            <div className="mb-5 flex items-center justify-between gap-4">
-              <h3 className="text-lg font-semibold">Add a chapter</h3>
-              <span className="pill">Writer tools</span>
-            </div>
-            <div className="space-y-4">
-              <input
-                value={chapterTitle}
-                onChange={e => setChapterTitle(e.target.value)}
-                placeholder="Chapter title"
-                className="w-full border border-slate-200 px-4 py-3 rounded-xl focus:border-[#E87B5D] focus:ring-2 focus:ring-[#E87B5D]/20 outline-none transition"
-              />
-              <textarea
-                value={chapterContent}
-                onChange={e => setChapterContent(e.target.value)}
-                placeholder="Chapter content"
-                className="w-full border border-slate-200 px-4 py-3 rounded-xl h-40 focus:border-[#E87B5D] focus:ring-2 focus:ring-[#E87B5D]/20 outline-none transition"
-              />
-              <div className="flex flex-wrap gap-3">
-                <button type="button" disabled={savingChapter} onClick={() => addChapter('draft')} className="btn-ghost disabled:opacity-60">
-                  Save as draft
-                </button>
-                <button type="button" disabled={savingChapter} onClick={() => addChapter('published')} className="btn-primary disabled:opacity-60">
-                  Publish chapter
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
+        <Link
+          to={`/stories/${id}/chapters`}
+          className="inline-flex items-center justify-center rounded-xl bg-[#df818f] px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_24px_rgba(223,129,143,0.24)] transition hover:-translate-y-0.5 hover:bg-[#d47080] hover:shadow-[0_16px_28px_rgba(223,129,143,0.3)]"
+        >
+          Add a chapter
+        </Link>
       )}
 
     </div>

@@ -19,6 +19,7 @@ export default function ChapterEditorPage() {
   const [chapterTitle, setChapterTitle] = useState('')
   const [content, setContent] = useState('')
   const [saving, setSaving] = useState(false)
+  const [chapterStatus, setChapterStatus] = useState('draft')
 
   useEffect(() => {
     if (!id) return
@@ -35,6 +36,7 @@ export default function ChapterEditorPage() {
           const res = await api.get(`/api/chapters/${chapterId}`)
           setChapterTitle(res.data?.title || '')
           setContent(res.data?.content || '')
+          setChapterStatus(res.data?.status === 'published' ? 'published' : 'draft')
         } catch (err) {
           notify('Failed to load chapter.', 'error')
         }
@@ -43,6 +45,8 @@ export default function ChapterEditorPage() {
     }
     load()
   }, [id, chapterId, isEditing])
+
+  const isPublished = chapterStatus === 'published'
 
   const goBackToChapters = () => navigate(`/stories/${id}/chapters`)
 
@@ -83,9 +87,14 @@ export default function ChapterEditorPage() {
     <div className="chapter-editor-page mx-auto w-full max-w-4xl space-y-7 pb-10 font-sans">
       <div className="flex items-center justify-between gap-4">
         <BackButton fallback={`/stories/${id}/chapters`} />
-        <span className="rounded-full border border-[#d9c7b4] bg-[#fffaf4] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#8b6b52]">
-          {isEditing ? 'Edit chapter' : 'New chapter'}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${isPublished ? 'bg-[#e1f2e8] text-[#397356] dark:bg-emerald-900/50 dark:text-emerald-300' : 'bg-[#fff0d8] text-[#9b6728] dark:bg-amber-900/50 dark:text-amber-300'}`}>
+            {isPublished ? 'Published' : 'Draft'}
+          </span>
+          <span className="rounded-full border border-[#d9c7b4] bg-[#fffaf4] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#8b6b52]">
+            {isEditing ? 'Edit chapter' : 'New chapter'}
+          </span>
+        </div>
       </div>
 
       <section className="chapter-canvas w-full">
@@ -133,18 +142,18 @@ export default function ChapterEditorPage() {
               <button
                 type="button"
                 disabled={saving}
-                onClick={() => save('draft')}
+                onClick={() => save(isPublished ? 'published' : 'draft')}
                 className="btn-ghost disabled:opacity-60"
               >
-                {isEditing ? 'Update draft' : 'Save as draft'}
+                {saving ? 'Saving...' : isEditing ? (isPublished ? 'Update chapter' : 'Update draft') : 'Save as draft'}
               </button>
               <button
                 type="button"
                 disabled={saving}
-                onClick={() => save('published')}
-                className="btn-primary px-7 disabled:opacity-60"
+                onClick={() => save(isPublished ? 'draft' : 'published')}
+                className={`disabled:opacity-60 ${isPublished ? 'btn-ghost border-red-200 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-900/50 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50' : 'btn-primary px-7'}`}
               >
-                {saving ? 'Saving...' : 'Publish chapter'}
+                {saving ? 'Saving...' : isPublished ? 'Unpublish' : 'Publish chapter'}
               </button>
             </div>
           </div>

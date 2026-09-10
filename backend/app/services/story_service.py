@@ -45,6 +45,7 @@ def _serialize_story(doc: dict) -> dict:
         "genre": doc.get("genre", ""),
         "tags": doc.get("tags", []),
         "status": doc.get("status", "draft"),
+        "is_completed": bool(doc.get("is_completed", False)),
         "cover_image_url": cover_url,
         "chapter_count": doc.get("chapter_count", 0),
         "likes_count": doc.get("likes_count", 0),
@@ -90,6 +91,7 @@ def create_story(user_id: str, payload: dict, cover_image_url: str = "") -> dict
         "genre": payload.get("genre", ""),
         "tags": payload.get("tags", []),
         "status": payload.get("status", "draft"),
+        "is_completed": bool(payload.get("is_completed", False)),
         "cover_image_url": cover_image_url,
         "chapter_count": 0,
         "created_at": datetime.utcnow(),
@@ -268,6 +270,13 @@ def update_story(story_id: str, owner_id: str, payload: dict, cover_image_url: s
     if not update_data:
         story = db.stories.find_one({"_id": oid, "user_id": user_oid})
         return _serialize_story(story) if story else None
+
+    if update_data.get("is_completed"):
+        current = db.stories.find_one({"_id": oid, "user_id": user_oid}, {"chapter_count": 1})
+        if not current:
+            return None
+        if current.get("chapter_count", 0) == 0:
+            update_data["is_completed"] = False
 
     update_data["updated_at"] = datetime.utcnow()
 

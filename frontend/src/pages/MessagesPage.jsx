@@ -1,12 +1,11 @@
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { FiChevronLeft, FiChevronRight, FiMessageCircle, FiSend, FiSmile, FiUser, FiUsers } from 'react-icons/fi'
+import { FiChevronLeft, FiChevronRight, FiMessageCircle, FiSend, FiUser, FiUsers } from 'react-icons/fi'
 import { AuthContext } from '../context/AuthContext'
 import api from '../services/api'
 import { useNotification } from '../context/NotificationContext'
 import { formatCommentDate } from '../utils/formatDate'
 import BackButton from '../components/BackButton'
-import { ensureKeyPair, encryptMessage, decryptMessage } from '../utils/messageCrypto'
 
 export default function MessagesPage() {
   const { userId } = useParams()
@@ -14,7 +13,7 @@ export default function MessagesPage() {
   const { notify } = useNotification()
   const navigate = useNavigate()
 
-  const [direction, setDirection] = useState('all')
+  const [direction, setDirection] = useState('received')
   const [conversations, setConversations] = useState([])
   const [messages, setMessages] = useState([])
   const [activeUserId, setActiveUserId] = useState(null)
@@ -22,23 +21,8 @@ export default function MessagesPage() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
-  const [showEmojis, setShowEmojis] = useState(false)
-  const [myKeys, setMyKeys] = useState(null)
-  const warnedNoKeyRef = useRef(false)
   const bottomRef = useRef(null)
   const threadScrollRef = useRef(null)
-  const inputRef = useRef(null)
-
-  useEffect(() => {
-    if (!user?._id) return
-    let cancelled = false
-    ensureKeyPair(user._id).then((kp) => {
-      if (!cancelled && kp) setMyKeys(kp)
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [user])
 
   useEffect(() => {
     if (!user) return
@@ -58,50 +42,6 @@ export default function MessagesPage() {
     return () => window.clearInterval(interval)
   }, [user, direction])
 
-  const loadThread = useCallback(async (otherId) => {
-    const [threadRes, profileRes] = await Promise.all([
-      api.get(`/api/messages/with/${otherId}`),
-      api.get(`/api/users/${otherId}`),
-    ])
-    const profile = profileRes.data
-    let list = Array.isArray(threadRes.data) ? threadRes.data : []
-    if (list.some((m) => m.is_encrypted)) {
-      let kp = myKeys
-      if (!kp && user?._id) {
-        kp = await ensureKeyPair(user._id)
-        if (kp && !myKeys) setMyKeys(kp)
-      }
-      let peerJwk = null
-      try {
-        peerJwk = JSON.parse(profile?.encryption_public_key)
-      } catch {
-        peerJwk = null
-      }
-      if (kp && peerJwk) {
-        list = await Promise.all(
-          list.map(async (m) => {
-            if (!m.is_encrypted) return m
-            return {
-              ...m,
-              content: await decryptMessage({
-                ciphertext: m.content,
-                iv: m.iv,
-                myPrivateKey: kp.privateKey,
-                peerPublicJwk: peerJwk,
-              }),
-            }
-          })
-        )
-      } else {
-        list = list.map((m) =>
-          m.is_encrypted ? { ...m, content: '[Unable to decrypt this message]' } : m
-        )
-      }
-    }
-    setMessages(list)
-    setActiveUser(profile)
-  }, [myKeys, user])
-
   useEffect(() => {
     if (!userId) {
       setActiveUserId(null)
@@ -110,15 +50,23 @@ export default function MessagesPage() {
       return
     }
     setActiveUserId(userId)
-    setShowEmojis(false)
-    warnedNoKeyRef.current = false
-    loadThread(userId).catch((err) => {
-      console.error(err)
-      notify('Failed to load conversation.', 'error')
-    })
-    const interval = window.setInterval(() => loadThread(userId), 5000)
+    const fetchThread = async () => {
+      try {
+        const [threadRes, profileRes] = await Promise.all([
+          api.get(`/api/messages/with/${userId}`),
+          api.get(`/api/users/${userId}`),
+        ])
+        setMessages(Array.isArray(threadRes.data) ? threadRes.data : [])
+        setActiveUser(profileRes.data)
+      } catch (err) {
+        console.error(err)
+        notify('Failed to load conversation.', 'error')
+      }
+    }
+    fetchThread()
+    const interval = window.setInterval(fetchThread, 5000)
     return () => window.clearInterval(interval)
-  }, [userId, user, myKeys, loadThread])
+  }, [userId, user])
 
   useEffect(() => {
     const el = bottomRef.current
@@ -132,53 +80,20 @@ export default function MessagesPage() {
   }, [messages])
 
   const sendMessage = async () => {
-    if (sending || !input.trim() || !activeUserId) return
-    const content = input.trim()
-    setSending(true)
-    let sent = false
+    if (!input.trim() || !activeUserId) return
     try {
-      let kp = myKeys
-      if (!kp && user?._id) {
-        kp = await ensureKeyPair(user._id)
-        if (kp && !myKeys) setMyKeys(kp)
-      }
-      let payload = null
-      let peerJwk = null
-      try {
-        peerJwk = JSON.parse(activeUser?.encryption_public_key)
-      } catch {
-        peerJwk = null
-      }
-      if (kp && activeUser?.encryption_public_key && peerJwk) {
-        const enc = await encryptMessage({
-          content,
-          myPrivateKey: kp.privateKey,
-          myPublicJwk: kp.publicJwk,
-          peerPublicJwk: peerJwk,
-        })
-        payload = { recipient_id: activeUserId, ...enc }
-      } else {
-        payload = { recipient_id: activeUserId, content }
-        if (!warnedNoKeyRef.current) {
-          warnedNoKeyRef.current = true
-          notify(
-            `${activeUser?.username || 'This user'} hasn't set up encrypted messaging yet, so this message will be sent unencrypted.`,
-            'warning'
-          )
-        }
-      }
-      await api.post('/api/messages', payload)
-      sent = true
+      setSending(true)
+      await api.post('/api/messages', { recipient_id: activeUserId, content: input.trim() })
+      const res = await api.get(`/api/messages/with/${activeUserId}`)
+      setMessages(Array.isArray(res.data) ? res.data : [])
       setInput('')
+      refreshConversations()
     } catch (err) {
       console.error(err)
       notify('Failed to send message.', 'error')
     } finally {
       setSending(false)
     }
-    if (!sent) return
-    refreshConversations()
-    loadThread(activeUserId).catch(() => {})
   }
 
   const refreshConversations = async () => {
@@ -194,41 +109,9 @@ export default function MessagesPage() {
     navigate(`/messages/${otherId}`)
   }
 
-  const insertEmoji = (emoji) => {
-    const el = inputRef.current
-    const start = el?.selectionStart ?? input.length
-    const end = el?.selectionEnd ?? input.length
-    const next = input.slice(0, start) + emoji + input.slice(end)
-    setInput(next)
-    el?.focus()
-    requestAnimationFrame(() => {
-      if (el) el.selectionStart = el.selectionEnd = start + emoji.length
-    })
-  }
-
   const tabs = [
-    { key: 'all', label: 'All' },
     { key: 'received', label: 'Received' },
     { key: 'sent', label: 'Sent' },
-  ]
-
-  const EMOJI_CATEGORIES = [
-    {
-      label: 'Smileys',
-      emojis: ['😀','😄','😁','😆','😂','🤣','😊','😇','🙂','😉','😍','🥰','😘','😜','🤪','😎','🤩','🥳','😅','🤔','🥺','😢','😭','😤','😡','🤯','😴','😱','🙃'],
-    },
-    {
-      label: 'Gestures & hands',
-      emojis: ['👍','👎','👌','✌️','🤞','🤝','👏','🙌','🙏','💪','👋','🫶','🤟','👊','✊','🤙','💯','🔥'],
-    },
-    {
-      label: 'Hearts & feelings',
-      emojis: ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','💖','💕','💔','💫','✨','⭐','🌟','🌈'],
-    },
-    {
-      label: 'Everyday',
-      emojis: ['🎉','🎊','🎁','🎂','🍕','☕','🍰','🍿','🍎','🌹','🌻','🍀','⚽','🎮','🎵','🎶','📚','💡','📱','💻','🧸','🚀','☀️','🌙'],
-    },
   ]
 
   return (
@@ -271,16 +154,11 @@ export default function MessagesPage() {
                 <p className="p-4 text-sm text-[#315D5E] italic">Loading...</p>
               ) : conversations.length === 0 ? (
                 <p className="p-4 text-sm text-[#315D5E] italic">
-                  No {direction === 'sent' ? 'sent' : direction === 'received' ? 'received' : ''} messages yet.
+                  No {direction === 'sent' ? 'sent' : 'received'} messages yet.
                 </p>
               ) : (
                 conversations.map((c) => {
-                  const count =
-                    direction === 'sent'
-                      ? c.sent_count
-                      : direction === 'received'
-                        ? c.received_count
-                        : (c.sent_count || 0) + (c.received_count || 0)
+                  const count = direction === 'sent' ? c.sent_count : c.received_count
                   return (
                     <button
                       key={c.user_id}
@@ -289,14 +167,14 @@ export default function MessagesPage() {
                     >
                       <div className="flex items-center justify-between gap-2">
                           <span className="flex min-w-0 items-center gap-2 truncate text-sm font-semibold text-[#315D5E]"><span className="comment-avatar h-7 w-7 bg-[#E8C4C4] text-[#315D5E]">{(c.username || 'U')[0].toUpperCase()}</span>{c.username}</span>
-                        {c.unread_count > 0 && (
+                        {direction === 'received' && c.unread_count > 0 && (
                           <span className="inline-flex items-center justify-center rounded-full bg-[#F7A5A5] px-2 py-0.5 text-[10px] font-bold text-[#5F9598]">
                             {c.unread_count}
                           </span>
                         )}
                       </div>
                       <div className="mt-1 flex items-center justify-between gap-2">
-                        <span className="truncate text-xs text-[#315D5E]">{c.last_encrypted ? '🔒 Encrypted message' : c.last_message}</span>
+                        <span className="truncate text-xs text-[#315D5E]">{c.last_message}</span>
                         {count > 0 && (
                             <span className="shrink-0 text-[10px] font-semibold text-[#315D5E]">
                             {count} {count === 1 ? 'message' : 'messages'}
@@ -331,7 +209,7 @@ export default function MessagesPage() {
                     <Link to={`/profile/${activeUser._id}`} className="block truncate text-sm font-semibold text-[#5F9598] hover:text-[#F7A5A5]">
                       {activeUser.username}
                     </Link>
-                    <span className="text-xs text-[#5F9598]">{activeUser.followers_count ?? 0} followers · {activeUser.encryption_public_key ? '🔒 end-to-end encrypted' : '⚠️ not encrypted'}</span>
+                    <span className="text-xs text-[#5F9598]">{activeUser.followers_count ?? 0} followers · private conversation</span>
                   </div>
                   </div>
                   <Link to={`/profile/${activeUser._id}`} aria-label="View profile" title="View profile" className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#95CCDD] text-[#5F9598] transition hover:bg-[#EEEEEE] sm:flex">
@@ -358,57 +236,19 @@ export default function MessagesPage() {
                 </div>
 
                 <div className="border-t border-[#95CCDD] bg-[#EEEEEE] p-4">
-                  {showEmojis && (
-                    <div className="mb-3 max-h-52 overflow-y-auto rounded-2xl border border-[#95CCDD] bg-[#F4F2F2] p-3 shadow-inner">
-                      {EMOJI_CATEGORIES.map((category) => (
-                        <div key={category.label} className="mb-2 last:mb-0">
-                          <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#5F9598]">{category.label}</p>
-                          <div className="flex flex-wrap gap-1">
-                            {category.emojis.map((emoji) => (
-                              <button
-                                key={emoji}
-                                type="button"
-                                onClick={() => insertEmoji(emoji)}
-                                className="flex h-9 w-9 items-center justify-center rounded-lg text-xl transition hover:bg-[#D6F4ED] hover:scale-110"
-                                aria-label={`Insert emoji ${emoji}`}
-                              >
-                                {emoji}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
                   <form
                     onSubmit={(e) => { e.preventDefault(); sendMessage() }}
                     className="flex items-end gap-3"
                   >
                     <span className="hidden pb-3 text-[10px] font-bold uppercase tracking-[0.16em] text-[#5F9598] sm:block">Reply</span>
                     <textarea
-                      ref={inputRef}
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault()
-                          sendMessage()
-                        }
-                      }}
                       placeholder="Write a message..."
                       rows={1}
                       className="flex-1 resize-none rounded-2xl border border-[#95CCDD] bg-[#F4F2F2] px-4 py-3 text-sm text-[#5F9598] outline-none transition focus:border-[#5F9598] focus:ring-2 focus:ring-[#95CCDD]/30"
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowEmojis((value) => !value)}
-                      aria-label="Toggle emoji picker"
-                      aria-expanded={showEmojis}
-                      className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl transition disabled:opacity-50 ${showEmojis ? 'bg-[#5F9598] text-[#F4F2F2]' : 'bg-[#95CCDD] text-[#5F9598] hover:bg-[#D6F4ED]'}`}
-                    >
-                      <FiSmile size={19} />
-                    </button>
-                    <button type="submit" disabled={sending || !input.trim()} className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#F7A5A5] text-[#5F9598] shadow-sm transition hover:bg-[#EEEEEE] disabled:opacity-50">
+                    <button type="submit" disabled={sending || !input.trim()} className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[#F7A5A5] text-[#5F9598] shadow-sm transition hover:bg-[#EEEEEE] disabled:opacity-50">
                       <FiSend />
                     </button>
                   </form>
