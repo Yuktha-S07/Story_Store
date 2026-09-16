@@ -670,10 +670,12 @@ a {
   width: 100%;
   min-height: calc(100vh - 8rem);
   margin: 0 auto;
-  padding: clamp(1.25rem, 3vw, 2.5rem) clamp(1.25rem, 5vw, 6rem);
+  padding: clamp(3rem, 9vh, 7rem) clamp(1.25rem, 5vw, 6rem);
   border: 0;
   border-radius: 0;
-  background: #fffdfb;
+  background: #f0f1ef !important;
+  background-color: #f0f1ef !important;
+  background-image: none !important;
   box-shadow: none;
 }
 

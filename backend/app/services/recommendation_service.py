@@ -13,7 +13,7 @@ class RecommendationService:
         query = {}
         if filter_published:
             query["status"] = "published"
-        docs = list(self.story_collection.find(query))
+        docs = list(self.story_collection.find(query, {"cover_image": 0, "cover_image_mime": 0}))
         corpus = []
         ids = []
         for doc in docs:
@@ -44,7 +44,7 @@ class RecommendationService:
         results = []
         for idx, score in top:
             sid = ids[idx]
-            doc = self.story_collection.find_one({"_id": ObjectId(sid)})
+            doc = self.story_collection.find_one({"_id": ObjectId(sid)}, {"cover_image": 0, "cover_image_mime": 0})
             if not doc:
                 continue
             results.append({
@@ -56,7 +56,7 @@ class RecommendationService:
         return results
 
     async def get_popular_stories(self, limit: int = 5) -> List[Dict]:
-        docs = list(self.story_collection.find({"status": "published"}).sort("view_count", -1).limit(limit))
+        docs = list(self.story_collection.find({"status": "published"}, {"cover_image": 0, "cover_image_mime": 0}).sort("view_count", -1).limit(limit))
         return [
             {
                 "_id": str(doc.get("_id")),

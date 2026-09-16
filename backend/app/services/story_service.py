@@ -14,6 +14,9 @@ def _to_object_id(value: str) -> ObjectId:
         raise ValueError("Invalid ObjectId") from err
 
 
+_STORY_PROJECTION = {"cover_image": 0}
+
+
 def _serialize_author(user_id: ObjectId | str | None) -> dict:
     if not user_id:
         return {"_id": "", "username": "Unknown"}
@@ -31,7 +34,7 @@ def _serialize_author(user_id: ObjectId | str | None) -> dict:
     return {"_id": str(user["_id"]), "username": user.get("username", "Unknown")}
 
 
-def _serialize_story(doc: dict) -> dict:
+def _serialize_story(doc: dict, authors: dict | None = None) -> dict:
     user_id = doc.get("user_id")
     cover_url = doc.get("cover_image_url", "")
     if doc.get("cover_image") is not None:
@@ -39,7 +42,7 @@ def _serialize_story(doc: dict) -> dict:
     return {
         "_id": str(doc["_id"]),
         "user_id": str(user_id) if user_id else "",
-        "author": _serialize_author(user_id),
+        "author": _serialize_author(user_id) if authors is None else _serialize_author_from_map(user_id, authors),
         "title": doc.get("title", ""),
         "description": doc.get("description", ""),
         "genre": doc.get("genre", ""),
@@ -52,6 +55,41 @@ def _serialize_story(doc: dict) -> dict:
         "created_at": doc.get("created_at"),
         "updated_at": doc.get("updated_at"),
     }
+
+
+def _serialize_author_from_map(user_id: ObjectId | str | None, authors: dict) -> dict:
+    if not user_id:
+        return {"_id": "", "username": "Unknown"}
+    key = str(user_id)
+    username = authors.get(key)
+    if username is None:
+        return {"_id": key, "username": "Unknown"}
+    return {"_id": key, "username": username}
+
+
+def _load_authors(user_ids) -> dict:
+    """Load usernames for many user ids with a single query."""
+    db = get_database()
+    oids = set()
+    for uid in user_ids:
+        if not uid:
+            continue
+        try:
+            oids.add(_to_object_id(str(uid)))
+        except ValueError:
+            continue
+    authors = {}
+    if oids:
+        for user in db.users.find({"_id": {"$in": list(oids)}}, {"username": 1}):
+            authors[str(user["_id"])] = user.get("username", "Unknown")
+    return authors
+
+
+def _serialize_stories(docs: list[dict]) -> list[dict]:
+    if not docs:
+        return []
+    authors = _load_authors([d.get("user_id") for d in docs])
+    return [_serialize_story(doc, authors) for doc in docs]
 
 
 def _serialize_chapter(doc: dict) -> dict:
@@ -123,10 +161,24 @@ def list_stories(
     limit: int = 20,
     skip: int = 0,
     author_id: str | None = None,
+    ids: str | None = None,
 ) -> list[dict]:
     db = get_database()
     query: dict = {}
-    published_story_ids = _published_story_ids_with_chapters()
+
+    # Batch fetch by explicit ids (used by e.g. the bookmarks page).
+    if ids:
+        id_list = []
+        for raw in ids.split(","):
+            raw = raw.strip()
+            if raw and ObjectId.is_valid(raw):
+                id_list.append(ObjectId(raw))
+        if not id_list:
+            return []
+        docs = list(db.stories.find({"_id": {"$in": id_list}}, _STORY_PROJECTION))
+        return _serialize_stories(docs)
+
+    published_story_ids = None
 
     # Handle status/ownership filtering
     if mine:
@@ -142,6 +194,7 @@ def list_stories(
             query["status"] = status
     elif status:
         if status == "published":
+            published_story_ids = _published_story_ids_with_chapters()
             visibility_filters = [{"status": "published"}]
             if published_story_ids:
                 visibility_filters.append({"_id": {"$in": published_story_ids}})
@@ -150,6 +203,7 @@ def list_stories(
             query["status"] = status
     else:
         # Show published stories + current user's draft stories
+        published_story_ids = _published_story_ids_with_chapters()
         if user_id:
             visibility_filters = [
                 {"status": "published"},
@@ -197,8 +251,13 @@ def list_stories(
             # No existing $or, just add search $or
             query["$or"] = search_or
 
-    docs = list(db.stories.find(query).sort("created_at", -1).skip(skip).limit(limit))
-    return [_serialize_story(d) for d in docs]
+    docs = list(
+        db.stories.find(query, _STORY_PROJECTION)
+        .sort("created_at", -1)
+        .skip(skip)
+        .limit(limit)
+    )
+    return _serialize_stories(docs)
 
 
 def get_story_by_id(story_id: str) -> dict | None:
@@ -208,7 +267,7 @@ def get_story_by_id(story_id: str) -> dict | None:
     except ValueError:
         return None
 
-    story = db.stories.find_one({"_id": story_oid})
+    story = db.stories.find_one({"_id": story_oid}, _STORY_PROJECTION)
     if not story:
         return None
     return _serialize_story(story)
@@ -221,7 +280,7 @@ def get_story_for_owner_or_published(story_id: str, requester_id: str | None) ->
     except ValueError:
         return None
 
-    story = db.stories.find_one({"_id": story_oid})
+    story = db.stories.find_one({"_id": story_oid}, _STORY_PROJECTION)
     if not story:
         return None
 

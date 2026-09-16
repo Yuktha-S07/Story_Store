@@ -13,13 +13,17 @@ export default function BookmarksPage() {
         const res = await api.get('/api/bookmarks')
         const bookmarks = res.data || []
         const storyIds = Array.from(new Set(bookmarks.map(b => String(b.story_id))))
-        const storyResponses = await Promise.all(
-          storyIds.map(storyId => api.get(`/api/stories/${storyId}`).catch(() => null))
-        )
-        const loadedStories = storyResponses
-          .filter(r => r && r.data)
-          .map(r => r.data)
-        setStories(loadedStories)
+        if (storyIds.length === 0) {
+          setStories([])
+          return
+        }
+        const storyRes = await api.get('/api/stories', { params: { ids: storyIds.join(',') } })
+        const byId = {}
+        ;(Array.isArray(storyRes.data) ? storyRes.data : []).forEach(s => { byId[s._id] = s })
+        const ordered = bookmarks
+          .map(b => byId[String(b.story_id)])
+          .filter(Boolean)
+        setStories(ordered)
       } catch (err) {
         console.error(err)
       } finally {

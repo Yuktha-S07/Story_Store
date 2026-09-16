@@ -20,6 +20,14 @@ class Settings:
     # JWT Configuration
     JWT_SECRET: str = os.getenv("JWT_SECRET", "your-secret-key-change-this")
     JWT_ALGORITHM: str = os.getenv("JWT_ALGORITHM", "HS256")
+
+    # Message encryption secret.
+    # MUST be identical across every environment/instance that reads the same
+    # database, otherwise messages cannot be decrypted. Falls back to
+    # JWT_SECRET for backward compatibility.
+    MESSAGE_ENCRYPTION_KEY: str = os.getenv(
+        "MESSAGE_ENCRYPTION_KEY", os.getenv("JWT_SECRET", "your-secret-key-change-this")
+    )
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "10080"))
     REFRESH_TOKEN_EXPIRE_DAYS: int = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
     

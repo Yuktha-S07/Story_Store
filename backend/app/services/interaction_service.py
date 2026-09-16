@@ -161,16 +161,20 @@ class InteractionService:
 
     async def list_story_comments(self, story_id: str) -> list[dict]:
         comments = list(self.comment_collection.find({"story_id": {"$in": _id_query_values(story_id)}}).sort("created_at", -1).limit(100))
+        user_ids = []
+        for comment in comments:
+            comment_user_id = comment.get("user_id")
+            if comment_user_id and ObjectId.is_valid(str(comment_user_id)):
+                user_ids.append(ObjectId(str(comment_user_id)))
+        username_map = {}
+        if user_ids:
+            for user in self.story_collection.database.users.find(
+                {"_id": {"$in": list(set(user_ids))}}, {"username": 1}
+            ):
+                username_map[str(user["_id"])] = user.get("username", "Unknown")
         results = []
         for comment in comments:
-            username = "Unknown"
-            user_id = comment.get("user_id")
-            if user_id and ObjectId.is_valid(str(user_id)):
-                user = self.story_collection.database.users.find_one(
-                    {"_id": ObjectId(str(user_id))}, {"username": 1}
-                )
-                if user:
-                    username = user.get("username", "Unknown")
+            username = username_map.get(str(comment.get("user_id")), "Unknown")
             results.append({
                 "_id": str(comment["_id"]),
                 "story_id": str(comment["story_id"]),

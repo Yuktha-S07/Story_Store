@@ -25,9 +25,6 @@ async def send_message(
         current_user["_id"],
         recipient_id,
         content,
-        iv=(payload.get("iv") or None),
-        is_encrypted=bool(payload.get("is_encrypted", False)),
-        sender_public_key=(payload.get("sender_public_key") or None),
     )
 
 

@@ -69,14 +69,71 @@ def initialize_collections():
 
     collections = {
         "users": ["email"],
-        "stories": ["user_id", "status", "genre", "tags"],
-        "chapters": ["story_id", "chapter_number"],
-        "comments": ["story_id", "chapter_id", "user_id"],
+        "stories": [
+            "user_id",
+            "status",
+            "genre",
+            "tags",
+            # Compound indexes for the hot query patterns:
+            # published/list sorted by recency, and "my stories" sorted by recency
+            [("status", 1), ("created_at", -1)],
+            [("user_id", 1), ("created_at", -1)],
+        ],
+        "chapters": [
+            "story_id",
+            "chapter_number",
+            # Support next-chapter lookups and ordered chapter listing
+            [("story_id", 1), ("chapter_number", 1)],
+            [("story_id", 1), ("chapter_number", 1), ("status", 1)],
+            # Support the published-chapters distinct scan
+            [("status", 1), ("story_id", 1)],
+        ],
+        "comments": [
+            "story_id",
+            "chapter_id",
+            "user_id",
+            [("story_id", 1), ("created_at", -1)],
+        ],
         "votes": ["story_id", "user_id"],
-        "follows": ["follower_id", "following_id"],
-        "messages": ["sender_id", "recipient_id"],
-        "notifications": ["recipient_id", "read", "created_at"],
+        "follows": [
+            "follower_id",
+            "following_id",
+            [("following_id", 1), ("follower_id", 1)],
+        ],
+        "messages": [
+            "sender_id",
+            "recipient_id",
+            [("sender_id", 1), ("created_at", -1)],
+            [("recipient_id", 1), ("created_at", -1)],
+            [("recipient_id", 1), ("read_at", 1)],
+        ],
+        "notifications": [
+            "recipient_id",
+            "read",
+            "created_at",
+            [("recipient_id", 1), ("created_at", -1)],
+            [("recipient_id", 1), ("read", 1)],
+        ],
         "push_subscriptions": ["recipient_id", "endpoint"],
+        # Interaction collections previously had NO indexes (full collection scans)
+        "likes": [
+            "user_id",
+            "story_id",
+            [("user_id", 1), ("story_id", 1)],
+            [("story_id", 1), ("user_id", 1)],
+        ],
+        "bookmarks": [
+            "user_id",
+            "story_id",
+            [("user_id", 1), ("story_id", 1)],
+            [("user_id", 1), ("created_at", -1)],
+        ],
+        "reading_history": [
+            "user_id",
+            "story_id",
+            [("user_id", 1), ("story_id", 1)],
+            [("user_id", 1), ("last_read_at", -1)],
+        ],
     }
 
     for collection_name, indexes in collections.items():
@@ -85,9 +142,12 @@ def initialize_collections():
             db.create_collection(collection_name)
         except CollectionInvalid:
             pass
-        for index_name in indexes:
-            unique = index_name in unique_indexes.get(collection_name, [])
-            db[collection_name].create_index(index_name, unique=unique)
+        for index_spec in indexes:
+            if isinstance(index_spec, str):
+                unique = index_spec in unique_indexes.get(collection_name, [])
+            else:
+                unique = False
+            db[collection_name].create_index(index_spec, unique=unique)
 
     print("[OK] Initialized MongoDB collections and indexes")
 

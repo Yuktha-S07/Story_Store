@@ -19,28 +19,6 @@ AVATAR_CONTENT_TYPES = {
 }
 
 
-@router.put("/users/me/encryption-key")
-async def update_encryption_key(
-    payload: dict,
-    current_user: dict = Depends(get_current_user),
-):
-    public_key = (payload.get("public_key") or "").strip()
-    if not public_key:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="public_key is required")
-    if len(public_key) > 4096:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="public_key is too long")
-
-    db = get_database()
-    db.users.update_one(
-        {"_id": ObjectId(current_user["_id"])},
-        {"$set": {
-            "encryption_public_key": public_key,
-            "updated_at": datetime.utcnow(),
-        }},
-    )
-    return {"message": "Encryption key updated successfully"}
-
-
 @router.get("/users/{user_id}/avatar-image")
 async def get_avatar_image_endpoint(user_id: str):
     if not ObjectId.is_valid(user_id):

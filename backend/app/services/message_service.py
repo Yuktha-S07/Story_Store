@@ -8,6 +8,7 @@ from ..database import (
     get_message_collection,
     get_user_collection,
 )
+from ..utils.message_encryption import encrypt_content, decrypt_content
 from .notification_service import create_notification
 
 
@@ -22,29 +23,25 @@ def _safe_str(value) -> str:
     return str(value) if value is not None else ""
 
 
-def _get_username(user_id) -> str:
-    user = get_user_collection().find_one({"_id": {"$in": _id_query_values(str(user_id))}}, {"username": 1})
-    return user.get("username", "Unknown") if user else "Unknown"
-
-
 class MessageService:
     def __init__(self):
         self.message_collection = get_message_collection()
 
-    async def send_message(self, sender_id: str, recipient_id: str, content: str, iv: str | None = None, is_encrypted: bool = False, sender_public_key: str | None = None) -> dict:
+    async def send_message(self, sender_id: str, recipient_id: str, content: str) -> dict:
         recipient = get_user_collection().find_one({"_id": {"$in": _id_query_values(recipient_id)}})
         if not recipient:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Recipient not found")
 
+        encrypted_content, nonce = encrypt_content(content)
+
         message = Message(
             sender_id=ObjectId(sender_id),
             recipient_id=ObjectId(recipient_id),
-            content=content,
-            iv=iv,
-            is_encrypted=is_encrypted,
-            sender_public_key=sender_public_key,
+            content=encrypted_content,
+            iv=nonce,
+            is_encrypted=True,
         )
-        self.message_collection.insert_one(message.dict(by_alias=True))
+        self.message_collection.insert_one(message.model_dump(by_alias=True))
         sender = get_user_collection().find_one({"_id": {"$in": _id_query_values(sender_id)}}, {"username": 1})
         create_notification(
             recipient_id=recipient_id,
@@ -59,7 +56,8 @@ class MessageService:
         user_variants = _id_query_values(user_id)
         messages = list(
             self.message_collection.find(
-                {"$or": [{"sender_id": {"$in": user_variants}}, {"recipient_id": {"$in": user_variants}}]}
+                {"$or": [{"sender_id": {"$in": user_variants}}, {"recipient_id": {"$in": user_variants}}]},
+                {"sender_id": 1, "recipient_id": 1, "content": 1, "iv": 1, "is_encrypted": 1, "created_at": 1, "read_at": 1},
             ).sort("created_at", 1)
         )
 
@@ -72,7 +70,7 @@ class MessageService:
             if other_key not in conversations:
                 conversations[other_key] = {
                     "user_id": other_key,
-                    "username": _get_username(other_id),
+                    "username": "Unknown",
                     "last_message": "",
                     "last_message_at": None,
                     "last_is_mine": False,
@@ -88,7 +86,12 @@ class MessageService:
                 conv["received_count"] += 1
                 if msg.get("read_at") is None:
                     conv["unread_count"] += 1
-            conv["last_message"] = msg.get("content", "")
+            last_content = msg.get("content", "")
+            last_is_encrypted = bool(msg.get("is_encrypted", False))
+            last_nonce = msg.get("iv")
+            if last_is_encrypted and last_nonce:
+                last_content = decrypt_content(last_content, last_nonce)
+            conv["last_message"] = last_content
             conv["last_message_at"] = msg.get("created_at")
             conv["last_is_mine"] = is_mine
             conv["last_encrypted"] = bool(msg.get("is_encrypted", False))
@@ -100,7 +103,24 @@ class MessageService:
             results = [c for c in results if c["received_count"] > 0]
 
         results.sort(key=lambda c: c["last_message_at"] or datetime.min, reverse=True)
+
+        usernames = self._load_usernames(order)
+        for conv in results:
+            conv["username"] = usernames.get(conv["user_id"], "Unknown")
+
         return results
+
+    def _load_usernames(self, user_ids: list[str]) -> dict:
+        """Resolve usernames for many user ids with a single query."""
+        oids = []
+        for uid in user_ids:
+            if ObjectId.is_valid(uid):
+                oids.append(ObjectId(uid))
+        usernames = {}
+        if oids:
+            for user in get_user_collection().find({"_id": {"$in": list(set(oids))}}, {"username": 1}):
+                usernames[str(user["_id"])] = user.get("username", "Unknown")
+        return usernames
 
     async def get_thread(self, user_id: str, other_id: str, mark_read: bool = True) -> list[dict]:
         user_variants = _id_query_values(user_id)
@@ -112,22 +132,28 @@ class MessageService:
                         {"sender_id": {"$in": user_variants}, "recipient_id": {"$in": other_variants}},
                         {"sender_id": {"$in": other_variants}, "recipient_id": {"$in": user_variants}},
                     ]
-                }
+                },
+                {"sender_id": 1, "recipient_id": 1, "content": 1, "iv": 1, "is_encrypted": 1, "created_at": 1, "read_at": 1},
             ).sort("created_at", 1)
         )
 
         results = []
         for msg in messages:
+            content = msg.get("content", "")
+            is_encrypted = bool(msg.get("is_encrypted", False))
+            nonce = msg.get("iv")
+            if is_encrypted and nonce:
+                content = decrypt_content(content, nonce)
+
             results.append({
                 "_id": str(msg["_id"]),
                 "sender_id": str(msg["sender_id"]),
                 "recipient_id": str(msg["recipient_id"]),
-                "content": msg.get("content", ""),
+                "content": content,
                 "created_at": msg.get("created_at"),
                 "read_at": msg.get("read_at"),
-                "iv": msg.get("iv"),
-                "is_encrypted": bool(msg.get("is_encrypted", False)),
-                "sender_public_key": msg.get("sender_public_key"),
+                "iv": None,
+                "is_encrypted": False,
                 "is_mine": str(msg["sender_id"]) == str(user_id),
             })
 
