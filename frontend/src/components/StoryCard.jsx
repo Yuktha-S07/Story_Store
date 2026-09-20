@@ -4,14 +4,16 @@ import { AuthContext } from '../context/AuthContext'
 import api from '../services/api'
 import { useNotification } from '../context/NotificationContext'
 import { buildStoryCoverAlt, buildStoryCoverUrl, buildStoryFallbackUrl } from '../utils/storyCover'
-import { FiBookOpen, FiHeart, FiUser } from 'react-icons/fi'
+import { buildAvatarUrl } from '../utils/avatar'
+import { FiBookOpen, FiHeart, FiTrash2 } from 'react-icons/fi'
 
-export default function StoryCard({ story, compact = false, bookmarked = false, onUnsave }) {
+export default function StoryCard({ story, compact = false, bookmarkStyle = false, bookmarked = false, onUnsave }) {
   const { user } = useContext(AuthContext)
   const { notify } = useNotification()
   const navigate = useNavigate()
   const [saved, setSaved] = useState(false)
   const [liked, setLiked] = useState(false)
+  const [avatarFailed, setAvatarFailed] = useState(false)
   const genreText = story.genre || 'Unknown'
   const authorText = story.author?.username || story.username || 'Unknown author'
   const authorInitials = authorText
@@ -23,6 +25,7 @@ export default function StoryCard({ story, compact = false, bookmarked = false, 
   const storyId = story._id || story.id
   const coverSrc = buildStoryCoverUrl(story)
   const coverAlt = buildStoryCoverAlt(story)
+  const avatarUrl = buildAvatarUrl(story.author?.avatar_url || story.avatar_url)
 
   const handleSave = async () => {
     if (!user) {
@@ -54,10 +57,10 @@ export default function StoryCard({ story, compact = false, bookmarked = false, 
 
   return (
     <div
-      className={`surface group overflow-hidden rounded-[24px] border border-[#d9e6e2] p-0 shadow-[0_10px_28px_rgba(51,88,80,0.07)] transition duration-300 bg-[#FBF9F1]! dark:border-[#3b3047] dark:bg-[#211a29]! dark:shadow-[0_10px_28px_rgba(0,0,0,0.3)] ${compact ? 'h-full hover:-translate-y-1 hover:shadow-[0_18px_36px_rgba(51,88,80,0.13)]' : 'h-full hover:-translate-y-1 hover:shadow-2xl'}`}
+      className={`surface group overflow-hidden p-0 transition duration-300 ${bookmarkStyle ? 'rounded-[18px] border-[#eaded7] bg-[#fffdf9]! shadow-[0_8px_24px_rgba(79,53,46,0.08)] hover:-translate-y-1 hover:border-[#d8b7a8] hover:shadow-[0_16px_30px_rgba(79,53,46,0.13)] dark:border-[#4b3b5d] dark:bg-[#211a29]! dark:hover:border-[#8a5f73]' : 'rounded-[24px] border-[#d9e6e2] bg-[#FBF9F1]! shadow-[0_10px_28px_rgba(51,88,80,0.07)] hover:-translate-y-1 hover:shadow-2xl dark:border-[#3b3047] dark:bg-[#211a29]! dark:shadow-[0_10px_28px_rgba(0,0,0,0.3)]'} ${compact ? 'h-full' : 'h-full'}`}
     >
       <div className="flex h-full flex-col">
-        <div className="flex-shrink-0 h-48 w-full overflow-hidden rounded-t-[24px] bg-[#f0ece4] dark:bg-gray-700">
+        <div className={`flex-shrink-0 w-full overflow-hidden bg-[#f0ece4] dark:bg-gray-700 ${bookmarkStyle ? 'h-44 rounded-t-[18px]' : 'h-48 rounded-t-[24px]'}`}>
           <img
             src={coverSrc}
             alt={coverAlt}
@@ -67,28 +70,37 @@ export default function StoryCard({ story, compact = false, bookmarked = false, 
           />
         </div>
 
-        <div className={`flex flex-1 flex-col justify-between ${compact ? 'p-4' : 'p-4'}`}>
+        <div className={`flex flex-1 flex-col justify-between ${bookmarkStyle ? 'p-4' : 'p-4'}`}>
           <div>
             <div className="flex items-center justify-between gap-3">
-              <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[#d7e8df] bg-[#eff8f3] px-3 py-1 text-xs font-semibold text-[#397356] shadow-sm dark:border-[#31594f] dark:bg-[#1d3830] dark:text-[#9bd4bb]">
+              <span className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold shadow-sm ${bookmarkStyle ? 'border-[#ead0c5] bg-[#fff1eb] text-[#8d4e4b] dark:border-[#6a3f51] dark:bg-[#3a2733] dark:text-[#f2b9ab]' : 'border-[#d7e8df] bg-[#eff8f3] text-[#397356] dark:border-[#31594f] dark:bg-[#1d3830] dark:text-[#9bd4bb]'}`}>
                 <FiBookOpen className="h-3.5 w-3.5" />
                 {genreText}
               </span>
             </div>
 
             <div className="mt-4 flex-1 space-y-3">
-              <Link to={`/stories/${storyId}`} className={`${compact ? 'block text-xs' : 'block text-xl'} font-semibold text-slate-900 transition group-hover:text-[#4f766f] dark:text-gray-100 dark:group-hover:text-[#8fc4b0]`}>
+              <Link to={`/stories/${storyId}`} className={`${compact ? 'block text-base' : 'block text-xl'} font-semibold text-[#332a2b] transition group-hover:text-[#9a514b] dark:text-gray-100 dark:group-hover:text-[#f2b9ab]`}>
                 {story.title}
               </Link>
 
-              <p className="text-sm leading-6 text-slate-600 dark:text-gray-300" style={{ display: '-webkit-box', WebkitLineClamp: compact ? 1 : 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+              <p className="font-serif text-sm italic leading-6 text-[#756765] dark:text-[#d8cedc]" style={{ display: '-webkit-box', WebkitLineClamp: compact ? 2 : 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                 {story.description}
               </p>
 
-              <div className="flex min-w-0 max-w-full items-center gap-2 text-xs text-[#8b6b52] dark:text-[#e6b7a1]">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br from-[#f3b39f] to-[#d96f52] text-[10px] font-bold text-white shadow-[0_3px_8px_rgba(217,111,82,0.22)] dark:border-[#211a29] dark:from-[#d98472] dark:to-[#a94f62]" aria-hidden="true">
-                  {authorInitials}
-                </span>
+              <div className="flex min-w-0 max-w-full items-center gap-2.5 text-sm text-[#8b6b52] dark:text-[#e6b7a1]">
+                {avatarUrl && !avatarFailed ? (
+                  <img
+                    src={avatarUrl}
+                    alt={`${authorText}'s profile picture`}
+                    onError={() => setAvatarFailed(true)}
+                    className="h-9 w-9 shrink-0 rounded-full border-2 border-white object-cover shadow-[0_3px_8px_rgba(217,111,82,0.22)] dark:border-[#211a29]"
+                  />
+                ) : (
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br from-[#f3b39f] to-[#d96f52] text-xs font-bold text-white shadow-[0_3px_8px_rgba(217,111,82,0.22)] dark:border-[#211a29] dark:from-[#d98472] dark:to-[#a94f62]" aria-hidden="true">
+                    {authorInitials}
+                  </span>
+                )}
                 <span className="min-w-0 truncate">
                   <span className="mr-1 font-medium text-[#a08a7b] dark:text-[#cba99c]">By</span>
                 {story.author?._id || story.user_id ? (
@@ -103,10 +115,10 @@ export default function StoryCard({ story, compact = false, bookmarked = false, 
             </div>
           </div>
 
-          <div className={`${compact ? 'mt-0' : 'mt-3 sm:mt-5'} flex flex-wrap items-center gap-1.5 sm:gap-2 border-t border-black/5 pt-1 dark:border-white/10`}>
+          <div className={`${compact ? 'mt-4' : 'mt-3 sm:mt-5'} flex flex-wrap items-center gap-2 border-t border-[#eee3dd] pt-3 dark:border-white/10`}>
             <Link
               to={`/stories/${storyId}`}
-              className={`rounded-md bg-[#BDA6CE] px-2.5 sm:px-3 ${compact ? 'py-1.5 text-xs sm:text-sm' : 'py-1.5 sm:py-2 text-xs sm:text-sm'} font-semibold text-[#072935] transition hover:bg-[#aa93b6] dark:bg-[#6a4b85] dark:text-white dark:hover:bg-[#7c5a99]`}
+              className={`rounded-lg px-3 ${compact ? 'py-1.5 text-xs' : 'py-1.5 sm:py-2 text-xs sm:text-sm'} font-semibold transition ${bookmarkStyle ? 'bg-[#d97862] text-[#fffaf7]! hover:bg-[#c86450] dark:bg-[#e8a08d]! dark:text-[#3d2930]! dark:hover:bg-[#f3b5a3]' : 'bg-[#BDA6CE] text-[#072935] hover:bg-[#aa93b6] dark:bg-[#6a4b85] dark:text-white dark:hover:bg-[#7c5a99]'}`}
             >
               Read
             </Link>
@@ -114,8 +126,9 @@ export default function StoryCard({ story, compact = false, bookmarked = false, 
             {bookmarked && onUnsave ? (
               <button
                 onClick={() => onUnsave(storyId)}
-                className={`rounded-md bg-[#D88484] px-2.5 sm:px-3 ${compact ? 'py-1.5 text-xs sm:text-sm' : 'py-1.5 sm:py-2 text-xs sm:text-sm'} font-semibold text-[#3a2626] transition hover:bg-[#c68585]`}
+                className={`inline-flex items-center gap-1.5 rounded-lg px-3 ${compact ? 'py-1.5 text-xs' : 'py-1.5 sm:py-2 text-xs sm:text-sm'} font-semibold transition ${bookmarkStyle ? 'border border-[#e2bbb0] bg-transparent text-[#8d4e4b] hover:bg-[#fff1eb] dark:border-[#8a5f73] dark:text-[#f2b9ab] dark:hover:bg-[#3a2733]' : 'bg-[#D88484] text-[#3a2626] hover:bg-[#c68585]'}`}
               >
+                {bookmarkStyle && <FiTrash2 className="h-3.5 w-3.5" aria-hidden="true" />}
                 Unsave
               </button>
             ) : (

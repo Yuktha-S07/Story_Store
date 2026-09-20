@@ -88,6 +88,16 @@ async def get_story_votes(
     return await interaction_service.get_story_votes(story_id)
 
 
+@router.get("/stories/{story_id}/voted")
+async def get_story_voted_status(
+    story_id: str,
+    current_user: dict = Depends(get_current_user),
+    interaction_service: InteractionService = Depends(get_interaction_service),
+):
+    voted = await interaction_service.has_user_voted(current_user["_id"], story_id)
+    return {"story_id": story_id, "voted": voted}
+
+
 @router.get("/stories/{story_id}/reads")
 async def get_story_reads(
     story_id: str,

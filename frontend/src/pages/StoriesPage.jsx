@@ -141,7 +141,7 @@ const StoriesPage = () => {
   }, [stories, searchTerm, normalizedSelectedGenre]);
 
   return (
-    <div className="bg-transparent min-h-screen">
+    <div className="min-h-screen bg-[#fbfaf7] dark:bg-[#16131b]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="mb-6 flex justify-start">
           <BackButton />
@@ -150,9 +150,9 @@ const StoriesPage = () => {
           <h1 className="text-4xl font-serif font-bold text-[#26231f] dark:text-gray-100">Discover Stories</h1>
           <p className="mt-2 text-lg text-[#5d584f] dark:text-gray-400">Explore a universe of stories from writers around the world.</p>
           {normalizedSelectedGenre && (
-            <div className="mt-4 inline-flex items-center gap-3 rounded-full border border-[#d9d2c6] bg-white px-4 py-2 text-sm text-[#5d584f] shadow-sm dark:border-[#4b3b5d] dark:bg-[#2b2235] dark:text-gray-300">
+            <div className="mt-4 inline-flex items-center gap-3 rounded-full border border-[#d9d2c6] bg-white px-4 py-2 text-sm text-[#5d584f] shadow-sm dark:border-[#4b3b5d] dark:bg-[#2b2235] dark:text-[#eee4f2]">
               <span>Filtering by {selectedGenreLabel}</span>
-              <Link to="/stories" className="font-semibold text-[#26231f] underline underline-offset-4 dark:text-gray-100">
+              <Link to="/stories" className="font-semibold text-[#26231f] underline underline-offset-4 dark:text-[#f4b7a7]">
                 Clear filter
               </Link>
             </div>
@@ -163,7 +163,7 @@ const StoriesPage = () => {
               placeholder="Search by title or genre..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-3 rounded-full border border-black/10 bg-[#fbfaf7] text-[#3a3a3a] outline-none transition focus:border-[#3a3a3a] dark:border-white/15 dark:bg-gray-800/70 dark:text-gray-100 dark:placeholder:text-gray-400 dark:focus:border-[#9c78b9]"
+              className="w-full rounded-full border border-black/10 bg-white px-4 py-3 text-[#3a3a3a] outline-none transition focus:border-[#3a3a3a] dark:border-[#5b4b64] dark:bg-[#241e2b] dark:text-[#f4edf7] dark:placeholder:text-[#afa3b7] dark:focus:border-[#e8a08d]"
             />
           </div>
         </div>
@@ -175,14 +175,14 @@ const StoriesPage = () => {
         )}
 
         {error && (
-          <div className="mb-6 p-4 bg-amber-100 border border-amber-300 text-amber-700 rounded-lg">
+            <div className="mb-6 rounded-lg border border-amber-300 bg-amber-100 p-4 text-amber-700 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-200">
             {error}
           </div>
         )}
 
         {!loading && stories.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-[#5d584f] dark:text-gray-400">No stories found. Check back soon!</p>
+            <p className="text-[#5d584f] dark:text-[#cfc3d5]">No stories found. Check back soon!</p>
           </div>
         )}
 

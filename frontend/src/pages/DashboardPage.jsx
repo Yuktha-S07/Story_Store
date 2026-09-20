@@ -73,7 +73,7 @@ export default function DashboardPage() {
             <h1 className="font-serif text-2xl font-semibold tracking-tight text-[#28343a] md:text-3xl dark:text-gray-100">Welcome, {user.username}</h1>
             <p className="mt-3 max-w-lg text-sm leading-6 text-[#6d6863] md:text-base dark:text-gray-400">A quiet place to shape your next story and keep every draft moving.</p>
           </div>
-          <Link to="/write" className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#d96f52] px-5 py-3 text-sm font-semibold text-white shadow-[0_10px_20px_rgba(178,83,58,0.2)] transition hover:bg-[#c85f45] hover:shadow-[0_14px_24px_rgba(178,83,58,0.25)]">
+          <Link to="/write" className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#c99084] px-5 py-3 text-sm font-semibold text-[#6e342e] shadow-[0_10px_20px_rgba(224,111,84,0.16)] transition hover:bg-[#bc8377] hover:shadow-[0_14px_24px_rgba(224,111,84,0.22)]">
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
             Create new story
           </Link>

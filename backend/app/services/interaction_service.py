@@ -143,6 +143,13 @@ class InteractionService:
         count = self.vote_collection.count_documents({"story_id": {"$in": _id_query_values(story_id)}})
         return {"story_id": story_id, "votes_count": count}
 
+    async def has_user_voted(self, user_id: str, story_id: str) -> bool:
+        existing_vote = self.vote_collection.find_one({
+            "user_id": {"$in": _id_query_values(user_id)},
+            "story_id": {"$in": _id_query_values(story_id)},
+        })
+        return bool(existing_vote)
+
     async def add_story_comment(self, user_id: str, story_id: str, content: str) -> dict:
         story = self.story_collection.find_one({"_id": ObjectId(story_id)})
         if not story:

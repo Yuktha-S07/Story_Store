@@ -27,11 +27,12 @@ def _serialize_author(user_id: ObjectId | str | None) -> dict:
         return {"_id": "", "username": "Unknown"}
 
     db = get_database()
-    user = db.users.find_one({"_id": user_oid}, {"username": 1})
+    user = db.users.find_one({"_id": user_oid}, {"username": 1, "avatar_url": 1, "avatar_image": 1})
     if not user:
         return {"_id": str(user_id), "username": "Unknown"}
 
-    return {"_id": str(user["_id"]), "username": user.get("username", "Unknown")}
+    avatar_url = f"/api/users/{user['_id']}/avatar-image" if user.get("avatar_image") is not None else user.get("avatar_url", "")
+    return {"_id": str(user["_id"]), "username": user.get("username", "Unknown"), "avatar_url": avatar_url}
 
 
 def _serialize_story(doc: dict, authors: dict | None = None) -> dict:
@@ -61,10 +62,10 @@ def _serialize_author_from_map(user_id: ObjectId | str | None, authors: dict) ->
     if not user_id:
         return {"_id": "", "username": "Unknown"}
     key = str(user_id)
-    username = authors.get(key)
-    if username is None:
+    author = authors.get(key)
+    if author is None:
         return {"_id": key, "username": "Unknown"}
-    return {"_id": key, "username": username}
+    return {"_id": key, **author}
 
 
 def _load_authors(user_ids) -> dict:
@@ -80,8 +81,9 @@ def _load_authors(user_ids) -> dict:
             continue
     authors = {}
     if oids:
-        for user in db.users.find({"_id": {"$in": list(oids)}}, {"username": 1}):
-            authors[str(user["_id"])] = user.get("username", "Unknown")
+        for user in db.users.find({"_id": {"$in": list(oids)}}, {"username": 1, "avatar_url": 1, "avatar_image": 1}):
+            avatar_url = f"/api/users/{user['_id']}/avatar-image" if user.get("avatar_image") is not None else user.get("avatar_url", "")
+            authors[str(user["_id"])] = {"username": user.get("username", "Unknown"), "avatar_url": avatar_url}
     return authors
 
 

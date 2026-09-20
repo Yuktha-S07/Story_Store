@@ -150,11 +150,11 @@ export default function ProfilePage() {
 
       <section className="pb-2">
         <div className="flex flex-col items-start gap-7 sm:flex-row sm:items-center">
-          {renderAvatar('h-24 w-24 md:h-28 md:w-28', 'text-3xl md:text-4xl')}
+          {renderAvatar('h-28 w-28 md:h-32 md:w-32', 'text-4xl md:text-5xl')}
           <div className="flex-1 min-w-0">
             <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#b06f7f]">Story Store member</p>
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="break-words font-serif text-2xl font-semibold tracking-tight text-[#26231f] dark:text-gray-100 md:text-3xl">
+              <h1 className="break-words font-serif text-3xl font-semibold tracking-tight text-[#26231f] dark:text-gray-100 md:text-4xl">
                 {profile.username}
               </h1>
               {authUser && !isOwnProfile && (
