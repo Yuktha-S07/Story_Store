@@ -6,7 +6,7 @@ import { useNotification } from '../context/NotificationContext'
 import { buildStoryCoverAlt, buildStoryCoverUrl, buildStoryFallbackUrl } from '../utils/storyCover'
 import { FiBookOpen, FiHeart, FiUser } from 'react-icons/fi'
 
-export default function StoryCard({ story, compact = false }) {
+export default function StoryCard({ story, compact = false, bookmarked = false, onUnsave }) {
   const { user } = useContext(AuthContext)
   const { notify } = useNotification()
   const navigate = useNavigate()
@@ -106,17 +106,26 @@ export default function StoryCard({ story, compact = false }) {
           <div className={`${compact ? 'mt-0' : 'mt-3 sm:mt-5'} flex flex-wrap items-center gap-1.5 sm:gap-2 border-t border-black/5 pt-1 dark:border-white/10`}>
             <Link
               to={`/stories/${storyId}`}
-              className={`rounded-md bg-[#BDA6CE] px-1.5 sm:px-2 ${compact ? 'py-0.5 text-[10px] sm:text-xs' : 'py-1.5 sm:py-2 text-xs sm:text-sm'} font-semibold text-[#072935] transition hover:bg-[#aa93b6] dark:bg-[#6a4b85] dark:text-white dark:hover:bg-[#7c5a99]`}
+              className={`rounded-md bg-[#BDA6CE] px-2.5 sm:px-3 ${compact ? 'py-1.5 text-xs sm:text-sm' : 'py-1.5 sm:py-2 text-xs sm:text-sm'} font-semibold text-[#072935] transition hover:bg-[#aa93b6] dark:bg-[#6a4b85] dark:text-white dark:hover:bg-[#7c5a99]`}
             >
               Read
             </Link>
 
-            <button
-              onClick={handleSave}
-              className={`rounded-md bg-[#DC9B9B] px-1.5 sm:px-2 ${compact ? 'py-0.5 text-[10px] sm:text-xs' : 'py-1.5 sm:py-2 text-xs sm:text-sm'} font-semibold text-[#3a2626] transition hover:bg-[#c68585]`}
-            >
-              {saved ? 'Saved' : 'Save'}
-            </button>
+            {bookmarked && onUnsave ? (
+              <button
+                onClick={() => onUnsave(storyId)}
+                className={`rounded-md bg-[#D88484] px-2.5 sm:px-3 ${compact ? 'py-1.5 text-xs sm:text-sm' : 'py-1.5 sm:py-2 text-xs sm:text-sm'} font-semibold text-[#3a2626] transition hover:bg-[#c68585]`}
+              >
+                Unsave
+              </button>
+            ) : (
+              <button
+                onClick={handleSave}
+                className={`rounded-md bg-[#DC9B9B] px-2.5 sm:px-3 ${compact ? 'py-1.5 text-xs sm:text-sm' : 'py-1.5 sm:py-2 text-xs sm:text-sm'} font-semibold text-[#3a2626] transition hover:bg-[#c68585]`}
+              >
+                {saved ? 'Saved' : 'Save'}
+              </button>
+            )}
 
             <button
               onClick={async () => {

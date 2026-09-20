@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import api from '../services/api'
+import { useNotification } from '../context/NotificationContext'
 import StoryCard from '../components/StoryCard'
 import BackButton from '../components/BackButton'
+import { FiBookmark, FiCompass, FiFeather } from 'react-icons/fi'
 
 export default function BookmarksPage() {
   const [stories, setStories] = useState([])
   const [loading, setLoading] = useState(true)
+  const { notify } = useNotification()
 
   useEffect(() => {
     const fetch = async () => {
@@ -33,28 +37,68 @@ export default function BookmarksPage() {
     fetch()
   }, [])
 
+  const handleUnsave = async (storyId) => {
+    try {
+      await api.delete(`/api/stories/${storyId}/bookmark`)
+      setStories(prev => prev.filter(s => (s._id || s.id) !== storyId))
+      notify('Bookmark removed.', 'info')
+    } catch (err) {
+      console.error(err)
+      if (err?.response?.status === 401 || err?.response?.status === 403) return
+      notify('Failed to remove bookmark.', 'error')
+    }
+  }
+
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-8 pb-10">
-      <div className="flex items-center justify-between">
-        <BackButton />
-        <span className="rounded-full border border-[#d9c7b4] bg-[#fffaf4] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#8b6b52]">Saved library</span>
+    <div className="mx-auto w-full max-w-6xl pb-12">
+      <div className="mb-7 flex items-center justify-between">
+        <BackButton label="Library" />
+        <div className="hidden items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#8b6b52] sm:flex">
+          <FiBookmark className="h-4 w-4" aria-hidden="true" />
+          Saved library
+        </div>
       </div>
-      <section className="rounded-[28px] border border-[#d7e6e2] bg-[linear-gradient(135deg,#f4fbf8_0%,#e8f2f0_100%)] p-6 shadow-[0_18px_50px_rgba(51,88,80,0.08)] md:p-9">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#5d8c80]">Your reading shelf</p>
-        <div className="mt-2 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+
+      <section className="relative isolate overflow-hidden rounded-[30px] border border-[#d8e6df] bg-[#f2f8f3] shadow-[0_20px_55px_rgba(51,88,80,0.1)] dark:border-[#4b3b5d] dark:bg-[#2a2132] dark:shadow-[0_20px_55px_rgba(0,0,0,0.25)]">
+        <div className="absolute -right-16 -top-20 -z-10 h-64 w-64 rounded-full border-[28px] border-[#d9ebe0]/70 dark:border-[#493856]/70" />
+        <div className="grid gap-8 p-6 sm:p-8 md:grid-cols-[1fr_auto] md:items-end md:p-10">
           <div>
-            <h1 className="font-serif text-2xl font-semibold text-[#283d3c] md:text-3xl">Bookmarks</h1>
-            <p className="mt-3 max-w-xl text-sm leading-6 text-[#687b78] md:text-base">Keep the stories that stayed with you close at hand.</p>
+            <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[#d9eee2] text-[#397356] shadow-sm dark:bg-[#3c5a4c] dark:text-[#b8e4c8]">
+              <FiBookmark className="h-6 w-6" aria-hidden="true" />
+            </div>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#5d8c80] dark:text-[#9bd4bb]">Your reading shelf</p>
+            <h1 className="mt-2 font-serif text-3xl font-semibold tracking-tight text-[#283d3c] dark:text-[#f1e8f5] md:text-5xl">Stories worth keeping</h1>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-[#687b78] dark:text-gray-300 md:text-base">A quiet corner for the stories you want to return to, finish later, or carry with you.</p>
           </div>
-          <span className="font-serif text-3xl font-semibold text-[#5d8c80]">{stories.length}</span>
+          <div className="flex items-end gap-5 border-t border-[#d3e3db] pt-5 dark:border-white/10 md:border-l md:border-t-0 md:pl-8 md:pt-0">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#7a918a] dark:text-gray-400">Saved</p>
+              <p className="mt-1 font-serif text-5xl font-semibold leading-none text-[#397356] dark:text-[#b8e4c8]">{stories.length}</p>
+            </div>
+            <FiFeather className="mb-1 h-7 w-7 text-[#d88484] dark:text-[#e3a6a6]" aria-hidden="true" />
+          </div>
         </div>
       </section>
-      {loading && <div className="rounded-2xl border border-[#d7e6e2] bg-[#f7fcfa] px-5 py-8 text-center text-sm text-[#687b78]">Loading your shelf...</div>}
+
+      <div className="mb-5 mt-10 flex items-end justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#8b6b52] dark:text-[#e6b7a1]">The collection</p>
+          <h2 className="mt-1 font-serif text-2xl font-semibold text-[#283d3c] dark:text-gray-100">Your bookmarks</h2>
+        </div>
+        {!loading && stories.length > 0 && <span className="text-sm text-[#687b78] dark:text-gray-400">{stories.length === 1 ? '1 story' : `${stories.length} stories`}</span>}
+      </div>
+
+      {loading && <div className="rounded-2xl border border-[#d7e6e2] bg-[#f7fcfa] px-5 py-10 text-center text-sm text-[#687b78] dark:border-[#4b3b5d] dark:bg-[#211a29] dark:text-gray-300">Loading your shelf...</div>}
       {!loading && stories.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-[#c9d9d5] bg-[#f7fcfa] px-6 py-12 text-center text-sm text-[#687b78]">No bookmarks yet. Stories you save will appear here.</div>
+        <div className="rounded-[24px] border border-dashed border-[#c9d9d5] bg-[#f7fcfa] px-6 py-14 text-center dark:border-[#4b3b5d] dark:bg-[#211a29]">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#e3f0e7] text-[#397356] dark:bg-[#3c5a4c] dark:text-[#b8e4c8]"><FiBookmark className="h-6 w-6" aria-hidden="true" /></div>
+          <h3 className="mt-5 font-serif text-xl font-semibold text-[#283d3c] dark:text-gray-100">Your shelf is waiting</h3>
+          <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-[#687b78] dark:text-gray-400">Find a story that catches your attention and save it here for your next reading session.</p>
+          <Link to="/stories" className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#397356] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2d5d45] dark:bg-[#6b9f82] dark:text-[#17251d] dark:hover:bg-[#84b798]"><FiCompass className="h-4 w-4" aria-hidden="true" /> Discover stories</Link>
+        </div>
       )}
-      <div className="grid grid-cols-1 items-stretch gap-6 pb-16 md:grid-cols-2 xl:grid-cols-3">
-        {stories.map(s => <StoryCard key={s._id} story={s} compact={true} />)}
+      <div className="grid grid-cols-1 items-stretch gap-5 pb-16 md:grid-cols-2 xl:grid-cols-3">
+        {stories.map(s => <StoryCard key={s._id} story={s} compact={true} bookmarked={true} onUnsave={handleUnsave} />)}
       </div>
     </div>
   )

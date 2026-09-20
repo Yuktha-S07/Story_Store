@@ -8,7 +8,7 @@ from ..database import (
     get_message_collection,
     get_user_collection,
 )
-from ..utils.message_encryption import encrypt_content, decrypt_content
+from ..utils.message_encryption import decrypt_content
 from .notification_service import create_notification
 
 
@@ -32,14 +32,10 @@ class MessageService:
         if not recipient:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Recipient not found")
 
-        encrypted_content, nonce = encrypt_content(content)
-
         message = Message(
             sender_id=ObjectId(sender_id),
             recipient_id=ObjectId(recipient_id),
-            content=encrypted_content,
-            iv=nonce,
-            is_encrypted=True,
+            content=content,
         )
         self.message_collection.insert_one(message.model_dump(by_alias=True))
         sender = get_user_collection().find_one({"_id": {"$in": _id_query_values(sender_id)}}, {"username": 1})

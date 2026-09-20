@@ -1,11 +1,19 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { FiChevronLeft, FiChevronRight, FiMessageCircle, FiSend, FiUser, FiUsers } from 'react-icons/fi'
+import { FiChevronLeft, FiChevronRight, FiMessageCircle, FiSend, FiSmile, FiUser, FiUsers } from 'react-icons/fi'
 import { AuthContext } from '../context/AuthContext'
 import api from '../services/api'
 import { useNotification } from '../context/NotificationContext'
 import { formatCommentDate } from '../utils/formatDate'
 import BackButton from '../components/BackButton'
+
+const EMOJIS = [
+  '😀', '😁', '😂', '🤣', '😊', '😍', '😘', '😜', '🤪', '😎',
+  '🥳', '😇', '🙂', '😉', '🤗', '😅', '😔', '😢', '😭', '😤',
+  '😡', '😴', '🤔', '🙄', '😬', '🥰', '🤯', '🫶', '👍', '👎',
+  '👏', '🙏', '💪', '🤝', '✌️', '🤞', '❤️', '💖', '💯', '🔥',
+  '✨', '🎉', '🎂', '🌈', '🍕', '☕', '⚽', '🐱', '🌙', '⭐',
+]
 
 export default function MessagesPage() {
   const { userId } = useParams()
@@ -19,10 +27,12 @@ export default function MessagesPage() {
   const [activeUserId, setActiveUserId] = useState(null)
   const [activeUser, setActiveUser] = useState(null)
   const [input, setInput] = useState('')
+  const [showEmoji, setShowEmoji] = useState(false)
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
   const bottomRef = useRef(null)
   const threadScrollRef = useRef(null)
+  const textareaRef = useRef(null)
 
   useEffect(() => {
     if (!user) return
@@ -95,6 +105,26 @@ export default function MessagesPage() {
     } finally {
       setSending(false)
     }
+  }
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
+      e.preventDefault()
+      sendMessage()
+    }
+  }
+
+  const insertEmoji = (emoji) => {
+    const el = textareaRef.current
+    const start = el.selectionStart ?? input.length
+    const end = el.selectionEnd ?? input.length
+    const next = input.slice(0, start) + emoji + input.slice(end)
+    setInput(next)
+    requestAnimationFrame(() => {
+      el.focus()
+      const pos = start + emoji.length
+      el.setSelectionRange(pos, pos)
+    })
   }
 
   const refreshConversations = async () => {
@@ -237,19 +267,44 @@ export default function MessagesPage() {
                 </div>
 
                 <div className="border-t border-[#95CCDD] bg-[#EEEEEE] p-4">
+                  {showEmoji && (
+                    <div className="mb-3 grid max-h-44 grid-cols-8 gap-1 overflow-y-auto rounded-2xl border border-[#95CCDD] bg-[#F4F2F2] p-2 sm:grid-cols-10">
+                      {EMOJIS.map((emoji) => (
+                        <button
+                          key={emoji}
+                          type="button"
+                          onClick={() => insertEmoji(emoji)}
+                          className="flex h-9 w-9 items-center justify-center rounded-lg text-xl transition hover:bg-[#E8C4C4]"
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                   <form
                     onSubmit={(e) => { e.preventDefault(); sendMessage() }}
                     className="flex items-end gap-3"
                   >
                     <span className="hidden pb-3 text-[10px] font-bold uppercase tracking-[0.16em] text-[#5F9598] sm:block">Reply</span>
                     <textarea
+                      ref={textareaRef}
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={handleKeyDown}
                       placeholder="Write a message..."
                       rows={1}
                       className="flex-1 resize-none rounded-2xl border border-[#95CCDD] bg-[#F4F2F2] px-4 py-3 text-sm text-[#5F9598] outline-none transition focus:border-[#5F9598] focus:ring-2 focus:ring-[#95CCDD]/30"
                     />
-                    <button type="submit" disabled={sending || !input.trim()} className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[#F7A5A5] text-[#5F9598] shadow-sm transition hover:bg-[#EEEEEE] disabled:opacity-50">
+                    <button
+                      type="button"
+                      onClick={() => setShowEmoji(prev => !prev)}
+                      aria-label="Emoji"
+                      title="Emoji"
+                      className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border transition ${showEmoji ? 'border-[#5F9598] bg-[#95CCDD] text-[#072935]' : 'border-[#95CCDD] bg-[#F4F2F2] text-[#5F9598] hover:bg-[#E8C4C4]'}`}
+                    >
+                      <FiSmile size={20} />
+                    </button>
+                    <button type="submit" disabled={sending || !input.trim()} className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#F7A5A5] text-[#5F9598] shadow-sm transition hover:bg-[#EEEEEE] disabled:opacity-50">
                       <FiSend />
                     </button>
                   </form>
