@@ -15,6 +15,7 @@ class Message(BaseModel):
     sender_id: PyObjectId = Field(...)
     recipient_id: PyObjectId = Field(...)
     content: str
+    message_type: str = Field(default="text", pattern="^(text|sticker)$")
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: Optional[datetime] = None
     read_at: Optional[datetime] = None

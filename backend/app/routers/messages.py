@@ -15,16 +15,22 @@ async def send_message(
 ):
     recipient_id = (payload.get("recipient_id") or "").strip()
     content = (payload.get("content") or "").strip()
+    message_type = (payload.get("type") or "text").strip()
     if not recipient_id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Recipient is required")
     if not content:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Message content is required")
+    if message_type not in ("text", "sticker"):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid message type")
+    if message_type == "sticker" and len(content) > 16:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid sticker")
     if recipient_id == current_user["_id"]:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You cannot message yourself")
     return await message_service.send_message(
         current_user["_id"],
         recipient_id,
         content,
+        message_type,
     )
 
 

@@ -38,7 +38,7 @@ class MessageService:
     def __init__(self):
         self.message_collection = get_message_collection()
 
-    async def send_message(self, sender_id: str, recipient_id: str, content: str) -> dict:
+    async def send_message(self, sender_id: str, recipient_id: str, content: str, message_type: str = "text") -> dict:
         recipient = get_user_collection().find_one({"_id": {"$in": _id_query_values(recipient_id)}})
         if not recipient:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Recipient not found")
@@ -47,13 +47,14 @@ class MessageService:
             sender_id=ObjectId(sender_id),
             recipient_id=ObjectId(recipient_id),
             content=content,
+            message_type=message_type,
         )
         self.message_collection.insert_one(message.model_dump(by_alias=True))
         sender = get_user_collection().find_one({"_id": {"$in": _id_query_values(sender_id)}}, {"username": 1})
         create_notification(
             recipient_id=recipient_id,
             notification_type="messages",
-            message=f"{(sender or {}).get('username', 'Someone')} sent you a message.",
+            message=f"{(sender or {}).get('username', 'Someone')} sent you {'a sticker' if message_type == 'sticker' else 'a message'}.",
             actor_id=sender_id,
             actor_name=(sender or {}).get("username", "Someone"),
         )
@@ -140,7 +141,7 @@ class MessageService:
                         {"sender_id": {"$in": other_variants}, "recipient_id": {"$in": user_variants}},
                     ]
                 },
-                {"sender_id": 1, "recipient_id": 1, "content": 1, "iv": 1, "is_encrypted": 1, "created_at": 1, "updated_at": 1, "read_at": 1, "reactions": 1},
+                {"sender_id": 1, "recipient_id": 1, "content": 1, "message_type": 1, "iv": 1, "is_encrypted": 1, "created_at": 1, "updated_at": 1, "read_at": 1, "reactions": 1},
             ).sort("created_at", 1)
         )
 
@@ -157,6 +158,7 @@ class MessageService:
                 "sender_id": str(msg["sender_id"]),
                 "recipient_id": str(msg["recipient_id"]),
                 "content": content,
+                "message_type": msg.get("message_type", "text"),
                 "created_at": msg.get("created_at"),
                 "updated_at": msg.get("updated_at"),
                 "read_at": msg.get("read_at"),
@@ -183,6 +185,9 @@ class MessageService:
         )
         if not message:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Message not found")
+
+        if message.get("message_type", "text") != "text":
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Stickers cannot be edited")
 
         self.message_collection.update_one(
             {"_id": message["_id"]},

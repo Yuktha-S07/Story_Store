@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { FiChevronLeft, FiChevronRight, FiEdit2, FiMessageCircle, FiSend, FiSmile, FiUser, FiUsers } from 'react-icons/fi'
+import { FiChevronLeft, FiChevronRight, FiEdit2, FiMessageCircle, FiSend, FiSmile, FiStar, FiUser, FiUsers } from 'react-icons/fi'
 import { AuthContext } from '../context/AuthContext'
 import api from '../services/api'
 import { useNotification } from '../context/NotificationContext'
@@ -17,6 +17,13 @@ const EMOJIS = [
 
 const QUICK_REACTIONS = ['👍', '❤️', '😂', '😮', '😢', '🔥']
 
+const STICKERS = [
+  '🐼', '🦊', '🐰', '🐯', '🦁', '🐮', '🐷', '🐸',
+  '🐵', '🐻', '🐨', '🦋', '🐢', '🦆', '🐱', '🌸',
+  '🥰', '😍', '🤗', '😎', '🤩', '😭', '😡', '🙏',
+  '👍', '🙌', '🎉', '🎂', '🌈', '⭐', '🔥', '💯',
+]
+
 const REACTION_EMOJIS = ['👍', '❤️', '😂', '😮', '😢', '🙏', '🔥', '🎉', '😍', '😎', '💯', '✨']
 
 export default function MessagesPage() {
@@ -32,6 +39,7 @@ export default function MessagesPage() {
   const [activeUser, setActiveUser] = useState(null)
   const [input, setInput] = useState('')
   const [showEmoji, setShowEmoji] = useState(false)
+  const [showSticker, setShowSticker] = useState(false)
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
   const [editingId, setEditingId] = useState(null)
@@ -67,12 +75,14 @@ export default function MessagesPage() {
       setEditingId(null)
       setEditText('')
       setReactionPickerId(null)
+      setShowSticker(false)
       return
     }
     setActiveUserId(userId)
     setEditingId(null)
     setEditText('')
     setReactionPickerId(null)
+    setShowSticker(false)
     const fetchThread = async () => {
       try {
         const [threadRes, profileRes] = await Promise.all([
@@ -103,10 +113,7 @@ export default function MessagesPage() {
     }
   }, [messages])
 
-  const sendMessage = async () => {
-    const content = input.trim()
-    if (!content || !activeUserId || sending) return
-
+  const dispatchMessage = async (content, type = 'text') => {
     const recipientId = activeUserId
     const temporaryId = `pending-${Date.now()}`
     const optimisticMessage = {
@@ -114,6 +121,7 @@ export default function MessagesPage() {
       sender_id: user?._id,
       recipient_id: recipientId,
       content,
+      message_type: type,
       created_at: new Date().toISOString(),
       read_at: null,
       is_encrypted: false,
@@ -121,12 +129,10 @@ export default function MessagesPage() {
     }
 
     setMessages((currentMessages) => [...currentMessages, optimisticMessage])
-    setInput('')
-    setShowEmoji(false)
 
     try {
       setSending(true)
-      await api.post('/api/messages', { recipient_id: recipientId, content })
+      await api.post('/api/messages', { recipient_id: recipientId, content, type })
       const res = await api.get(`/api/messages/with/${recipientId}`)
       setMessages(Array.isArray(res.data) ? res.data : [])
       refreshConversations()
@@ -137,6 +143,20 @@ export default function MessagesPage() {
     } finally {
       setSending(false)
     }
+  }
+
+  const sendMessage = async () => {
+    const content = input.trim()
+    if (!content || !activeUserId || sending) return
+    setInput('')
+    setShowEmoji(false)
+    await dispatchMessage(content, 'text')
+  }
+
+  const sendSticker = async (sticker) => {
+    if (!activeUserId || sending) return
+    setShowSticker(false)
+    await dispatchMessage(sticker, 'sticker')
   }
 
   const handleKeyDown = (e) => {
@@ -356,6 +376,7 @@ export default function MessagesPage() {
                   ) : (
                     messages.map((m) => {
                       const isEditing = editingId === m._id
+                      const isSticker = m.message_type === 'sticker'
                       const pickerOpen = reactionPickerId === m._id
                       const reactionGroups = groupReactions(m.reactions)
                       const messageActions = !isEditing && (
@@ -369,7 +390,7 @@ export default function MessagesPage() {
                           >
                             <FiSmile size={15} />
                           </button>
-                          {m.is_mine && (
+                          {m.is_mine && !isSticker && (
                             <button
                               type="button"
                               onClick={() => startEditMessage(m)}
@@ -403,7 +424,7 @@ export default function MessagesPage() {
                                 </div>
                               </>
                             )}
-                            <div className={`message-bubble break-words rounded-2xl px-4 py-2.5 text-sm shadow-sm ${m.is_mine ? 'rounded-br-md bg-[#5F9598] text-[#F4F2F2]' : 'rounded-bl-md border border-[#95CCDD] bg-[#D6F4ED] text-[#315D5E]'}`}>
+                            <div className={`message-bubble break-words ${isSticker ? 'rounded-2xl px-1 py-0 text-6xl' : 'rounded-2xl px-4 py-2.5 text-sm shadow-sm'} ${isSticker ? '' : (m.is_mine ? 'rounded-br-md bg-[#5F9598] text-[#F4F2F2]' : 'rounded-bl-md border border-[#95CCDD] bg-[#D6F4ED] text-[#315D5E]')}`}>
                               {isEditing ? (
                                 <div className="min-w-[220px] space-y-2">
                                   <textarea
@@ -433,6 +454,8 @@ export default function MessagesPage() {
                                     </button>
                                   </div>
                                 </div>
+                              ) : isSticker ? (
+                                <span className="block leading-none select-none" title="Sticker">{m.content}</span>
                               ) : (
                                 <>
                                   <p className="whitespace-pre-line">{m.content}</p>
@@ -484,6 +507,21 @@ export default function MessagesPage() {
                       ))}
                     </div>
                   )}
+                  {showSticker && (
+                    <div className="mb-3 grid max-h-44 grid-cols-4 gap-1 overflow-y-auto rounded-2xl border border-[#95CCDD] bg-[#F4F2F2] p-2 sm:grid-cols-6">
+                      {STICKERS.map((sticker) => (
+                        <button
+                          key={sticker}
+                          type="button"
+                          onClick={() => sendSticker(sticker)}
+                          title="Send sticker"
+                          className="flex h-14 w-full items-center justify-center rounded-xl text-4xl transition hover:bg-[#E8C4C4]"
+                        >
+                          {sticker}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                   <form
                     onSubmit={(e) => { e.preventDefault(); sendMessage() }}
                     className="flex items-end gap-3"
@@ -500,7 +538,16 @@ export default function MessagesPage() {
                     />
                     <button
                       type="button"
-                      onClick={() => setShowEmoji(prev => !prev)}
+                      onClick={() => { setShowEmoji(false); setShowSticker((prev) => !prev) }}
+                      aria-label="Stickers"
+                      title="Stickers"
+                      className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border transition ${showSticker ? 'border-[#5F9598] bg-[#95CCDD] text-[#072935]' : 'border-[#95CCDD] bg-[#F4F2F2] text-[#5F9598] hover:bg-[#E8C4C4]'}`}
+                    >
+                      <FiStar size={20} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setShowSticker(false); setShowEmoji((prev) => !prev) }}
                       aria-label="Emoji"
                       title="Emoji"
                       className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border transition ${showEmoji ? 'border-[#5F9598] bg-[#95CCDD] text-[#072935]' : 'border-[#95CCDD] bg-[#F4F2F2] text-[#5F9598] hover:bg-[#E8C4C4]'}`}

@@ -148,3 +148,50 @@ def test_message_reactions(client):
         headers=third_headers,
     )
     assert not_participant.status_code == 404
+
+
+def test_send_and_render_stickers(client):
+    sender_creds = _creds("sticker_sender")
+    recipient_creds = _creds("sticker_recipient")
+
+    sender_headers = auth_headers(client, sender_creds)
+    recipient_id = client.post("/api/auth/register", json=recipient_creds).json()["user"]["_id"]
+
+    send_res = client.post(
+        "/api/messages",
+        json={"recipient_id": recipient_id, "content": "🐼", "type": "sticker"},
+        headers=sender_headers,
+    )
+    assert send_res.status_code == 201
+
+    thread = client.get(f"/api/messages/with/{recipient_id}", headers=sender_headers).json()
+    assert len(thread) == 1
+    assert thread[0]["message_type"] == "sticker"
+    assert thread[0]["content"] == "🐼"
+
+    sticker_id = thread[0]["_id"]
+    edit_sticker = client.put(f"/api/messages/{sticker_id}", json={"content": "nope"}, headers=sender_headers)
+    assert edit_sticker.status_code == 400
+
+    invalid_type = client.post(
+        "/api/messages",
+        json={"recipient_id": recipient_id, "content": "hi", "type": "gif"},
+        headers=sender_headers,
+    )
+    assert invalid_type.status_code == 400
+
+    oversized_sticker = client.post(
+        "/api/messages",
+        json={"recipient_id": recipient_id, "content": "x" * 20, "type": "sticker"},
+        headers=sender_headers,
+    )
+    assert oversized_sticker.status_code == 400
+
+    text_res = client.post(
+        "/api/messages",
+        json={"recipient_id": recipient_id, "content": "plain text"},
+        headers=sender_headers,
+    )
+    assert text_res.status_code == 201
+    thread = client.get(f"/api/messages/with/{recipient_id}", headers=sender_headers).json()
+    assert thread[-1]["message_type"] == "text"
