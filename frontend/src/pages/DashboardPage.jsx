@@ -133,15 +133,15 @@ export default function DashboardPage() {
                     </span>
                     <span className="rounded-md bg-[#f0ece7] px-2 py-0.5 text-xs text-[#706b67] dark:bg-[#2f2835] dark:text-gray-300">{s.genre}</span>
                   </div>
-                  <div className="mt-4 flex items-center gap-1.5 border-t border-slate-100 pt-3 sm:gap-2 dark:border-white/10">
-                    <button onClick={() => setEditingStory(s)} className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-[#c9d9d2] bg-[#f5faf7] px-2 py-1.5 text-center text-xs font-semibold text-[#397356] transition hover:border-[#8fbaa7] hover:bg-[#e8f5ed] sm:px-3 sm:text-sm dark:border-[#31594f] dark:bg-[#1d3830] dark:text-[#9bd4bb] dark:hover:bg-[#25473d]" aria-label={`Edit ${s.title}`}>
+                  <div className="mt-4 flex flex-wrap items-center gap-1.5 border-t border-slate-100 pt-3 sm:gap-2 dark:border-white/10">
+                    <button onClick={() => setEditingStory(s)} className="flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-md border border-[#c9d9d2] bg-[#f5faf7] px-2 py-2 text-center text-xs font-semibold text-[#397356] transition hover:border-[#8fbaa7] hover:bg-[#e8f5ed] sm:px-3 sm:text-sm dark:border-[#31594f] dark:bg-[#1d3830] dark:text-[#9bd4bb] dark:hover:bg-[#25473d]" aria-label={`Edit ${s.title}`}>
                       <FiEdit3 className="h-3.5 w-3.5" />
                       Edit
                     </button>
                     {s.status !== 'published' && (
-                      <button onClick={() => publishStory(s._id)} className="rounded-md bg-gradient-to-r from-green-500 to-green-600 px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium text-white transition hover:from-green-600 hover:to-green-700 shadow-sm">Publish</button>
+                      <button onClick={() => publishStory(s._id)} className="flex min-h-10 items-center justify-center rounded-md bg-gradient-to-r from-green-500 to-green-600 px-2 py-2 text-xs font-medium text-white transition hover:from-green-600 hover:to-green-700 shadow-sm sm:px-3 sm:text-sm">Publish</button>
                     )}
-                    <button onClick={() => deleteStory(s._id)} className="flex items-center justify-center gap-1.5 rounded-md border border-[#f0caca] bg-[#fff3f1] px-2 py-1.5 text-xs font-semibold text-[#b34f4f] shadow-sm transition hover:border-[#d98787] hover:bg-[#ffe5e2] sm:px-3 sm:text-sm dark:border-[#633c45] dark:bg-[#3a222b] dark:text-[#ffaaa3] dark:hover:bg-[#4a2933]" aria-label={`Delete ${s.title}`}>
+                    <button onClick={() => deleteStory(s._id)} className="flex min-h-10 items-center justify-center gap-1.5 rounded-md border border-[#f0caca] bg-[#fff3f1] px-2 py-2 text-xs font-semibold text-[#b34f4f] shadow-sm transition hover:border-[#d98787] hover:bg-[#ffe5e2] sm:px-3 sm:text-sm dark:border-[#633c45] dark:bg-[#3a222b] dark:text-[#ffaaa3] dark:hover:bg-[#4a2933]" aria-label={`Delete ${s.title}`}>
                       <FiTrash2 className="h-3.5 w-3.5" />
                       Delete
                     </button>
@@ -159,10 +159,11 @@ export default function DashboardPage() {
           onClick={() => setEditingStory(null)}
         >
           <div
-            className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_30px_80px_rgba(15,23,42,0.25)] dark:border-slate-700 dark:bg-[#1f1b22]"
+            className="w-full max-w-md overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_30px_80px_rgba(15,23,42,0.25)] dark:border-slate-700 dark:bg-[#1f1b22]"
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
+            style={{ maxHeight: 'calc(100dvh - 2rem)' }}
           >
             <div className="flex items-start justify-between gap-4">
               <div>
@@ -174,7 +175,7 @@ export default function DashboardPage() {
                 type="button"
                 onClick={() => setEditingStory(null)}
                 aria-label="Close"
-                className="rounded-full p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:text-gray-400 dark:hover:bg-slate-700 dark:hover:text-gray-100"
+                className="rounded-full p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:text-gray-400 dark:hover:bg-slate-700 dark:hover:text-gray-100"
               >
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>

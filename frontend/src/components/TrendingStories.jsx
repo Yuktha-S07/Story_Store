@@ -200,7 +200,7 @@ const TrendingStories = () => {
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.35em] text-[#8a7c68] dark:text-[#c6afd1]">Trending now</p>
-            <h2 className="mt-2 font-serif text-4xl text-[#26231f] dark:text-[#f1e8f4]">Stories worth your time</h2>
+            <h2 className="mt-2 font-serif text-3xl text-[#26231f] dark:text-[#f1e8f4] sm:text-4xl">Stories worth your time</h2>
           </div>
           <Link to="/stories" className="hidden text-sm font-semibold text-[#5d584f] underline underline-offset-4 dark:text-[#cbb9d5] md:inline-flex">
             Browse all stories
@@ -214,7 +214,7 @@ const TrendingStories = () => {
             const coverAlt = buildStoryCoverAlt(story);
             return (
               <div key={storyId} className="group w-[156px] flex-shrink-0">
-                <div className="flex h-[318px] flex-col overflow-hidden rounded-[22px] bg-[#FBF9F1] shadow-[0_14px_30px_rgba(0,0,0,0.08)] transition duration-300 group-hover:-translate-y-1 dark:bg-[#261e30] dark:shadow-[0_14px_30px_rgba(0,0,0,0.3)]">
+                <div className="flex flex-col overflow-hidden rounded-[22px] bg-[#FBF9F1] shadow-[0_14px_30px_rgba(0,0,0,0.08)] transition duration-300 group-hover:-translate-y-1 dark:bg-[#261e30] dark:shadow-[0_14px_30px_rgba(0,0,0,0.3)]">
                   <div className="aspect-[2/3] overflow-hidden">
                     <img
                       src={coverImage}
@@ -231,10 +231,10 @@ const TrendingStories = () => {
                       {story.description || 'Open the story to start reading.'}
                     </p>
                     <div className="mt-auto flex items-center gap-2 pt-3">
-                      <Link to={storyId ? `/stories/${storyId}` : '/stories'} className="rounded-md bg-[#BDA6CE] px-2.5 py-1 text-xs font-semibold text-[#072935] transition hover:bg-[#aa93b6] dark:bg-[#6a4b85] dark:text-white dark:hover:bg-[#7c5a99]">Read</Link>
+                      <Link to={storyId ? `/stories/${storyId}` : '/stories'} className="inline-flex min-h-10 items-center rounded-md bg-[#BDA6CE] px-2.5 py-1.5 text-xs font-semibold text-[#072935] transition hover:bg-[#aa93b6] dark:bg-[#6a4b85] dark:text-white dark:hover:bg-[#7c5a99]">Read</Link>
                       <button
                         onClick={() => handleSave(storyId)}
-                        className="rounded-md bg-[#DC9B9B] px-2.5 py-1 text-xs font-semibold text-[#3a2626] transition hover:bg-[#c68585]"
+                        className="inline-flex min-h-10 items-center rounded-md bg-[#DC9B9B] px-2.5 py-1.5 text-xs font-semibold text-[#3a2626] transition hover:bg-[#c68585]"
                       >
                         {saved[storyId] ? 'Saved' : 'Save'}
                       </button>

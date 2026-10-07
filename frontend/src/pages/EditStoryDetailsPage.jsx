@@ -120,7 +120,7 @@ export default function EditStoryDetailsPage() {
 
       <section className="w-full border-b border-slate-200/70 pb-12">
         <div className="mb-9 flex items-start justify-between gap-6">
-          <div>
+          <div className="min-w-0 pr-2">
             <div className="mb-4 flex items-center gap-3">
               <span className="h-px w-10 bg-[#E87B5D]" />
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Story studio</p>

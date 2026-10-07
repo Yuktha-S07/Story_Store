@@ -294,7 +294,7 @@ export default function StoryDetailsPage() {
               src={coverSrc}
               alt={coverAlt}
               onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = buildStoryFallbackUrl(story) }}
-              className="relative h-72 w-full rounded-[1.4rem] border border-white/80 object-cover shadow-[0_22px_45px_rgba(77,52,28,0.24)] sm:h-80"
+              className="relative mx-auto aspect-[3/4] h-auto w-full max-w-[230px] rounded-[1.4rem] border border-white/80 object-cover shadow-[0_22px_45px_rgba(77,52,28,0.24)] sm:max-w-[280px] md:aspect-auto md:max-w-none"
             />
           </div>
           <div className="min-w-0 pt-1 md:pt-3">
@@ -461,8 +461,8 @@ export default function StoryDetailsPage() {
                       className="w-full border border-[#eadfd5] bg-[#fffdfb] px-4 py-3 rounded-xl h-20 resize-y focus:border-[#E87B5D] focus:ring-2 focus:ring-[#E87B5D]/20 outline-none transition"
                     />
                     <div className="flex gap-2">
-                      <button onClick={() => saveEditComment(comment._id)} className="btn-primary text-xs px-3 py-1.5">Save</button>
-                      <button onClick={cancelEditComment} className="btn-ghost text-xs px-3 py-1.5">Cancel</button>
+                      <button onClick={() => saveEditComment(comment._id)} className="btn-primary min-h-10 px-4 py-2 text-sm">Save</button>
+                      <button onClick={cancelEditComment} className="btn-ghost min-h-10 px-4 py-2 text-sm">Cancel</button>
                     </div>
                   </div>
                 ) : (
@@ -470,10 +470,10 @@ export default function StoryDetailsPage() {
                 )}
                 {user && String(user._id) === String(comment.user_id) && editingCommentId !== comment._id && (
                   <div className="mt-2 flex gap-2">
-                    <button onClick={() => startEditComment(comment)} aria-label="Edit comment" title="Edit comment" className="inline-flex h-8 w-8 items-center justify-center rounded-full text-[#8b7764] hover:bg-[#fff0e9] hover:text-[#E87B5D] transition">
+                    <button onClick={() => startEditComment(comment)} aria-label="Edit comment" title="Edit comment" className="inline-flex h-10 w-10 items-center justify-center rounded-full text-[#8b7764] hover:bg-[#fff0e9] hover:text-[#E87B5D] transition">
                       <FiEdit2 size={14} />
                     </button>
-                    <button onClick={() => deleteComment(comment._id)} aria-label="Delete comment" title="Delete comment" className="inline-flex h-8 w-8 items-center justify-center rounded-full text-[#8b7764] hover:bg-red-50 hover:text-red-500 transition">
+                    <button onClick={() => deleteComment(comment._id)} aria-label="Delete comment" title="Delete comment" className="inline-flex h-10 w-10 items-center justify-center rounded-full text-[#8b7764] hover:bg-red-50 hover:text-red-500 transition">
                       <FiTrash2 size={14} />
                     </button>
                   </div>

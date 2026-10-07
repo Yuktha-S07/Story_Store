@@ -162,13 +162,13 @@ export default function ProfilePage() {
                   <button
                     onClick={toggleFollow}
                     disabled={savingFollow}
-                    className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-semibold transition disabled:opacity-60 ${isFollowing ? 'border-[#d9c7b4] bg-[#fffaf4] text-[#5d584f] hover:border-[#E87B5D] hover:text-[#c45e43] dark:border-[#4b3b5d] dark:bg-[#211a29] dark:text-[#d3c2df]' : 'bg-gradient-to-r from-[#BDA6CE] to-[#b8a1c8] text-white shadow-sm hover:shadow-md'}`}
+                    className={`inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-semibold transition disabled:opacity-60 ${isFollowing ? 'border-[#d9c7b4] bg-[#fffaf4] text-[#5d584f] hover:border-[#E87B5D] hover:text-[#c45e43] dark:border-[#4b3b5d] dark:bg-[#211a29] dark:text-[#d3c2df]' : 'bg-gradient-to-r from-[#BDA6CE] to-[#b8a1c8] text-white shadow-sm hover:shadow-md'}`}
                   >
                     {savingFollow ? 'Updating...' : isFollowing ? 'Unfollow' : 'Follow'}
                   </button>
                   <button
                     onClick={() => navigate(`/messages/${profile._id}`)}
-                    className="inline-flex items-center gap-2 rounded-full border border-[#BDA6CE] bg-white px-4 py-1.5 text-sm font-semibold text-[#7a5a9a] transition hover:bg-[#f7f1fb] hover:border-[#a98cc4] dark:border-[#6a4b85] dark:bg-[#1d1824] dark:text-[#cbb9d9] dark:hover:bg-[#261e30] dark:hover:border-[#8a5f9e]"
+                    className="inline-flex items-center gap-2 rounded-full border border-[#BDA6CE] bg-white px-4 py-2.5 text-sm font-semibold text-[#7a5a9a] transition hover:bg-[#f7f1fb] hover:border-[#a98cc4] dark:border-[#6a4b85] dark:bg-[#1d1824] dark:text-[#cbb9d9] dark:hover:bg-[#261e30] dark:hover:border-[#8a5f9e]"
                   >
                     <FiMessageCircle />
                     Message
@@ -178,7 +178,7 @@ export default function ProfilePage() {
               {authUser && isOwnProfile && (
                 <Link
                   to="/settings"
-                  className="inline-flex items-center gap-2 rounded-full border border-[#BDA6CE] bg-white px-4 py-1.5 text-sm font-semibold text-[#7a5a9a] transition hover:bg-[#f7f1fb] hover:border-[#a98cc4] dark:border-[#6a4b85] dark:bg-[#1d1824] dark:text-[#cbb9d9] dark:hover:bg-[#261e30] dark:hover:border-[#8a5f9e]"
+                  className="inline-flex items-center gap-2 rounded-full border border-[#BDA6CE] bg-white px-4 py-2.5 text-sm font-semibold text-[#7a5a9a] transition hover:bg-[#f7f1fb] hover:border-[#a98cc4] dark:border-[#6a4b85] dark:bg-[#1d1824] dark:text-[#cbb9d9] dark:hover:bg-[#261e30] dark:hover:border-[#8a5f9e]"
                 >
                   <FiEdit3 />
                   Edit Profile

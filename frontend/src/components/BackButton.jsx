@@ -18,7 +18,7 @@ export default function BackButton({ fallback = '/', className = '', label = 'Ba
       type="button"
       onClick={handleBack}
       aria-label="Go back"
-      className={`inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white/80 px-3.5 py-1.5 text-sm font-medium text-slate-600 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 dark:border-gray-700 dark:bg-gray-800/70 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white ${className}`}
+      className={`inline-flex min-h-10 items-center gap-1.5 rounded-full border border-slate-200 bg-white/80 px-3.5 py-2 text-sm font-medium text-slate-600 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 dark:border-gray-700 dark:bg-gray-800/70 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white ${className}`}
     >
       <FiArrowLeft className="h-4 w-4" aria-hidden="true" />
       {label}

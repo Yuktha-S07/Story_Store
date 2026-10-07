@@ -91,16 +91,35 @@ export default function MessagesPage() {
   }, [messages])
 
   const sendMessage = async () => {
-    if (!input.trim() || !activeUserId) return
+    const content = input.trim()
+    if (!content || !activeUserId || sending) return
+
+    const recipientId = activeUserId
+    const temporaryId = `pending-${Date.now()}`
+    const optimisticMessage = {
+      _id: temporaryId,
+      sender_id: user?._id,
+      recipient_id: recipientId,
+      content,
+      created_at: new Date().toISOString(),
+      read_at: null,
+      is_encrypted: false,
+      is_mine: true,
+    }
+
+    setMessages((currentMessages) => [...currentMessages, optimisticMessage])
+    setInput('')
+    setShowEmoji(false)
+
     try {
       setSending(true)
-      await api.post('/api/messages', { recipient_id: activeUserId, content: input.trim() })
-      const res = await api.get(`/api/messages/with/${activeUserId}`)
+      await api.post('/api/messages', { recipient_id: recipientId, content })
+      const res = await api.get(`/api/messages/with/${recipientId}`)
       setMessages(Array.isArray(res.data) ? res.data : [])
-      setInput('')
       refreshConversations()
     } catch (err) {
       console.error(err)
+      setMessages((currentMessages) => currentMessages.filter((message) => message._id !== temporaryId))
       notify('Failed to send message.', 'error')
     } finally {
       setSending(false)
@@ -180,7 +199,7 @@ export default function MessagesPage() {
               <span className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#315D5E]"><FiUsers size={14} /> Conversations</span>
               <span className="text-xs font-semibold text-[#315D5E]">{conversations.length}</span>
             </div>
-            <div className="max-h-[calc(100vh-18rem)] overflow-y-auto">
+            <div className="max-h-[calc(100dvh-18rem)] overflow-y-auto">
               {loading ? (
                 <p className="p-4 text-sm text-[#315D5E] italic">Loading...</p>
               ) : conversations.length === 0 ? (
@@ -229,7 +248,7 @@ export default function MessagesPage() {
                   <button
                     type="button"
                     onClick={() => navigate('/messages')}
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#F5CBCB] text-[#5F9598] transition hover:bg-[#EEEEEE] md:hidden"
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#F5CBCB] text-[#5F9598] transition hover:bg-[#EEEEEE] md:hidden"
                   >
                     <FiChevronLeft size={18} />
                   </button>
@@ -254,7 +273,7 @@ export default function MessagesPage() {
                   ) : (
                     messages.map((m) => (
                       <div key={m._id} className={`flex ${m.is_mine ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`message-bubble max-w-[75%] rounded-2xl px-4 py-2.5 text-sm shadow-sm ${m.is_mine ? 'rounded-br-md bg-[#5F9598] text-[#F4F2F2]' : 'rounded-bl-md border border-[#95CCDD] bg-[#D6F4ED] text-[#315D5E]'}`}>
+                        <div className={`message-bubble max-w-[75%] break-words rounded-2xl px-4 py-2.5 text-sm shadow-sm ${m.is_mine ? 'rounded-br-md bg-[#5F9598] text-[#F4F2F2]' : 'rounded-bl-md border border-[#95CCDD] bg-[#D6F4ED] text-[#315D5E]'}`}>
                           <p className="whitespace-pre-line">{m.content}</p>
                           {m.created_at && (
                             <p className={`mt-1 text-[10px] ${m.is_mine ? 'text-[#D6F4ED]' : 'text-[#315D5E]'}`}>{formatCommentDate(m.created_at)}</p>
@@ -268,13 +287,13 @@ export default function MessagesPage() {
 
                 <div className="border-t border-[#95CCDD] bg-[#EEEEEE] p-4">
                   {showEmoji && (
-                    <div className="mb-3 grid max-h-44 grid-cols-8 gap-1 overflow-y-auto rounded-2xl border border-[#95CCDD] bg-[#F4F2F2] p-2 sm:grid-cols-10">
+                    <div className="mb-3 grid max-h-44 grid-cols-7 gap-1 overflow-y-auto rounded-2xl border border-[#95CCDD] bg-[#F4F2F2] p-2 min-[420px]:grid-cols-8 sm:grid-cols-10">
                       {EMOJIS.map((emoji) => (
                         <button
                           key={emoji}
                           type="button"
                           onClick={() => insertEmoji(emoji)}
-                          className="flex h-9 w-9 items-center justify-center rounded-lg text-xl transition hover:bg-[#E8C4C4]"
+                          className="flex h-10 w-10 items-center justify-center rounded-lg text-xl transition hover:bg-[#E8C4C4]"
                         >
                           {emoji}
                         </button>

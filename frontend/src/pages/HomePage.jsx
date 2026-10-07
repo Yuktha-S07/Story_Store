@@ -16,7 +16,7 @@ const HomePage = () => {
             <p className="mb-4 md:mb-6 text-sm font-semibold uppercase tracking-[0.45em] text-[#6d6a63] dark:text-[#c9b8d2]">
               Story Store
             </p>
-            <h1 className="font-serif text-[2.5rem] leading-[0.92] tracking-tight text-[#26231f] dark:text-[#f6edf8] sm:text-6xl lg:text-[6.2rem]">
+            <h1 className="font-serif text-[2.15rem] leading-[1.1] tracking-tight text-[#26231f] dark:text-[#f6edf8] sm:text-5xl sm:leading-[1.02] md:text-6xl lg:text-[6.2rem] lg:leading-[0.92]">
               Find stories that feel like home.
             </h1>
             <p className="mt-4 md:mt-6 max-w-xl text-sm leading-6 md:text-base md:leading-7 text-[#5d584f] dark:text-[#c8bbcf] sm:text-lg lg:text-[1.08rem] lg:leading-8">

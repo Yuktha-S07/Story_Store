@@ -158,19 +158,19 @@ export default function StoryChaptersPage() {
         ) : chapters.length > 0 ? (
           <div className="space-y-3">
             {chapters.map((ch) => (
-              <div key={ch._id} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white/60 p-4 transition hover:border-slate-300 dark:border-[#3b3047] dark:bg-[#211a29] dark:hover:border-[#4b3b5d]">
+              <div key={ch._id} className="flex flex-col justify-between rounded-xl border border-slate-200 bg-white/60 p-4 transition hover:border-slate-300 sm:flex-row sm:items-center sm:gap-4 dark:border-[#3b3047] dark:bg-[#211a29] dark:hover:border-[#4b3b5d]">
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-serif text-sm font-semibold text-slate-900 dark:text-gray-100">{ch.title}</p>
                   <p className="text-xs text-slate-500 mt-0.5 dark:text-gray-400">
                     Ch. {ch.chapter_number} &middot; {ch.status === 'published' ? 'Published' : 'Draft'}
                   </p>
                 </div>
-                <div className="flex gap-2 shrink-0 ml-3">
+                <div className="mt-3 flex flex-wrap gap-2 sm:mt-0 sm:shrink-0">
                   {ch.status !== 'published' && (
                     <button
                       type="button"
                       onClick={() => publishChapter(ch)}
-                      className="rounded-md bg-emerald-100 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-200 dark:bg-emerald-900/50 dark:text-emerald-300 dark:hover:bg-emerald-800/60"
+                      className="flex min-h-10 items-center rounded-md bg-emerald-100 px-3 py-2 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-200 dark:bg-emerald-900/50 dark:text-emerald-300 dark:hover:bg-emerald-800/60"
                     >
                       Publish
                     </button>
@@ -178,14 +178,14 @@ export default function StoryChaptersPage() {
                   <button
                     type="button"
                     onClick={() => navigate(`/stories/${id}/chapters/${ch._id}`)}
-                    className="rounded-md bg-slate-200 px-3 py-1.5 text-xs font-semibold transition hover:bg-slate-300 dark:bg-slate-700 dark:text-gray-100 dark:hover:bg-slate-600"
+                    className="flex min-h-10 items-center rounded-md bg-slate-200 px-3 py-2 text-xs font-semibold transition hover:bg-slate-300 dark:bg-slate-700 dark:text-gray-100 dark:hover:bg-slate-600"
                   >
                     Edit
                   </button>
                   <button
                     type="button"
                     onClick={() => deleteChapter(ch)}
-                    className="rounded-md bg-red-100 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-200 dark:bg-red-900/50 dark:text-red-300 dark:hover:bg-red-800/60"
+                    className="flex min-h-10 items-center rounded-md bg-red-100 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-200 dark:bg-red-900/50 dark:text-red-300 dark:hover:bg-red-800/60"
                   >
                     Delete
                   </button>
@@ -201,19 +201,19 @@ export default function StoryChaptersPage() {
             <p className="mt-1 text-sm text-slate-500 dark:text-gray-400">
               Would you like to delete this story or keep it empty while you write?
             </p>
-            <div className="mt-4 flex items-center justify-center gap-3">
+            <div className="mt-4 flex flex-col items-stretch justify-center gap-3 min-[420px]:flex-row min-[420px]:items-center">
               <button
                 type="button"
                 onClick={deleteEmptyStory}
                 disabled={deleting}
-                className="rounded-md bg-red-100 px-4 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-200 disabled:opacity-60 dark:bg-red-900/50 dark:text-red-300 dark:hover:bg-red-800/60"
+                className="flex min-h-10 items-center justify-center rounded-md bg-red-100 px-4 py-2.5 text-xs font-semibold text-red-700 transition hover:bg-red-200 disabled:opacity-60 dark:bg-red-900/50 dark:text-red-300 dark:hover:bg-red-800/60"
               >
                 {deleting ? 'Deleting...' : 'Delete story'}
               </button>
               <button
                 type="button"
                 onClick={keepStoryEmpty}
-                className="rounded-md bg-slate-200 px-4 py-2 text-xs font-semibold transition hover:bg-slate-300 dark:bg-slate-700 dark:text-gray-100 dark:hover:bg-slate-600"
+                className="flex min-h-10 items-center justify-center rounded-md bg-slate-200 px-4 py-2.5 text-xs font-semibold transition hover:bg-slate-300 dark:bg-slate-700 dark:text-gray-100 dark:hover:bg-slate-600"
               >
                 Keep it empty
               </button>

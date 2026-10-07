@@ -117,20 +117,6 @@ export default function StoryEditorPage() {
               onClick={() => setMode('new')}
               className="group relative flex min-h-[300px] flex-col overflow-hidden rounded-3xl border border-[#f0c7ba] bg-[linear-gradient(150deg,#fff7f2_0%,#ffe9df_55%,#ffd9c8_100%)] p-7 text-left shadow-[0_18px_40px_rgba(224,111,84,0.12)] transition-all duration-300 hover:-translate-y-1.5 hover:border-[#E87B5D] hover:shadow-[0_26px_50px_rgba(224,111,84,0.22)] dark:border-[#5c3a42] dark:bg-[linear-gradient(150deg,#2a1b26_0%,#3a2330_55%,#4a2836_100%)] dark:hover:border-[#E87B5D]/80 dark:hover:shadow-[0_26px_50px_rgba(0,0,0,0.5)]"
             >
-              <span className="pointer-events-none absolute -right-10 -top-10 h-44 w-44 rounded-full bg-[#E87B5D]/15 blur-2xl transition-transform duration-500 group-hover:scale-125 dark:bg-[#E87B5D]/25" />
-              <span className="pointer-events-none absolute -bottom-16 -left-12 h-44 w-44 rounded-full bg-[#ffd9a8]/30 blur-2xl transition-transform duration-500 group-hover:scale-125 dark:bg-[#f0b98a]/15" />
-              <svg
-                viewBox="0 0 64 64"
-                className="pointer-events-none absolute -right-6 top-1/2 h-64 w-64 -translate-y-1/2 text-[#E87B5D]/[0.06] transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6 dark:text-[#f0b98a]/[0.07]"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={1}
-              >
-                <path d="M10 40l14-14 6 6L48 14" />
-                <path d="M42 44h12" />
-                <path d="M46 56V20a3 3 0 013-3h4a3 3 0 013 3v32M20 56h24" />
-              </svg>
-
               <span className="pointer-events-none absolute right-4 top-4 inline-flex items-center gap-1 rounded-full border border-[#E87B5D]/30 bg-white/60 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#d96a52] backdrop-blur-sm dark:border-[#E87B5D]/40 dark:bg-black/20 dark:text-[#f0a98c]">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#E87B5D]" />
                 New
@@ -157,19 +143,6 @@ export default function StoryEditorPage() {
               onClick={loadStories}
               className="group relative flex min-h-[300px] flex-col overflow-hidden rounded-3xl border border-[#d8c7ec] bg-[linear-gradient(150deg,#fbf8ff_0%,#f1e9fb_55%,#e4d6f5_100%)] p-7 text-left shadow-[0_18px_40px_rgba(130,95,155,0.12)] transition-all duration-300 hover:-translate-y-1.5 hover:border-[#BDA6CE] hover:shadow-[0_26px_50px_rgba(130,95,155,0.22)] dark:border-[#4b3b5d] dark:bg-[linear-gradient(150deg,#211a29_0%,#2c2238_55%,#372a47_100%)] dark:hover:border-[#BDA6CE] dark:hover:shadow-[0_26px_50px_rgba(0,0,0,0.5)]"
             >
-              <span className="pointer-events-none absolute -right-10 -top-10 h-44 w-44 rounded-full bg-[#BDA6CE]/20 blur-2xl transition-transform duration-500 group-hover:scale-125 dark:bg-[#BDA6CE]/30" />
-              <span className="pointer-events-none absolute -bottom-16 -left-12 h-44 w-44 rounded-full bg-[#e9dcff]/40 blur-2xl transition-transform duration-500 group-hover:scale-125 dark:bg-[#8a6fc0]/20" />
-              <svg
-                viewBox="0 0 64 64"
-                className="pointer-events-none absolute -right-6 top-1/2 h-64 w-64 -translate-y-1/2 text-[#8b6bb8]/[0.07] transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6 dark:text-[#c4ade0]/[0.08]"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={1}
-              >
-                <rect x="10" y="14" width="44" height="36" rx="6" />
-                <path d="M10 24h44M10 32h44M22 14v36" />
-              </svg>
-
               <span className="pointer-events-none absolute right-4 top-4 inline-flex items-center gap-1 rounded-full border border-[#BDA6CE]/40 bg-white/60 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#7a5a9a] backdrop-blur-sm dark:border-[#c4ade0]/30 dark:bg-black/20 dark:text-[#d9c5eb]">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#BDA6CE]" />
                 Continue

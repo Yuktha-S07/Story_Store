@@ -49,7 +49,7 @@ export default function RichTextEditor({ value, onChange }) {
   }
 
   const toolbarButton =
-    'flex h-9 w-9 items-center justify-center rounded-lg border text-sm transition focus:outline-none'
+    'flex h-10 w-10 items-center justify-center rounded-lg border text-sm transition focus:outline-none'
   const activeButton = 'border-[#E87B5D] bg-[#FFF1EC] text-[#E87B5D] dark:bg-[#3a2a23]'
   const idleButton = 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-600 dark:bg-[#2d2438] dark:text-gray-200 dark:hover:border-slate-500 dark:hover:bg-[#3a3050]'
 
@@ -89,7 +89,7 @@ export default function RichTextEditor({ value, onChange }) {
           onMouseDown={(e) => e.stopPropagation()}
           onChange={applyFont}
           value=""
-          className="h-9 rounded-lg border border-slate-200 bg-white px-2 text-sm text-slate-700 outline-none focus:border-[#E87B5D] dark:border-slate-600 dark:bg-[#2d2438] dark:text-gray-200"
+          className="h-10 w-full max-w-[8.5rem] rounded-lg border border-slate-200 bg-white px-2 text-sm text-slate-700 outline-none focus:border-[#E87B5D] sm:max-w-none dark:border-slate-600 dark:bg-[#2d2438] dark:text-gray-200"
         >
           <option value="" disabled>
             Font

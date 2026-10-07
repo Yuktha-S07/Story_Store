@@ -172,12 +172,12 @@ export default function NotificationPreferences() {
             aria-checked={pushEnabled}
             onClick={togglePush}
             disabled={pushUpdating}
-            className={`h-6 w-11 shrink-0 rounded-full p-0.5 transition ${pushEnabled ? 'bg-[#9c78b9]' : 'bg-[#d8d1d9]'} ${pushUpdating ? 'cursor-wait opacity-60' : ''}`}
+            className={`h-8 w-12 shrink-0 rounded-full p-0.5 transition ${pushEnabled ? 'bg-[#9c78b9]' : 'bg-[#d8d1d9]'} ${pushUpdating ? 'cursor-wait opacity-60' : ''}`}
             aria-label="Toggle device notifications"
           >
             {pushUpdating
-              ? <FiLoader className="mx-auto mt-0.5 h-3.5 w-3.5 animate-spin text-[#755b8b] dark:text-[#d9c5eb]" />
-              : <span className={`block h-5 w-5 rounded-full bg-white shadow-sm transition ${pushEnabled ? 'translate-x-5' : ''}`} />}
+              ? <FiLoader className="mx-auto mt-0.5 h-5 w-5 animate-spin text-[#755b8b] dark:text-[#d9c5eb]" />
+              : <span className={`block h-6 w-6 rounded-full bg-white shadow-sm transition ${pushEnabled ? 'translate-x-4' : ''}`} />}
           </button>
         )}
       </div>
@@ -189,10 +189,10 @@ export default function NotificationPreferences() {
       <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-[#ded2eb] bg-[#f8f3fc] p-3 dark:border-[#4b3b5d] dark:bg-[#2d2438]">
         <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#e3d8ef] text-[#755b8b] dark:bg-[#49375b] dark:text-[#d9c5eb]"><FiVolume2 size={17} /></span>
         <label htmlFor="notification-sound" className="text-sm font-semibold text-[#604579] dark:text-[#eadff1]">Notification sound</label>
-        <select id="notification-sound" value={sound} onChange={updateSound} className="rounded-lg border border-[#d8c9e8] bg-white px-3 py-2 text-sm text-[#604579] outline-none focus:border-[#9c78b9] dark:border-[#604b73] dark:bg-[#1d1824] dark:text-[#f0e8f6]">
+        <select id="notification-sound" value={sound} onChange={updateSound} className="min-w-0 flex-1 rounded-lg border border-[#d8c9e8] bg-white px-3 py-2.5 text-sm text-[#604579] outline-none focus:border-[#9c78b9] dark:border-[#604b73] dark:bg-[#1d1824] dark:text-[#f0e8f6]">
           {SOUND_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
         </select>
-        <button type="button" onClick={() => playSound()} className="ml-auto inline-flex items-center gap-2 rounded-lg bg-[#785894] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#604579]">
+        <button type="button" onClick={() => playSound()} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-[#785894] px-3 py-2.5 text-xs font-semibold text-white transition hover:bg-[#604579]">
           <FiPlay size={13} /> Listen
         </button>
       </div>

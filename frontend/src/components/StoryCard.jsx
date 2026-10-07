@@ -118,7 +118,7 @@ export default function StoryCard({ story, compact = false, bookmarkStyle = fals
           <div className={`${compact ? 'mt-4' : 'mt-3 sm:mt-5'} flex flex-wrap items-center gap-2 border-t border-[#eee3dd] pt-3 dark:border-white/10`}>
             <Link
               to={`/stories/${storyId}`}
-              className={`rounded-lg px-3 ${compact ? 'py-1.5 text-xs' : 'py-1.5 sm:py-2 text-xs sm:text-sm'} font-semibold transition ${bookmarkStyle ? 'bg-[#d97862] text-[#fffaf7]! hover:bg-[#c86450] dark:bg-[#e8a08d]! dark:text-[#3d2930]! dark:hover:bg-[#f3b5a3]' : 'bg-[#BDA6CE] text-[#072935] hover:bg-[#aa93b6] dark:bg-[#6a4b85] dark:text-white dark:hover:bg-[#7c5a99]'}`}
+              className={`inline-flex min-h-10 items-center rounded-lg px-3 py-2 text-xs font-semibold transition sm:text-sm ${bookmarkStyle ? 'bg-[#d97862] text-[#fffaf7]! hover:bg-[#c86450] dark:bg-[#e8a08d]! dark:text-[#3d2930]! dark:hover:bg-[#f3b5a3]' : 'bg-[#BDA6CE] text-[#072935] hover:bg-[#aa93b6] dark:bg-[#6a4b85] dark:text-white dark:hover:bg-[#7c5a99]'}`}
             >
               Read
             </Link>
@@ -126,15 +126,15 @@ export default function StoryCard({ story, compact = false, bookmarkStyle = fals
             {bookmarked && onUnsave ? (
               <button
                 onClick={() => onUnsave(storyId)}
-                className={`inline-flex items-center gap-1.5 rounded-lg px-3 ${compact ? 'py-1.5 text-xs' : 'py-1.5 sm:py-2 text-xs sm:text-sm'} font-semibold transition ${bookmarkStyle ? 'border border-[#e2bbb0] bg-transparent text-[#8d4e4b] hover:bg-[#fff1eb] dark:border-[#8a5f73] dark:text-[#f2b9ab] dark:hover:bg-[#3a2733]' : 'bg-[#D88484] text-[#3a2626] hover:bg-[#c68585]'}`}
+                className={`inline-flex min-h-10 items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition sm:text-sm ${bookmarkStyle ? 'border border-[#e2bbb0] bg-transparent text-[#8d4e4b] hover:bg-[#fff1eb] dark:border-[#8a5f73] dark:text-[#f2b9ab] dark:hover:bg-[#3a2733]' : 'bg-[#D88484] text-[#3a2626] hover:bg-[#c68585]'}`}
               >
-                {bookmarkStyle && <FiTrash2 className="h-3.5 w-3.5" aria-hidden="true" />}
+                {bookmarkStyle && <FiTrash2 className="h-4 w-4" aria-hidden="true" />}
                 Unsave
               </button>
             ) : (
               <button
                 onClick={handleSave}
-                className={`rounded-md bg-[#DC9B9B] px-2.5 sm:px-3 ${compact ? 'py-1.5 text-xs sm:text-sm' : 'py-1.5 sm:py-2 text-xs sm:text-sm'} font-semibold text-[#3a2626] transition hover:bg-[#c68585]`}
+                className={`inline-flex min-h-10 items-center rounded-md bg-[#DC9B9B] px-2.5 py-2 text-xs font-semibold text-[#3a2626] transition hover:bg-[#c68585] sm:px-3 sm:text-sm`}
               >
                 {saved ? 'Saved' : 'Save'}
               </button>
@@ -162,14 +162,14 @@ export default function StoryCard({ story, compact = false, bookmarkStyle = fals
                 }
               }}
               aria-label={liked ? 'Unlike' : 'Like'}
-              className={`ml-auto inline-flex items-center justify-center rounded-full p-1.5 sm:p-2 transition ${liked ? 'bg-[#AF3E3E] text-white' : 'border border-[#AF3E3E] text-[#AF3E3E] hover:bg-[#fff1f1]'}`}
+              className={`ml-auto inline-flex min-h-10 min-w-10 items-center justify-center rounded-full p-2 transition ${liked ? 'bg-[#AF3E3E] text-white' : 'border border-[#AF3E3E] text-[#AF3E3E] hover:bg-[#fff1f1]'}`}
             >
               {liked ? (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 sm:h-4 sm:w-4" viewBox="0 0 20 20" fill="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.657 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 18.657l-6.828-6.828a4 4 0 010-5.657z" clipRule="evenodd" />
                 </svg>
               ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 sm:h-4 sm:w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M20.8 7.6a5.5 5.5 0 00-7.8 0L12 8.6l-1-1a5.5 5.5 0 10-7.8 7.8L12 22l8.8-8.6a5.5 5.5 0 000-7.8z" />
                 </svg>
               )}

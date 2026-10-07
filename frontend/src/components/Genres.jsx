@@ -38,8 +38,8 @@ const Genres = () => {
                 />
               </div>
               <div className="flex items-center justify-between gap-2">
-                <span className="text-base font-medium text-[#201d1a] dark:text-[#f0e8f4] md:text-lg">{genre.name}</span>
-                <span className="text-[10px] uppercase tracking-[0.22em] text-[#8a7d6d] dark:text-[#c4add0]">Read</span>
+                <span className="min-w-0 truncate text-sm font-medium text-[#201d1a] dark:text-[#f0e8f4] md:text-lg">{genre.name}</span>
+                <span className="hidden text-[10px] uppercase tracking-[0.22em] text-[#8a7d6d] sm:inline dark:text-[#c4add0]">Read</span>
               </div>
             </Link>
           ))}

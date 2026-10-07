@@ -60,7 +60,6 @@ export default function BookmarksPage() {
       </div>
 
       <section className="relative isolate overflow-hidden rounded-[24px] border border-[#ead8ca] bg-[#f8eee7] shadow-[0_16px_40px_rgba(111,68,80,0.08)] dark:border-[#4b3b5d] dark:bg-[#2a2132] dark:shadow-[0_16px_40px_rgba(0,0,0,0.25)]">
-        <div className="absolute -right-20 -top-24 -z-10 h-64 w-64 rounded-full border-[24px] border-[#f1d8cb]/80 dark:border-[#493856]/70" />
         <div className="grid gap-6 p-6 sm:p-8 md:grid-cols-[1fr_auto] md:items-end md:p-9">
           <div>
             <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#e8b6a5] text-[#6a3440] shadow-sm dark:bg-[#6a3f51] dark:text-[#ffd4c8]">

@@ -59,7 +59,7 @@ export default function DeleteAccountCard({ user, onDeleted, onError }) {
       </div>
 
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4" onClick={closeModal}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/45 px-4 py-6" onClick={closeModal}>
           <form
             onSubmit={handleDeleteAccount}
             onClick={(e) => e.stopPropagation()}
@@ -90,18 +90,18 @@ export default function DeleteAccountCard({ user, onDeleted, onError }) {
               </p>
             )}
 
-            <div className="mt-6 flex items-center justify-end gap-3">
+            <div className="mt-6 flex flex-col-reverse items-stretch gap-3 sm:flex-row sm:items-center sm:justify-end">
               <button
                 type="button"
                 onClick={closeModal}
-                className="rounded-full bg-[#e6ebdf] px-5 py-2.5 text-sm font-semibold text-[#3a3a3a] transition hover:bg-[#d9e1cf] dark:bg-[#36313e] dark:text-[#e2d7e8] dark:hover:bg-[#433d4d]"
+                className="rounded-full bg-[#e6ebdf] px-5 py-3 text-sm font-semibold text-[#3a3a3a] transition hover:bg-[#d9e1cf] sm:py-2.5 dark:bg-[#36313e] dark:text-[#e2d7e8] dark:hover:bg-[#433d4d]"
               >
                 Keep my account
               </button>
               <button
                 type="submit"
                 disabled={deleting}
-                className="rounded-full bg-gradient-to-r from-red-500 to-red-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:from-red-600 hover:to-red-700 disabled:opacity-60 dark:from-[#b06b66] dark:to-[#9f5e59] dark:hover:from-[#a5615b] dark:hover:to-[#8e544f]"
+                className="rounded-full bg-gradient-to-r from-red-500 to-red-600 px-5 py-3 text-sm font-semibold text-white transition hover:from-red-600 hover:to-red-700 disabled:opacity-60 sm:py-2.5 dark:from-[#b06b66] dark:to-[#9f5e59] dark:hover:from-[#a5615b] dark:hover:to-[#8e544f]"
               >
                 {deleting ? 'Deleting...' : 'Delete my account'}
               </button>

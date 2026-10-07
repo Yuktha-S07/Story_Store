@@ -85,13 +85,13 @@ export default function ChapterEditorPage() {
 
   return (
     <div className="chapter-editor-page mx-auto w-full max-w-4xl space-y-7 pb-10 font-sans">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <BackButton fallback={`/stories/${id}/chapters`} />
-        <div className="flex items-center gap-2">
-          <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${isPublished ? 'bg-[#e1f2e8] text-[#397356] dark:bg-emerald-900/50 dark:text-emerald-300' : 'bg-[#fff0d8] text-[#9b6728] dark:bg-amber-900/50 dark:text-amber-300'}`}>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className={`rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] ${isPublished ? 'bg-[#e1f2e8] text-[#397356] dark:bg-emerald-900/50 dark:text-emerald-300' : 'bg-[#fff0d8] text-[#9b6728] dark:bg-amber-900/50 dark:text-amber-300'}`}>
             {isPublished ? 'Published' : 'Draft'}
           </span>
-          <span className="rounded-full border border-[#d9c7b4] bg-[#fffaf4] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#8b6b52]">
+          <span className="rounded-full border border-[#d9c7b4] bg-[#fffaf4] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-[#8b6b52]">
             {isEditing ? 'Edit chapter' : 'New chapter'}
           </span>
         </div>
