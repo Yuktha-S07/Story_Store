@@ -1,7 +1,13 @@
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import List, Optional
 from datetime import datetime
 from ..utils.pyobjectid import PyObjectId
+
+
+class MessageReaction(BaseModel):
+    user_id: PyObjectId = Field(...)
+    emoji: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
 
 
 class Message(BaseModel):
@@ -10,9 +16,11 @@ class Message(BaseModel):
     recipient_id: PyObjectId = Field(...)
     content: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: Optional[datetime] = None
     read_at: Optional[datetime] = None
     iv: Optional[str] = None
     is_encrypted: bool = False
+    reactions: List[MessageReaction] = Field(default_factory=list)
 
     class Config:
         populate_by_name = True

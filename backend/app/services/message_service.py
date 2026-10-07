@@ -23,6 +23,17 @@ def _safe_str(value) -> str:
     return str(value) if value is not None else ""
 
 
+def _serialize_reactions(reactions) -> list[dict]:
+    return [
+        {
+            "user_id": str(r.get("user_id", "")),
+            "emoji": r.get("emoji", ""),
+            "created_at": r.get("created_at"),
+        }
+        for r in reactions or []
+    ]
+
+
 class MessageService:
     def __init__(self):
         self.message_collection = get_message_collection()
@@ -129,7 +140,7 @@ class MessageService:
                         {"sender_id": {"$in": other_variants}, "recipient_id": {"$in": user_variants}},
                     ]
                 },
-                {"sender_id": 1, "recipient_id": 1, "content": 1, "iv": 1, "is_encrypted": 1, "created_at": 1, "read_at": 1},
+                {"sender_id": 1, "recipient_id": 1, "content": 1, "iv": 1, "is_encrypted": 1, "created_at": 1, "updated_at": 1, "read_at": 1, "reactions": 1},
             ).sort("created_at", 1)
         )
 
@@ -147,10 +158,12 @@ class MessageService:
                 "recipient_id": str(msg["recipient_id"]),
                 "content": content,
                 "created_at": msg.get("created_at"),
+                "updated_at": msg.get("updated_at"),
                 "read_at": msg.get("read_at"),
                 "iv": None,
                 "is_encrypted": False,
                 "is_mine": str(msg["sender_id"]) == str(user_id),
+                "reactions": _serialize_reactions(msg.get("reactions")),
             })
 
         if mark_read:
@@ -163,6 +176,70 @@ class MessageService:
 
     async def get_unread_count(self, user_id: str) -> int:
         return self.message_collection.count_documents({"recipient_id": {"$in": _id_query_values(user_id)}, "read_at": None})
+
+    async def edit_message(self, user_id: str, message_id: str, content: str) -> dict:
+        message = self.message_collection.find_one(
+            {"_id": {"$in": _id_query_values(message_id)}, "sender_id": {"$in": _id_query_values(user_id)}}
+        )
+        if not message:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Message not found")
+
+        self.message_collection.update_one(
+            {"_id": message["_id"]},
+            {
+                "$set": {
+                    "content": content,
+                    "updated_at": datetime.utcnow(),
+                    "is_encrypted": False,
+                    "iv": None,
+                }
+            },
+        )
+        return {"message": "Message updated successfully"}
+
+    async def toggle_reaction(self, user_id: str, message_id: str, emoji: str) -> dict:
+        user_variants = _id_query_values(user_id)
+        message = self.message_collection.find_one(
+            {
+                "_id": {"$in": _id_query_values(message_id)},
+                "$or": [
+                    {"sender_id": {"$in": user_variants}},
+                    {"recipient_id": {"$in": user_variants}},
+                ],
+            }
+        )
+        if not message:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Message not found")
+
+        user_ref = str(user_id)
+        has_reaction = any(
+            str(r.get("user_id")) == user_ref and r.get("emoji") == emoji
+            for r in message.get("reactions") or []
+        )
+
+        if has_reaction:
+            self.message_collection.update_one(
+                {"_id": message["_id"]},
+                {"$pull": {"reactions": {"user_id": user_ref, "emoji": emoji}}},
+            )
+            action = "removed"
+        else:
+            self.message_collection.update_one(
+                {"_id": message["_id"]},
+                {
+                    "$push": {
+                        "reactions": {
+                            "user_id": user_ref,
+                            "emoji": emoji,
+                            "created_at": datetime.utcnow(),
+                        }
+                    }
+                },
+            )
+            action = "added"
+
+        updated = self.message_collection.find_one({"_id": message["_id"]}, {"reactions": 1})
+        return {"action": action, "reactions": _serialize_reactions((updated or {}).get("reactions"))}
 
 
 def get_message_service() -> MessageService:

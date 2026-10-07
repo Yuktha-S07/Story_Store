@@ -651,6 +651,15 @@ a {
   background: #443451;
 }
 
+.dark .message-thread .bg-white {
+  border-color: #554363;
+  background: #342941;
+}
+
+.dark .message-thread .bg-white .text-\[\#315D5E\] {
+  color: #eadff1;
+}
+
 .chapter-canvas {
   border: 1px solid #e1d9ed;
   border-radius: 1.5rem;

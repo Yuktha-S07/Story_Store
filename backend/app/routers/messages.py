@@ -55,3 +55,31 @@ async def get_thread(
     message_service: MessageService = Depends(get_message_service),
 ):
     return await message_service.get_thread(current_user["_id"], other_id)
+
+
+@router.put("/messages/{message_id}")
+async def edit_message(
+    message_id: str,
+    payload: dict = Body(...),
+    current_user: dict = Depends(get_current_user),
+    message_service: MessageService = Depends(get_message_service),
+):
+    content = (payload.get("content") or "").strip()
+    if not content:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Message content is required")
+    return await message_service.edit_message(current_user["_id"], message_id, content)
+
+
+@router.post("/messages/{message_id}/reactions")
+async def toggle_reaction(
+    message_id: str,
+    payload: dict = Body(...),
+    current_user: dict = Depends(get_current_user),
+    message_service: MessageService = Depends(get_message_service),
+):
+    emoji = (payload.get("emoji") or "").strip()
+    if not emoji:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Reaction emoji is required")
+    if len(emoji) > 16:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Reaction emoji is too long")
+    return await message_service.toggle_reaction(current_user["_id"], message_id, emoji)

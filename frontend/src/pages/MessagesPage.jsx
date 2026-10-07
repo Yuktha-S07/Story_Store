@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { FiChevronLeft, FiChevronRight, FiMessageCircle, FiSend, FiSmile, FiUser, FiUsers } from 'react-icons/fi'
+import { FiChevronLeft, FiChevronRight, FiEdit2, FiMessageCircle, FiSend, FiSmile, FiUser, FiUsers } from 'react-icons/fi'
 import { AuthContext } from '../context/AuthContext'
 import api from '../services/api'
 import { useNotification } from '../context/NotificationContext'
@@ -14,6 +14,10 @@ const EMOJIS = [
   '👏', '🙏', '💪', '🤝', '✌️', '🤞', '❤️', '💖', '💯', '🔥',
   '✨', '🎉', '🎂', '🌈', '🍕', '☕', '⚽', '🐱', '🌙', '⭐',
 ]
+
+const QUICK_REACTIONS = ['👍', '❤️', '😂', '😮', '😢', '🔥']
+
+const REACTION_EMOJIS = ['👍', '❤️', '😂', '😮', '😢', '🙏', '🔥', '🎉', '😍', '😎', '💯', '✨']
 
 export default function MessagesPage() {
   const { userId } = useParams()
@@ -30,6 +34,9 @@ export default function MessagesPage() {
   const [showEmoji, setShowEmoji] = useState(false)
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
+  const [editingId, setEditingId] = useState(null)
+  const [editText, setEditText] = useState('')
+  const [reactionPickerId, setReactionPickerId] = useState(null)
   const bottomRef = useRef(null)
   const threadScrollRef = useRef(null)
   const textareaRef = useRef(null)
@@ -57,9 +64,15 @@ export default function MessagesPage() {
       setActiveUserId(null)
       setActiveUser(null)
       setMessages([])
+      setEditingId(null)
+      setEditText('')
+      setReactionPickerId(null)
       return
     }
     setActiveUserId(userId)
+    setEditingId(null)
+    setEditText('')
+    setReactionPickerId(null)
     const fetchThread = async () => {
       try {
         const [threadRes, profileRes] = await Promise.all([
@@ -153,6 +166,76 @@ export default function MessagesPage() {
     } catch (err) {
       console.error(err)
     }
+  }
+
+  const refreshThread = async () => {
+    if (!userId) return
+    try {
+      const res = await api.get(`/api/messages/with/${userId}`)
+      setMessages(Array.isArray(res.data) ? res.data : [])
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const startEditMessage = (message) => {
+    setReactionPickerId(null)
+    setEditingId(message._id)
+    setEditText(message.content)
+  }
+
+  const cancelEditMessage = () => {
+    setEditingId(null)
+    setEditText('')
+  }
+
+  const saveEditMessage = async () => {
+    const content = editText.trim()
+    if (!content || !editingId) {
+      notify('Message content cannot be empty.', 'error')
+      return
+    }
+    try {
+      await api.put(`/api/messages/${editingId}`, { content })
+      cancelEditMessage()
+      await refreshThread()
+      refreshConversations()
+    } catch (err) {
+      console.error(err)
+      notify('Failed to update message.', 'error')
+    }
+  }
+
+  const handleEditKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      saveEditMessage()
+    } else if (e.key === 'Escape') {
+      cancelEditMessage()
+    }
+  }
+
+  const toggleReaction = async (messageId, emoji) => {
+    try {
+      await api.post(`/api/messages/${messageId}/reactions`, { emoji })
+      setReactionPickerId(null)
+      await refreshThread()
+    } catch (err) {
+      console.error(err)
+      notify('Failed to update reaction.', 'error')
+    }
+  }
+
+  const groupReactions = (reactions) => {
+    const groups = new Map()
+    ;(reactions || []).forEach((r) => {
+      if (!r || !r.emoji) return
+      const group = groups.get(r.emoji) || { emoji: r.emoji, count: 0, reacted_by_me: false }
+      group.count += 1
+      if (String(r.user_id) === String(user?._id)) group.reacted_by_me = true
+      groups.set(r.emoji, group)
+    })
+    return Array.from(groups.values())
   }
 
   const selectConversation = (otherId) => {
@@ -271,16 +354,117 @@ export default function MessagesPage() {
                   {messages.length === 0 ? (
                     <p className="py-10 text-center text-sm text-[#5F9598] italic">Say hello to {activeUser.username}!</p>
                   ) : (
-                    messages.map((m) => (
-                      <div key={m._id} className={`flex ${m.is_mine ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`message-bubble max-w-[75%] break-words rounded-2xl px-4 py-2.5 text-sm shadow-sm ${m.is_mine ? 'rounded-br-md bg-[#5F9598] text-[#F4F2F2]' : 'rounded-bl-md border border-[#95CCDD] bg-[#D6F4ED] text-[#315D5E]'}`}>
-                          <p className="whitespace-pre-line">{m.content}</p>
-                          {m.created_at && (
-                            <p className={`mt-1 text-[10px] ${m.is_mine ? 'text-[#D6F4ED]' : 'text-[#315D5E]'}`}>{formatCommentDate(m.created_at)}</p>
+                    messages.map((m) => {
+                      const isEditing = editingId === m._id
+                      const pickerOpen = reactionPickerId === m._id
+                      const reactionGroups = groupReactions(m.reactions)
+                      const messageActions = !isEditing && (
+                        <div className={`flex shrink-0 items-center gap-1 rounded-full border border-[#95CCDD] bg-[#F4F2F2] px-1 py-1 opacity-0 shadow-sm transition-opacity focus-within:opacity-100 group-hover:opacity-100 max-md:opacity-100 ${m.is_mine ? 'order-first' : 'order-last'}`}>
+                          <button
+                            type="button"
+                            onClick={() => setReactionPickerId(pickerOpen ? null : m._id)}
+                            aria-label="React to message"
+                            title="React"
+                            className="flex h-7 w-7 items-center justify-center rounded-full text-[#5F9598] transition hover:bg-[#E8C4C4]"
+                          >
+                            <FiSmile size={15} />
+                          </button>
+                          {m.is_mine && (
+                            <button
+                              type="button"
+                              onClick={() => startEditMessage(m)}
+                              aria-label="Edit message"
+                              title="Edit"
+                              className="flex h-7 w-7 items-center justify-center rounded-full text-[#5F9598] transition hover:bg-[#E8C4C4]"
+                            >
+                              <FiEdit2 size={14} />
+                            </button>
                           )}
                         </div>
-                      </div>
-                    ))
+                      )
+                      return (
+                        <div key={m._id} className={`group relative flex items-end gap-2 ${m.is_mine ? 'justify-end' : 'justify-start'}`}>
+                          {messageActions}
+                          <div className={`relative flex max-w-[75%] flex-col ${m.is_mine ? 'items-end' : 'items-start'}`}>
+                            {pickerOpen && (
+                              <>
+                                <div className="fixed inset-0 z-10" onClick={() => setReactionPickerId(null)} />
+                                <div className="absolute bottom-full z-20 mb-1 flex gap-1 rounded-full border border-[#95CCDD] bg-[#F4F2F2] px-2 py-1.5 shadow-md">
+                                  {QUICK_REACTIONS.map((emoji) => (
+                                    <button
+                                      key={emoji}
+                                      type="button"
+                                      onClick={() => toggleReaction(m._id, emoji)}
+                                      className="flex h-8 w-8 items-center justify-center rounded-full text-lg transition hover:bg-[#E8C4C4]"
+                                    >
+                                      {emoji}
+                                    </button>
+                                  ))}
+                                </div>
+                              </>
+                            )}
+                            <div className={`message-bubble break-words rounded-2xl px-4 py-2.5 text-sm shadow-sm ${m.is_mine ? 'rounded-br-md bg-[#5F9598] text-[#F4F2F2]' : 'rounded-bl-md border border-[#95CCDD] bg-[#D6F4ED] text-[#315D5E]'}`}>
+                              {isEditing ? (
+                                <div className="min-w-[220px] space-y-2">
+                                  <textarea
+                                    value={editText}
+                                    onChange={(e) => setEditText(e.target.value)}
+                                    onKeyDown={handleEditKeyDown}
+                                    autoFocus
+                                    rows={2}
+                                    placeholder="Edit message..."
+                                    className="w-full resize-none rounded-xl border border-[#95CCDD] bg-[#F4F2F2] px-2 py-1.5 text-sm text-[#315D5E] outline-none transition focus:border-[#5F9598]"
+                                  />
+                                  <div className="flex items-center justify-end gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={cancelEditMessage}
+                                      className="rounded-lg px-2.5 py-1 text-xs font-semibold text-inherit transition hover:bg-white/20"
+                                    >
+                                      Cancel
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={saveEditMessage}
+                                      disabled={!editText.trim()}
+                                      className="rounded-lg bg-[#F7A5A5] px-3 py-1 text-xs font-semibold text-[#315D5E] transition hover:bg-[#EEEEEE] disabled:opacity-50"
+                                    >
+                                      Save
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <>
+                                  <p className="whitespace-pre-line">{m.content}</p>
+                                  {m.created_at && (
+                                    <p className={`mt-1 text-[10px] ${m.is_mine ? 'text-[#D6F4ED]' : 'text-[#315D5E]'}`}>
+                                      {formatCommentDate(m.created_at)}
+                                      {m.updated_at && <span className="ml-1 italic">(edited)</span>}
+                                    </p>
+                                  )}
+                                </>
+                              )}
+                            </div>
+                            {!isEditing && reactionGroups.length > 0 && (
+                              <div className={`mt-1 flex flex-wrap gap-1 ${m.is_mine ? 'justify-end' : 'justify-start'}`}>
+                                {reactionGroups.map((g) => (
+                                  <button
+                                    key={g.emoji}
+                                    type="button"
+                                    onClick={() => toggleReaction(m._id, g.emoji)}
+                                    title={g.reacted_by_me ? 'Remove your reaction' : `React with ${g.emoji}`}
+                                    className={`inline-flex items-center gap-1 rounded-full border bg-white px-1.5 py-0.5 text-xs shadow-sm transition hover:bg-[#EEEEEE] ${g.reacted_by_me ? 'border-[#5F9598] ring-1 ring-[#95CCDD]' : 'border-[#95CCDD]'}`}
+                                  >
+                                    <span>{g.emoji}</span>
+                                    <span className="font-semibold text-[#315D5E]">{g.count}</span>
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })
                   )}
                   <div ref={bottomRef} />
                 </div>
