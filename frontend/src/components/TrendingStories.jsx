@@ -213,8 +213,8 @@ const TrendingStories = () => {
             const coverImage = buildStoryCoverUrl(story);
             const coverAlt = buildStoryCoverAlt(story);
             return (
-              <div key={storyId} className="group w-[156px] flex-shrink-0">
-                <div className="flex flex-col overflow-hidden rounded-[22px] bg-[#FBF9F1] shadow-[0_14px_30px_rgba(0,0,0,0.08)] transition duration-300 group-hover:-translate-y-1 dark:bg-[#261e30] dark:shadow-[0_14px_30px_rgba(0,0,0,0.3)]">
+              <div key={storyId} className="group h-[500px] w-[156px] flex-shrink-0">
+                <div className="flex h-full flex-col overflow-hidden rounded-[22px] bg-[#FBF9F1] shadow-[0_14px_30px_rgba(0,0,0,0.08)] transition duration-300 group-hover:-translate-y-1 dark:bg-[#261e30] dark:shadow-[0_14px_30px_rgba(0,0,0,0.3)]">
                   <div className="aspect-[2/3] overflow-hidden">
                     <img
                       src={coverImage}

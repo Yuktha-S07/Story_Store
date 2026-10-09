@@ -8,6 +8,7 @@ from app.services.story_service import (
     get_chapter_by_id,
     list_story_chapters,
     publish_chapter,
+    unpublish_chapter,
     update_chapter,
 )
 
@@ -100,3 +101,14 @@ async def publish_chapter_endpoint(
     if not published:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Chapter not found")
     return published
+
+
+@router.post("/chapters/{chapter_id}/unpublish")
+async def unpublish_chapter_endpoint(
+    chapter_id: str,
+    current_user: dict = Depends(get_current_user),
+):
+    unpublished = unpublish_chapter(chapter_id, current_user["_id"])
+    if not unpublished:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Chapter not found")
+    return unpublished

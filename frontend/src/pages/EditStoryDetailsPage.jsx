@@ -20,6 +20,7 @@ export default function EditStoryDetailsPage() {
   const [coverFile, setCoverFile] = useState(null)
   const [coverPreview, setCoverPreview] = useState('')
   const [saving, setSaving] = useState(false)
+  const [unpublishing, setUnpublishing] = useState(false)
 
   const API_URL = import.meta.env.VITE_API_URL || ''
   const resolveImage = (img) => {
@@ -101,6 +102,21 @@ export default function EditStoryDetailsPage() {
     }
   }
 
+  const unpublishBook = async () => {
+    try {
+      setUnpublishing(true)
+      const res = await api.post(`/api/stories/${id}/unpublish`)
+      setStory(prev => (prev ? { ...prev, ...res.data, status: res.data?.status || 'draft' } : prev))
+      notify('Book unpublished. All chapters are now drafts.', 'info')
+      window.dispatchEvent(new CustomEvent('story-store:story-updated', { detail: { storyId: id } }))
+    } catch (err) {
+      const detail = err?.response?.data?.detail
+      notify(typeof detail === 'string' ? detail : 'Failed to unpublish book.', 'error')
+    } finally {
+      setUnpublishing(false)
+    }
+  }
+
   if (!user) return <div>Please login to edit.</div>
 
   if (loading) return <div className="py-16 text-center text-slate-600">Loading story...</div>
@@ -112,9 +128,21 @@ export default function EditStoryDetailsPage() {
       <div className="flex items-center justify-between gap-4">
         <BackButton />
         {story && (
-          <Link to={`/stories/${story._id}/chapters`} className="btn-ghost text-sm">
-            Edit chapters
-          </Link>
+          <div className="flex flex-col items-end gap-2">
+            <Link to={`/stories/${story._id}/chapters`} className="btn-ghost text-sm">
+              Edit chapters
+            </Link>
+            {(story.status === 'published' || (story.chapters || []).some(ch => ch.status === 'published')) && (
+              <button
+                type="button"
+                onClick={unpublishBook}
+                disabled={unpublishing}
+                className="rounded-md bg-amber-100 px-3 py-2 text-xs font-semibold text-amber-700 transition hover:bg-amber-200 disabled:opacity-60 dark:bg-amber-900/50 dark:text-amber-300 dark:hover:bg-amber-800/60"
+              >
+                {unpublishing ? 'Unpublishing...' : 'Unpublish book'}
+              </button>
+            )}
+          </div>
         )}
       </div>
 

@@ -7,6 +7,7 @@ import { buildStoryCoverAlt, buildStoryCoverUrl, buildStoryFallbackUrl } from '.
 import { formatCommentDate } from '../utils/formatDate'
 import { getSampleStory } from '../data/sampleStories'
 import BackButton from '../components/BackButton'
+import ProfileAvatar from '../components/ProfileAvatar'
 import { FiBookOpen, FiHeart, FiMessageCircle, FiEdit2, FiTrash2, FiUserPlus } from 'react-icons/fi'
 
 export default function StoryDetailsPage() {
@@ -307,7 +308,12 @@ export default function StoryDetailsPage() {
             <h1 className="story-title">{story.title}</h1>
             <p className="story-description">{story.description}</p>
             <p className="mt-4 flex items-center gap-2 text-sm text-[#766b70]">
-              <span className="story-author-mark">{authorName.charAt(0).toUpperCase()}</span>
+              <ProfileAvatar
+                url={story.author?.avatar_url || story.avatar_url}
+                name={authorName}
+                className="story-author-mark"
+                fallbackClassName="bg-[#f3c7b7] text-[#8f3e36]"
+              />
               By{' '}
               {story.author?._id || story.user_id ? (
                 <Link to={`/profile/${story.author?._id || story.user_id}`} className="font-semibold text-[#b95e4f] hover:text-[#8f3e36] hover:underline">
@@ -445,7 +451,12 @@ export default function StoryDetailsPage() {
               <div key={comment._id} className="comment-card rounded-xl border border-[#eadfd5] p-4 shadow-sm">
                 <div className="flex items-center justify-between gap-3 text-sm">
                   <div className="flex min-w-0 items-center gap-2">
-                    <span className="comment-avatar" aria-hidden="true">{(comment.username || 'U')[0].toUpperCase()}</span>
+                    <ProfileAvatar
+                      url={comment.avatar_url}
+                      name={comment.username || 'Reader'}
+                      className="comment-avatar"
+                      fallbackClassName="bg-[#f3c7b7] text-[#8f3e36]"
+                    />
                     <span className="truncate font-semibold text-[#243042]">{comment.username || 'Reader'}</span>
                   </div>
                   <div className="flex items-center gap-2">

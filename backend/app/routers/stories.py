@@ -11,6 +11,7 @@ from app.services.story_service import (
     list_stories,
     publish_story,
     store_story_cover,
+    unpublish_story,
     update_story,
 )
 
@@ -156,3 +157,14 @@ async def publish_story_endpoint(
     if not published:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Story not found")
     return published
+
+
+@router.post("/{story_id}/unpublish")
+async def unpublish_story_endpoint(
+    story_id: str,
+    current_user: dict = Depends(get_current_user),
+):
+    unpublished = unpublish_story(story_id, current_user["_id"])
+    if not unpublished:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Story not found")
+    return unpublished

@@ -372,6 +372,23 @@ def publish_story(story_id: str, owner_id: str) -> dict | None:
     return update_story(story_id, owner_id, {"status": "published"})
 
 
+def unpublish_story(story_id: str, owner_id: str) -> dict | None:
+    """Move a story and all of its chapters back to draft."""
+    db = get_database()
+    oid = _to_object_id(story_id)
+    user_oid = _to_object_id(owner_id)
+
+    story = db.stories.find_one({"_id": oid, "user_id": user_oid}, {"_id": 1})
+    if not story:
+        return None
+
+    db.chapters.update_many(
+        {"story_id": oid},
+        {"$set": {"status": "draft", "updated_at": datetime.utcnow()}},
+    )
+    return update_story(story_id, owner_id, {"status": "draft"})
+
+
 def _next_chapter_number(story_oid: ObjectId) -> int:
     db = get_database()
     last = db.chapters.find_one({"story_id": story_oid}, sort=[("chapter_number", -1)])
@@ -491,3 +508,7 @@ def delete_chapter(chapter_id: str, owner_id: str) -> bool:
 
 def publish_chapter(chapter_id: str, owner_id: str) -> dict | None:
     return update_chapter(chapter_id, owner_id, {"status": "published"})
+
+
+def unpublish_chapter(chapter_id: str, owner_id: str) -> dict | None:
+    return update_chapter(chapter_id, owner_id, {"status": "draft"})

@@ -6,6 +6,7 @@ import api from '../services/api'
 import { useNotification } from '../context/NotificationContext'
 import { formatCommentDate } from '../utils/formatDate'
 import BackButton from '../components/BackButton'
+import ProfileAvatar from '../components/ProfileAvatar'
 
 const EMOJIS = [
   '😀', '😁', '😂', '🤣', '😊', '😍', '😘', '😜', '🤪', '😎',
@@ -361,7 +362,10 @@ export default function MessagesPage() {
                       className="message-conversation w-full border-l-2 border-transparent px-4 py-4 text-left transition"
                     >
                       <div className="flex items-center justify-between gap-2">
-                          <span className="flex min-w-0 items-center gap-2 truncate text-sm font-semibold text-[#315D5E]"><span className="comment-avatar h-7 w-7 bg-[#E8C4C4] text-[#315D5E]">{(c.username || 'U')[0].toUpperCase()}</span>{c.username}</span>
+                          <span className="flex min-w-0 items-center gap-2 truncate text-sm font-semibold text-[#315D5E]">
+                            <ProfileAvatar url={c.avatar_url} name={c.username || 'User'} className="comment-avatar h-7 w-7" fallbackClassName="bg-[#E8C4C4] text-[#315D5E]" />
+                            {c.username}
+                          </span>
                         {direction === 'received' && c.unread_count > 0 && (
                           <span className="inline-flex items-center justify-center rounded-full bg-[#F7A5A5] px-2 py-0.5 text-[10px] font-bold text-[#5F9598]">
                             {c.unread_count}
@@ -397,9 +401,12 @@ export default function MessagesPage() {
                   >
                     <FiChevronLeft size={18} />
                   </button>
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-white bg-[#95CCDD] text-sm font-bold text-[#5F9598] shadow-sm">
-                    {(activeUser.username || 'U')[0].toUpperCase()}
-                  </div>
+                  <ProfileAvatar
+                    url={activeUser.avatar_url}
+                    name={activeUser.username || 'User'}
+                    className="h-10 w-10 border-2 border-white shadow-sm"
+                    fallbackClassName="bg-[#95CCDD] text-sm text-[#5F9598]"
+                  />
                   <div className="min-w-0">
                     <Link to={`/profile/${activeUser._id}`} className="block truncate text-sm font-semibold text-[#5F9598] hover:text-[#F7A5A5]">
                       {activeUser.username}

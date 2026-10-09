@@ -60,7 +60,7 @@ export default function StoryCard({ story, compact = false, bookmarkStyle = fals
       className={`surface group overflow-hidden p-0 transition duration-300 ${bookmarkStyle ? 'rounded-[18px] border-[#eaded7] bg-[#fffdf9]! shadow-[0_8px_24px_rgba(79,53,46,0.08)] hover:-translate-y-1 hover:border-[#d8b7a8] hover:shadow-[0_16px_30px_rgba(79,53,46,0.13)] dark:border-[#4b3b5d] dark:bg-[#211a29]! dark:hover:border-[#8a5f73]' : 'rounded-[24px] border-[#d9e6e2] bg-[#FBF9F1]! shadow-[0_10px_28px_rgba(51,88,80,0.07)] hover:-translate-y-1 hover:shadow-2xl dark:border-[#3b3047] dark:bg-[#211a29]! dark:shadow-[0_10px_28px_rgba(0,0,0,0.3)]'} ${compact ? 'h-full' : 'h-full'}`}
     >
       <div className="flex h-full flex-col">
-        <div className={`flex-shrink-0 w-full overflow-hidden bg-[#f0ece4] dark:bg-gray-700 ${bookmarkStyle ? 'h-44 rounded-t-[18px]' : 'h-48 rounded-t-[24px]'}`}>
+        <div className={`flex-shrink-0 w-full overflow-hidden bg-[#f0ece4] dark:bg-gray-700 ${bookmarkStyle ? 'aspect-video rounded-t-[18px]' : 'h-48 rounded-t-[24px]'}`}>
           <img
             src={coverSrc}
             alt={coverAlt}

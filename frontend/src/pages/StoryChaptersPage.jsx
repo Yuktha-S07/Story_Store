@@ -54,6 +54,17 @@ export default function StoryChaptersPage() {
     }
   }
 
+  const unpublishChapter = async (ch) => {
+    try {
+      const res = await api.post(`/api/chapters/${ch._id}/unpublish`)
+      setChapters(prev => prev.map(c => c._id === ch._id ? res.data : c))
+      notify('Chapter unpublished.', 'info')
+      window.dispatchEvent(new CustomEvent('story-store:story-updated', { detail: { storyId: id } }))
+    } catch (err) {
+      notify('Failed to unpublish chapter.', 'error')
+    }
+  }
+
   const markCompleted = async () => {
     try {
       const res = await api.put(`/api/stories/${id}`, { is_completed: true })
@@ -166,7 +177,15 @@ export default function StoryChaptersPage() {
                   </p>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2 sm:mt-0 sm:shrink-0">
-                  {ch.status !== 'published' && (
+                  {ch.status === 'published' ? (
+                    <button
+                      type="button"
+                      onClick={() => unpublishChapter(ch)}
+                      className="flex min-h-10 items-center rounded-md bg-amber-100 px-3 py-2 text-xs font-semibold text-amber-700 transition hover:bg-amber-200 dark:bg-amber-900/50 dark:text-amber-300 dark:hover:bg-amber-800/60"
+                    >
+                      Unpublish
+                    </button>
+                  ) : (
                     <button
                       type="button"
                       onClick={() => publishChapter(ch)}

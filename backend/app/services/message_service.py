@@ -113,23 +113,35 @@ class MessageService:
 
         results.sort(key=lambda c: c["last_message_at"] or datetime.min, reverse=True)
 
-        usernames = self._load_usernames(order)
+        profiles = self._load_profiles(order)
         for conv in results:
-            conv["username"] = usernames.get(conv["user_id"], "Unknown")
+            profile = profiles.get(conv["user_id"], {})
+            conv["username"] = profile.get("username", "Unknown")
+            conv["avatar_url"] = profile.get("avatar_url", "")
 
         return results
 
-    def _load_usernames(self, user_ids: list[str]) -> dict:
-        """Resolve usernames for many user ids with a single query."""
+    def _load_profiles(self, user_ids: list[str]) -> dict:
+        """Resolve display profiles for many user ids with a single query."""
         oids = []
         for uid in user_ids:
             if ObjectId.is_valid(uid):
                 oids.append(ObjectId(uid))
-        usernames = {}
+        profiles = {}
         if oids:
-            for user in get_user_collection().find({"_id": {"$in": list(set(oids))}}, {"username": 1}):
-                usernames[str(user["_id"])] = user.get("username", "Unknown")
-        return usernames
+            for user in get_user_collection().find(
+                {"_id": {"$in": list(set(oids))}},
+                {"username": 1, "avatar_url": 1, "avatar_image": 1},
+            ):
+                profiles[str(user["_id"])] = {
+                    "username": user.get("username", "Unknown"),
+                    "avatar_url": (
+                        f"/api/users/{user['_id']}/avatar-image"
+                        if user.get("avatar_image") is not None
+                        else user.get("avatar_url", "")
+                    ),
+                }
+        return profiles
 
     async def get_thread(self, user_id: str, other_id: str, mark_read: bool = True) -> list[dict]:
         user_variants = _id_query_values(user_id)

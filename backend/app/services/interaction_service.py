@@ -173,20 +173,28 @@ class InteractionService:
             comment_user_id = comment.get("user_id")
             if comment_user_id and ObjectId.is_valid(str(comment_user_id)):
                 user_ids.append(ObjectId(str(comment_user_id)))
-        username_map = {}
+        profile_map = {}
         if user_ids:
             for user in self.story_collection.database.users.find(
-                {"_id": {"$in": list(set(user_ids))}}, {"username": 1}
+                {"_id": {"$in": list(set(user_ids))}}, {"username": 1, "avatar_url": 1, "avatar_image": 1}
             ):
-                username_map[str(user["_id"])] = user.get("username", "Unknown")
+                profile_map[str(user["_id"])] = {
+                    "username": user.get("username", "Unknown"),
+                    "avatar_url": (
+                        f"/api/users/{user['_id']}/avatar-image"
+                        if user.get("avatar_image") is not None
+                        else user.get("avatar_url", "")
+                    ),
+                }
         results = []
         for comment in comments:
-            username = username_map.get(str(comment.get("user_id")), "Unknown")
+            profile = profile_map.get(str(comment.get("user_id")), {})
             results.append({
                 "_id": str(comment["_id"]),
                 "story_id": str(comment["story_id"]),
                 "user_id": str(comment["user_id"]),
-                "username": username,
+                "username": profile.get("username", "Unknown"),
+                "avatar_url": profile.get("avatar_url", ""),
                 "content": comment.get("content", ""),
                 "created_at": comment.get("created_at"),
                 "updated_at": comment.get("updated_at"),

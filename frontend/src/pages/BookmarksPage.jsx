@@ -52,7 +52,7 @@ export default function BookmarksPage() {
   return (
     <div className="mx-auto w-full max-w-6xl pb-12">
       <div className="mb-7 flex items-center justify-between">
-        <BackButton label="Library" />
+        <BackButton />
         <div className="hidden items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#8b6b52] sm:flex">
           <FiBookmark className="h-4 w-4" aria-hidden="true" />
           Saved library
