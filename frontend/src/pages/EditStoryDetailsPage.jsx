@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { FiEyeOff, FiLoader } from 'react-icons/fi'
+import { FiEye, FiEyeOff, FiLoader } from 'react-icons/fi'
 import api from '../services/api'
 import { AuthContext } from '../context/AuthContext'
 import { useNotification } from '../context/NotificationContext'
@@ -22,7 +22,7 @@ export default function EditStoryDetailsPage() {
   const [coverFile, setCoverFile] = useState(null)
   const [coverPreview, setCoverPreview] = useState('')
   const [saving, setSaving] = useState(false)
-  const [unpublishing, setUnpublishing] = useState(false)
+  const [bookToggling, setBookToggling] = useState(false)
 
   const API_URL = import.meta.env.VITE_API_URL || ''
   const resolveImage = (img) => {
@@ -104,9 +104,31 @@ export default function EditStoryDetailsPage() {
     }
   }
 
+  const publishBook = async () => {
+    try {
+      setBookToggling(true)
+      const res = await api.post(`/api/stories/${id}/publish`)
+      const now = new Date().toISOString()
+      setStory(prev => (prev ? {
+        ...prev,
+        ...res.data,
+        status: res.data?.status || 'published',
+        published_at: res.data?.published_at || now,
+        chapters: (prev.chapters || []).map(ch => ({ ...ch, status: 'published', published_at: ch.published_at || now })),
+      } : prev))
+      notify('Book published. All chapters are now live.', 'success')
+      window.dispatchEvent(new CustomEvent('story-store:story-updated', { detail: { storyId: id } }))
+    } catch (err) {
+      const detail = err?.response?.data?.detail
+      notify(typeof detail === 'string' ? detail : 'Failed to publish book.', 'error')
+    } finally {
+      setBookToggling(false)
+    }
+  }
+
   const unpublishBook = async () => {
     try {
-      setUnpublishing(true)
+      setBookToggling(true)
       const res = await api.post(`/api/stories/${id}/unpublish`)
       setStory(prev => (prev ? {
         ...prev,
@@ -120,7 +142,7 @@ export default function EditStoryDetailsPage() {
       const detail = err?.response?.data?.detail
       notify(typeof detail === 'string' ? detail : 'Failed to unpublish book.', 'error')
     } finally {
-      setUnpublishing(false)
+      setBookToggling(false)
     }
   }
 
@@ -139,19 +161,34 @@ export default function EditStoryDetailsPage() {
             <Link to={`/stories/${story._id}/chapters`} className="btn-ghost text-sm">
               Edit chapters
             </Link>
-            {(story.status === 'published' || (story.chapters || []).some(ch => ch.status === 'published')) && (
+            {(story.chapters || []).length > 0 && (story.status === 'published' || (story.chapters || []).some(ch => ch.status === 'published')) && (
               <button
                 type="button"
                 onClick={unpublishBook}
-                disabled={unpublishing}
+                disabled={bookToggling}
                 className="group inline-flex items-center gap-2 rounded-full border border-amber-300/70 bg-[linear-gradient(135deg,#fff7ed_0%,#ffe8c7_100%)] px-4 py-2 text-xs font-semibold text-amber-800 shadow-[0_6px_16px_rgba(180,120,40,0.14)] transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-400 hover:shadow-[0_10px_22px_rgba(180,120,40,0.22)] focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50 disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 dark:border-amber-700/50 dark:bg-[linear-gradient(135deg,#3a2b16_0%,#4a3418_100%)] dark:text-amber-200 dark:shadow-[0_6px_16px_rgba(0,0,0,0.35)] dark:hover:border-amber-500/70"
               >
-                {unpublishing ? (
+                {bookToggling ? (
                   <FiLoader className="h-3.5 w-3.5 animate-spin" />
                 ) : (
                   <FiEyeOff className="h-3.5 w-3.5 transition-transform duration-200 group-hover:-rotate-6" />
                 )}
-                <span>{unpublishing ? 'Unpublishing…' : 'Unpublish book'}</span>
+                <span>{bookToggling ? 'Unpublishing…' : 'Unpublish book'}</span>
+              </button>
+            )}
+            {(story.chapters || []).length > 0 && story.status !== 'published' && !(story.chapters || []).some(ch => ch.status === 'published') && (
+              <button
+                type="button"
+                onClick={publishBook}
+                disabled={bookToggling}
+                className="group inline-flex items-center gap-2 rounded-full border border-emerald-300/70 bg-[linear-gradient(135deg,#ecfdf5_0%,#c9f2dd_100%)] px-4 py-2 text-xs font-semibold text-emerald-800 shadow-[0_6px_16px_rgba(30,120,80,0.14)] transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-400 hover:shadow-[0_10px_22px_rgba(30,120,80,0.22)] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/50 disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 dark:border-emerald-700/50 dark:bg-[linear-gradient(135deg,#0f2b20_0%,#123a29_100%)] dark:text-emerald-200 dark:shadow-[0_6px_16px_rgba(0,0,0,0.35)] dark:hover:border-emerald-500/70"
+              >
+                {bookToggling ? (
+                  <FiLoader className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <FiEye className="h-3.5 w-3.5 transition-transform duration-200 group-hover:scale-110" />
+                )}
+                <span>{bookToggling ? 'Publishing…' : 'Publish book'}</span>
               </button>
             )}
           </div>

@@ -302,6 +302,11 @@ export default function StoryDetailsPage() {
             <div className="flex flex-wrap items-center gap-2">
               <span className="story-chip story-chip-genre">{story.genre}</span>
               <span className="story-chip story-chip-status"><span className="story-status-dot" />{bookStatus}</span>
+              {story.published_at && (
+                <span className="story-chip" title="Publication date">
+                  Published {new Date(story.published_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                </span>
+              )}
               {story.tags?.length > 0 && <span className="story-tags">{story.tags.join('  /  ')}</span>}
             </div>
             <p className="story-kicker">A story to wander into</p>
@@ -414,8 +419,8 @@ export default function StoryDetailsPage() {
                     <div className="text-base font-semibold uppercase tracking-[0.12em] text-[#243042]">{ch.title}</div>
                   </div>
                   <div className="text-right">
-                    {ch.created_at ? (
-                      <div className="text-xs text-[#8b7764]">{new Date(ch.created_at).toLocaleDateString()}</div>
+                    {(ch.published_at || ch.created_at) ? (
+                      <div className="text-xs text-[#8b7764]">{new Date(ch.published_at || ch.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}</div>
                     ) : (
                       <div className="text-xs text-[#8b7764]">&nbsp;</div>
                     )}

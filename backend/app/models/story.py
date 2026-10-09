@@ -36,3 +36,4 @@ class StoryResponse(BaseModel):
     chapter_count: int
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
+    published_at: Optional[datetime] = None

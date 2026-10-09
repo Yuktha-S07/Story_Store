@@ -57,6 +57,7 @@ def _serialize_story(doc: dict, authors: dict | None = None) -> dict:
         "likes_count": doc.get("likes_count", 0),
         "created_at": doc.get("created_at"),
         "updated_at": doc.get("updated_at"),
+        "published_at": doc.get("published_at"),
     }
 
 
@@ -107,6 +108,7 @@ def _serialize_chapter(doc: dict) -> dict:
         "status": doc.get("status", "draft"),
         "created_at": doc.get("created_at"),
         "updated_at": doc.get("updated_at"),
+        "published_at": doc.get("published_at"),
     }
 
 
@@ -152,6 +154,7 @@ def create_story(user_id: str, payload: dict, cover_image_url: str = "") -> dict
         "chapter_count": 0,
         "created_at": datetime.utcnow(),
         "updated_at": datetime.utcnow(),
+        "published_at": datetime.utcnow() if payload.get("status") == "published" else None,
     }
 
     inserted = db.stories.insert_one(story_doc)
@@ -356,6 +359,9 @@ def update_story(story_id: str, owner_id: str, payload: dict, cover_image_url: s
         if current.get("chapter_count", 0) == 0:
             update_data["is_completed"] = False
 
+    if "status" in update_data:
+        update_data["published_at"] = datetime.utcnow() if update_data["status"] == "published" else None
+
     update_data["updated_at"] = datetime.utcnow()
 
     updated = db.stories.find_one_and_update(
@@ -383,6 +389,19 @@ def delete_story(story_id: str, owner_id: str) -> bool:
 
 
 def publish_story(story_id: str, owner_id: str) -> dict | None:
+    """Publish a story and all of its chapters together."""
+    db = get_database()
+    oid = _to_object_id(story_id)
+    user_oid = _to_object_id(owner_id)
+
+    story = db.stories.find_one({"_id": oid, "user_id": user_oid}, {"_id": 1})
+    if not story:
+        return None
+
+    db.chapters.update_many(
+        {"story_id": oid},
+        {"$set": {"status": "published", "updated_at": datetime.utcnow(), "published_at": datetime.utcnow()}},
+    )
     return update_story(story_id, owner_id, {"status": "published"})
 
 
@@ -398,7 +417,7 @@ def unpublish_story(story_id: str, owner_id: str) -> dict | None:
 
     db.chapters.update_many(
         {"story_id": oid},
-        {"$set": {"status": "draft", "updated_at": datetime.utcnow()}},
+        {"$set": {"status": "draft", "updated_at": datetime.utcnow(), "published_at": None}},
     )
     return update_story(story_id, owner_id, {"status": "draft"})
 
@@ -430,6 +449,7 @@ def create_chapter(story_id: str, owner_id: str, payload: dict) -> dict:
         "status": payload.get("status", "draft"),
         "created_at": datetime.utcnow(),
         "updated_at": datetime.utcnow(),
+        "published_at": datetime.utcnow() if payload.get("status") == "published" else None,
     }
 
     inserted = db.chapters.insert_one(chapter_doc)
@@ -487,6 +507,9 @@ def update_chapter(chapter_id: str, owner_id: str, payload: dict) -> dict | None
     if not update_data:
         chapter = db.chapters.find_one({"_id": chapter_oid, "user_id": user_oid})
         return _serialize_chapter(chapter) if chapter else None
+
+    if "status" in update_data:
+        update_data["published_at"] = datetime.utcnow() if update_data["status"] == "published" else None
 
     update_data["updated_at"] = datetime.utcnow()
 
