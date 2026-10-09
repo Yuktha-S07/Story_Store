@@ -1,5 +1,6 @@
 ﻿import React, { useContext, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { FiEye, FiEyeOff, FiLoader } from 'react-icons/fi'
 import api from '../services/api'
 import { AuthContext } from '../context/AuthContext'
 import { useNotification } from '../context/NotificationContext'
@@ -16,6 +17,7 @@ export default function StoryChaptersPage() {
   const [chapters, setChapters] = useState([])
   const [isCompleted, setIsCompleted] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [togglingId, setTogglingId] = useState(null)
   const [showEmptyPrompt, setShowEmptyPrompt] = useState(() => {
     if (!id) return true
     try {
@@ -44,6 +46,7 @@ export default function StoryChaptersPage() {
   }, [id])
 
   const publishChapter = async (ch) => {
+    setTogglingId(ch._id)
     try {
       const res = await api.post(`/api/chapters/${ch._id}/publish`)
       setChapters(prev => prev.map(c => c._id === ch._id ? res.data : c))
@@ -51,10 +54,13 @@ export default function StoryChaptersPage() {
       window.dispatchEvent(new CustomEvent('story-store:story-updated', { detail: { storyId: id } }))
     } catch (err) {
       notify('Failed to publish chapter.', 'error')
+    } finally {
+      setTogglingId(null)
     }
   }
 
   const unpublishChapter = async (ch) => {
+    setTogglingId(ch._id)
     try {
       const res = await api.post(`/api/chapters/${ch._id}/unpublish`)
       setChapters(prev => prev.map(c => c._id === ch._id ? res.data : c))
@@ -62,6 +68,8 @@ export default function StoryChaptersPage() {
       window.dispatchEvent(new CustomEvent('story-store:story-updated', { detail: { storyId: id } }))
     } catch (err) {
       notify('Failed to unpublish chapter.', 'error')
+    } finally {
+      setTogglingId(null)
     }
   }
 
@@ -172,8 +180,12 @@ export default function StoryChaptersPage() {
               <div key={ch._id} className="flex flex-col justify-between rounded-xl border border-slate-200 bg-white/60 p-4 transition hover:border-slate-300 sm:flex-row sm:items-center sm:gap-4 dark:border-[#3b3047] dark:bg-[#211a29] dark:hover:border-[#4b3b5d]">
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-serif text-sm font-semibold text-slate-900 dark:text-gray-100">{ch.title}</p>
-                  <p className="text-xs text-slate-500 mt-0.5 dark:text-gray-400">
-                    Ch. {ch.chapter_number} &middot; {ch.status === 'published' ? 'Published' : 'Draft'}
+                  <p className="mt-1.5 flex items-center gap-2 text-xs text-slate-500 dark:text-gray-400">
+                    <span>Ch. {ch.chapter_number}</span>
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] ${ch.status === 'published' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300'}`}>
+                      <span className={`h-1.5 w-1.5 rounded-full ${ch.status === 'published' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+                      {ch.status === 'published' ? 'Published' : 'Draft'}
+                    </span>
                   </p>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2 sm:mt-0 sm:shrink-0">
@@ -181,16 +193,20 @@ export default function StoryChaptersPage() {
                     <button
                       type="button"
                       onClick={() => unpublishChapter(ch)}
-                      className="flex min-h-10 items-center rounded-md bg-amber-100 px-3 py-2 text-xs font-semibold text-amber-700 transition hover:bg-amber-200 dark:bg-amber-900/50 dark:text-amber-300 dark:hover:bg-amber-800/60"
+                      disabled={togglingId === ch._id}
+                      className="group inline-flex min-h-10 items-center gap-1.5 rounded-full border border-amber-300/70 bg-[linear-gradient(135deg,#fff7ed_0%,#ffe8c7_100%)] px-3.5 py-2 text-xs font-semibold text-amber-800 shadow-[0_4px_12px_rgba(180,120,40,0.14)] transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-400 hover:shadow-[0_8px_18px_rgba(180,120,40,0.22)] disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 dark:border-amber-700/50 dark:bg-[linear-gradient(135deg,#3a2b16_0%,#4a3418_100%)] dark:text-amber-200"
                     >
+                      {togglingId === ch._id ? <FiLoader className="h-3.5 w-3.5 animate-spin" /> : <FiEyeOff className="h-3.5 w-3.5 transition-transform duration-200 group-hover:-rotate-6" />}
                       Unpublish
                     </button>
                   ) : (
                     <button
                       type="button"
                       onClick={() => publishChapter(ch)}
-                      className="flex min-h-10 items-center rounded-md bg-emerald-100 px-3 py-2 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-200 dark:bg-emerald-900/50 dark:text-emerald-300 dark:hover:bg-emerald-800/60"
+                      disabled={togglingId === ch._id}
+                      className="group inline-flex min-h-10 items-center gap-1.5 rounded-full border border-emerald-300/70 bg-[linear-gradient(135deg,#ecfdf5_0%,#c9f2dd_100%)] px-3.5 py-2 text-xs font-semibold text-emerald-800 shadow-[0_4px_12px_rgba(30,120,80,0.14)] transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-400 hover:shadow-[0_8px_18px_rgba(30,120,80,0.22)] disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 dark:border-emerald-700/50 dark:bg-[linear-gradient(135deg,#0f2b20_0%,#123a29_100%)] dark:text-emerald-200"
                     >
+                      {togglingId === ch._id ? <FiLoader className="h-3.5 w-3.5 animate-spin" /> : <FiEye className="h-3.5 w-3.5 transition-transform duration-200 group-hover:scale-110" />}
                       Publish
                     </button>
                   )}

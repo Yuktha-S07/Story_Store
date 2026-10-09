@@ -141,6 +141,33 @@ def test_unpublish_story_returns_all_chapters_to_draft(client, user_credentials)
     assert len(chapters) == 2
     assert all(chapter["status"] == "draft" for chapter in chapters)
 
+    other_creds = {
+        "email": f"{user_credentials['username']}_reader@example.com",
+        "username": f"{user_credentials['username']}_reader",
+        "password": "secret123",
+    }
+    other_headers = auth_headers(client, other_creds)
+
+    other_detail = client.get(f"/api/stories/{story_id}", headers=other_headers)
+    assert other_detail.status_code == 404
+
+    other_list = client.get("/api/stories?status=published&limit=100", headers=other_headers)
+    assert other_list.status_code == 200
+    assert all(story.get("_id") != story_id for story in other_list.json())
+
+    other_discovery = client.get("/api/stories?limit=100", headers=other_headers)
+    assert other_discovery.status_code == 200
+    assert all(story.get("_id") != story_id for story in other_discovery.json())
+
+    # Fetching by explicit ids (bookmarks/history) must not leak the unpublished story.
+    other_by_ids = client.get(f"/api/stories?ids={story_id}", headers=other_headers)
+    assert other_by_ids.status_code == 200
+    assert other_by_ids.json() == []
+
+    owner_by_ids = client.get(f"/api/stories?ids={story_id}", headers=headers)
+    assert owner_by_ids.status_code == 200
+    assert any(story.get("_id") == story_id for story in owner_by_ids.json())
+
 
 def test_list_stories_handles_missing_user_id(client):
     db = database.get_database()

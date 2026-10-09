@@ -1,16 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { EXISTING_GENRES } from '../utils/genres'
 
-const genres = [
-  { name: 'Romance', image: '/Romance.jpg' },
-  { name: 'Werewolf', image: '/Werewolf.jpg' },
-  { name: 'Fantasy', image: '/Fantasy.jpg' },
-  { name: 'Fanfiction', image: '/Fanfiction.jpg' },
-  { name: 'Comic', image: '/Comic.jpg' },
-  { name: 'Novels', image: '/Novels.jpg' },
-  { name: 'New Adult', image: '/New Adult.jpg' },
-  { name: 'Short Story', image: '/ShortStory.jpg' },
-];
+const genres = EXISTING_GENRES.map(name => ({
+  name,
+  image: name === 'Short Story' ? '/ShortStory.jpg' : `/${name}.jpg`,
+}))
 
 const Genres = () => {
   return (

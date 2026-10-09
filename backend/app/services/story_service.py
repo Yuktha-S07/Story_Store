@@ -124,6 +124,20 @@ def _story_is_publicly_visible(story: dict) -> bool:
     return db.chapters.find_one({"story_id": story["_id"], "status": "published"}) is not None
 
 
+def _filter_visible_stories(docs: list[dict], user_id: str | None) -> list[dict]:
+    """Keep only stories a viewer is allowed to see (published, publicly visible via a
+    published chapter, or their own drafts). Used by lookups that bypass the normal query."""
+    visible_ids = set(_published_story_ids_with_chapters())
+    viewer_oid = _to_object_id(user_id) if user_id else None
+    return [
+        doc
+        for doc in docs
+        if doc.get("status") == "published"
+        or doc["_id"] in visible_ids
+        or (viewer_oid is not None and doc.get("user_id") == viewer_oid)
+    ]
+
+
 def create_story(user_id: str, payload: dict, cover_image_url: str = "") -> dict:
     db = get_database()
     story_doc = {
@@ -180,7 +194,7 @@ def list_stories(
         if not id_list:
             return []
         docs = list(db.stories.find({"_id": {"$in": id_list}}, _STORY_PROJECTION))
-        return _serialize_stories(docs)
+        return _serialize_stories(_filter_visible_stories(docs, user_id))
 
     published_story_ids = None
 

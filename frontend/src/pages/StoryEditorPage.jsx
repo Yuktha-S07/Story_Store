@@ -6,6 +6,7 @@ import { useNotification } from '../context/NotificationContext'
 import BackButton from '../components/BackButton'
 import { FiEdit3, FiFeather, FiList, FiChevronLeft, FiArrowRight } from 'react-icons/fi'
 import { buildStoryCoverAlt, buildStoryCoverUrl, buildStoryFallbackUrl } from '../utils/storyCover'
+import GenreSelect from '../components/GenreSelect'
 
 export default function StoryEditorPage() {
   const { user } = useContext(AuthContext)
@@ -339,11 +340,10 @@ export default function StoryEditorPage() {
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-700 dark:text-gray-300">Genre</label>
-              <input
+              <GenreSelect
                 value={genre}
-                onChange={e => setGenre(e.target.value)}
-                placeholder="Choose a genre"
-                className="w-full rounded-xl border border-[#d9d2c9] bg-[#fffdf9] px-4 py-3.5 outline-none transition placeholder:text-slate-400 focus:border-[#E87B5D] focus:ring-2 focus:ring-[#E87B5D]/20 dark:border-slate-700 dark:bg-[#1d1824] dark:text-gray-200 dark:placeholder:text-gray-500"
+                onChange={setGenre}
+                className="rounded-xl border-[#d9d2c9] bg-[#fffdf9] dark:border-slate-700 dark:bg-[#1d1824] dark:text-gray-200"
               />
             </div>
             <div className="space-y-2">

@@ -1,9 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { FiEyeOff, FiLoader } from 'react-icons/fi'
 import api from '../services/api'
 import { AuthContext } from '../context/AuthContext'
 import { useNotification } from '../context/NotificationContext'
 import BackButton from '../components/BackButton'
+import GenreSelect from '../components/GenreSelect'
 
 export default function EditStoryDetailsPage() {
   const { id } = useParams()
@@ -106,8 +108,13 @@ export default function EditStoryDetailsPage() {
     try {
       setUnpublishing(true)
       const res = await api.post(`/api/stories/${id}/unpublish`)
-      setStory(prev => (prev ? { ...prev, ...res.data, status: res.data?.status || 'draft' } : prev))
-      notify('Book unpublished. All chapters are now drafts.', 'info')
+      setStory(prev => (prev ? {
+        ...prev,
+        ...res.data,
+        status: res.data?.status || 'draft',
+        chapters: (prev.chapters || []).map(ch => ({ ...ch, status: 'draft' })),
+      } : prev))
+      notify('Book unpublished. Only you can see it now.', 'info')
       window.dispatchEvent(new CustomEvent('story-store:story-updated', { detail: { storyId: id } }))
     } catch (err) {
       const detail = err?.response?.data?.detail
@@ -137,9 +144,14 @@ export default function EditStoryDetailsPage() {
                 type="button"
                 onClick={unpublishBook}
                 disabled={unpublishing}
-                className="rounded-md bg-amber-100 px-3 py-2 text-xs font-semibold text-amber-700 transition hover:bg-amber-200 disabled:opacity-60 dark:bg-amber-900/50 dark:text-amber-300 dark:hover:bg-amber-800/60"
+                className="group inline-flex items-center gap-2 rounded-full border border-amber-300/70 bg-[linear-gradient(135deg,#fff7ed_0%,#ffe8c7_100%)] px-4 py-2 text-xs font-semibold text-amber-800 shadow-[0_6px_16px_rgba(180,120,40,0.14)] transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-400 hover:shadow-[0_10px_22px_rgba(180,120,40,0.22)] focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50 disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 dark:border-amber-700/50 dark:bg-[linear-gradient(135deg,#3a2b16_0%,#4a3418_100%)] dark:text-amber-200 dark:shadow-[0_6px_16px_rgba(0,0,0,0.35)] dark:hover:border-amber-500/70"
               >
-                {unpublishing ? 'Unpublishing...' : 'Unpublish book'}
+                {unpublishing ? (
+                  <FiLoader className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <FiEyeOff className="h-3.5 w-3.5 transition-transform duration-200 group-hover:-rotate-6" />
+                )}
+                <span>{unpublishing ? 'Unpublishing…' : 'Unpublish book'}</span>
               </button>
             )}
           </div>
@@ -177,12 +189,7 @@ export default function EditStoryDetailsPage() {
           <div className="grid gap-5 md:grid-cols-2">
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-700">Genre</label>
-              <input
-                value={genre}
-                onChange={e => setGenre(e.target.value)}
-                placeholder="Choose a genre"
-                className="w-full rounded-2xl border border-slate-200/90 bg-white/50 px-4 py-3.5 outline-none transition placeholder:text-slate-400 focus:border-[#E87B5D] focus:ring-2 focus:ring-[#E87B5D]/20"
-              />
+              <GenreSelect value={genre} onChange={setGenre} />
             </div>
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-700">Tags</label>
