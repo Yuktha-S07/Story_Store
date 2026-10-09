@@ -38,7 +38,9 @@ def _serialize_author(user_id: ObjectId | str | None) -> dict:
 def _serialize_story(doc: dict, authors: dict | None = None) -> dict:
     user_id = doc.get("user_id")
     cover_url = doc.get("cover_image_url", "")
-    if doc.get("cover_image") is not None:
+    # `cover_image` (the binary) is stripped by _STORY_PROJECTION, so use the small
+    # `cover_image_mime` marker to detect an uploaded cover and serve it via the endpoint.
+    if doc.get("cover_image_mime") is not None or doc.get("cover_image") is not None:
         cover_url = f"/api/stories/{doc['_id']}/cover-image"
     return {
         "_id": str(doc["_id"]),
@@ -305,6 +307,7 @@ def store_story_cover(story_id: str, owner_id: str, content: bytes, media_type: 
         {"$set": {
             "cover_image": Binary(content),
             "cover_image_mime": media_type,
+            "cover_image_url": f"/api/stories/{story['_id']}/cover-image",
             "updated_at": datetime.utcnow(),
         }},
     )

@@ -1,5 +1,6 @@
 from bson import ObjectId
 from fastapi import HTTPException, status
+from starlette.concurrency import run_in_threadpool
 from typing import List
 from datetime import datetime
 
@@ -203,7 +204,11 @@ class MessageService:
         return {"message": "Message updated successfully"}
 
     async def toggle_reaction(self, user_id: str, message_id: str, emoji: str) -> dict:
+        return await run_in_threadpool(self._toggle_reaction_sync, user_id, message_id, emoji)
+
+    def _toggle_reaction_sync(self, user_id: str, message_id: str, emoji: str) -> dict:
         user_variants = _id_query_values(user_id)
+        user_ref = str(user_id)
         message = self.message_collection.find_one(
             {
                 "_id": {"$in": _id_query_values(message_id)},
@@ -211,40 +216,49 @@ class MessageService:
                     {"sender_id": {"$in": user_variants}},
                     {"recipient_id": {"$in": user_variants}},
                 ],
-            }
+            },
+            {"reactions": 1},
         )
         if not message:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Message not found")
 
-        user_ref = str(user_id)
+        current = list(message.get("reactions") or [])
+        own = {"user_id": user_ref, "emoji": emoji}
         has_reaction = any(
             str(r.get("user_id")) == user_ref and r.get("emoji") == emoji
-            for r in message.get("reactions") or []
+            for r in current
         )
 
         if has_reaction:
-            self.message_collection.update_one(
-                {"_id": message["_id"]},
-                {"$pull": {"reactions": {"user_id": user_ref, "emoji": emoji}}},
+            result = self.message_collection.update_one(
+                {"_id": message["_id"], "reactions": {"$elemMatch": own}},
+                {"$pull": {"reactions": own}},
             )
-            action = "removed"
+            if result.modified_count:
+                current = [
+                    r for r in current
+                    if not (str(r.get("user_id")) == user_ref and r.get("emoji") == emoji)
+                ]
         else:
-            self.message_collection.update_one(
-                {"_id": message["_id"]},
-                {
-                    "$push": {
-                        "reactions": {
-                            "user_id": user_ref,
-                            "emoji": emoji,
-                            "created_at": datetime.utcnow(),
-                        }
-                    }
-                },
+            reaction = {"user_id": user_ref, "emoji": emoji, "created_at": datetime.utcnow()}
+            result = self.message_collection.update_one(
+                {"_id": message["_id"], "reactions": {"$not": {"$elemMatch": own}}},
+                {"$push": {"reactions": reaction}},
             )
-            action = "added"
+            if result.modified_count:
+                current = [*current, reaction]
 
-        updated = self.message_collection.find_one({"_id": message["_id"]}, {"reactions": 1})
-        return {"action": action, "reactions": _serialize_reactions((updated or {}).get("reactions"))}
+        if not result.modified_count:
+            # A concurrent toggle changed the document first; re-read the
+            # authoritative state instead of trusting our earlier snapshot.
+            fresh = self.message_collection.find_one({"_id": message["_id"]}, {"reactions": 1})
+            current = list((fresh or {}).get("reactions") or [])
+
+        reactions = _serialize_reactions(current)
+        still_present = any(
+            r["user_id"] == user_ref and r["emoji"] == emoji for r in reactions
+        )
+        return {"action": "added" if still_present else "removed", "reactions": reactions}
 
 
 def get_message_service() -> MessageService:

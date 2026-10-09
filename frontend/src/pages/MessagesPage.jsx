@@ -48,6 +48,18 @@ export default function MessagesPage() {
   const bottomRef = useRef(null)
   const threadScrollRef = useRef(null)
   const textareaRef = useRef(null)
+  const pendingReactionsRef = useRef(new Set())
+
+  const mergeThread = (previous, raw) => {
+    if (pendingReactionsRef.current.size === 0) return raw
+    const previousById = new Map(previous.map((m) => [m._id, m]))
+    return raw.map((m) => {
+      const local = previousById.get(m._id)
+      return local && pendingReactionsRef.current.has(m._id)
+        ? { ...m, reactions: local.reactions }
+        : m
+    })
+  }
 
   useEffect(() => {
     if (!user) return
@@ -90,7 +102,7 @@ export default function MessagesPage() {
           api.get(`/api/users/${userId}`),
         ])
         const raw = Array.isArray(threadRes.data) ? threadRes.data : []
-        setMessages(raw)
+        setMessages((previous) => mergeThread(previous, raw))
         setActiveUser(profileRes.data)
       } catch (err) {
         console.error(err)
@@ -192,7 +204,8 @@ export default function MessagesPage() {
     if (!userId) return
     try {
       const res = await api.get(`/api/messages/with/${userId}`)
-      setMessages(Array.isArray(res.data) ? res.data : [])
+      const raw = Array.isArray(res.data) ? res.data : []
+      setMessages((previous) => mergeThread(previous, raw))
     } catch (err) {
       console.error(err)
     }
@@ -236,23 +249,52 @@ export default function MessagesPage() {
   }
 
   const toggleReaction = async (messageId, emoji) => {
+    if (pendingReactionsRef.current.has(messageId)) return
+    pendingReactionsRef.current.add(messageId)
+    setReactionPickerId(null)
+
+    const myId = String(user?._id)
+    setMessages((current) =>
+      current.map((m) => {
+        if (m._id !== messageId) return m
+        const reactions = Array.isArray(m.reactions) ? [...m.reactions] : []
+        const index = reactions.findIndex((r) => String(r.user_id) === myId && r.emoji === emoji)
+        if (index >= 0) reactions.splice(index, 1)
+        else reactions.push({ user_id: myId, emoji, created_at: new Date().toISOString() })
+        return { ...m, reactions }
+      })
+    )
+
     try {
-      await api.post(`/api/messages/${messageId}/reactions`, { emoji })
-      setReactionPickerId(null)
-      await refreshThread()
+      const res = await api.post(`/api/messages/${messageId}/reactions`, { emoji })
+      const serverReactions = res.data?.reactions
+      if (Array.isArray(serverReactions)) {
+        setMessages((current) =>
+          current.map((m) => (m._id === messageId ? { ...m, reactions: serverReactions } : m))
+        )
+      }
     } catch (err) {
       console.error(err)
       notify('Failed to update reaction.', 'error')
+      pendingReactionsRef.current.delete(messageId)
+      await refreshThread()
+    } finally {
+      pendingReactionsRef.current.delete(messageId)
     }
   }
 
   const groupReactions = (reactions) => {
     const groups = new Map()
+    const seen = new Set()
     ;(reactions || []).forEach((r) => {
       if (!r || !r.emoji) return
+      const ownerId = String(r.user_id)
+      const key = `${r.emoji}:${ownerId}`
+      if (seen.has(key)) return
+      seen.add(key)
       const group = groups.get(r.emoji) || { emoji: r.emoji, count: 0, reacted_by_me: false }
       group.count += 1
-      if (String(r.user_id) === String(user?._id)) group.reacted_by_me = true
+      if (ownerId === String(user?._id)) group.reacted_by_me = true
       groups.set(r.emoji, group)
     })
     return Array.from(groups.values())
