@@ -22,6 +22,14 @@ def _id_query_values(value: str) -> list:
         values.insert(0, ObjectId(value))
     return values
 
+
+def _story_object_id(story_id: str) -> ObjectId:
+    """Convert a story id to an ObjectId, returning 404 for malformed ids."""
+    if not ObjectId.is_valid(str(story_id)):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Story not found")
+    return ObjectId(str(story_id))
+
+
 class InteractionService:
     def __init__(self):
         self.like_collection = get_like_collection()
@@ -33,7 +41,8 @@ class InteractionService:
         self.follow_collection = get_follow_collection()
 
     async def like_story(self, user_id: str, story_id: str) -> dict:
-        story = self.story_collection.find_one({"_id": ObjectId(story_id)})
+        story_oid = _story_object_id(story_id)
+        story = self.story_collection.find_one({"_id": story_oid})
         if not story:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Story not found")
 
@@ -44,9 +53,9 @@ class InteractionService:
         if existing_like:
             return {"message": "Story already liked"}
 
-        like = Like(user_id=ObjectId(user_id), story_id=ObjectId(story_id))
+        like = Like(user_id=ObjectId(user_id), story_id=story_oid)
         self.like_collection.insert_one(like.dict(by_alias=True))
-        self.story_collection.update_one({"_id": ObjectId(story_id)}, {"$inc": {"likes_count": 1}})
+        self.story_collection.update_one({"_id": story_oid}, {"$inc": {"likes_count": 1}})
         actor = self.story_collection.database.users.find_one({"_id": ObjectId(user_id)}, {"username": 1})
         if str(story.get("user_id")) != str(user_id):
             create_notification(
@@ -58,12 +67,13 @@ class InteractionService:
         return {"message": "Story liked successfully"}
 
     async def unlike_story(self, user_id: str, story_id: str) -> dict:
+        story_oid = _story_object_id(story_id)
         result = self.like_collection.delete_one({
             "user_id": {"$in": _id_query_values(user_id)},
             "story_id": {"$in": _id_query_values(story_id)},
         })
         if result.deleted_count == 1:
-            self.story_collection.update_one({"_id": ObjectId(story_id)}, {"$inc": {"likes_count": -1}})
+            self.story_collection.update_one({"_id": story_oid}, {"$inc": {"likes_count": -1}})
             return {"message": "Story unliked successfully"}
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Like not found")
 

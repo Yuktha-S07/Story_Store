@@ -81,6 +81,68 @@ h1, h2, h3, h4 {
   font-family: 'Fraunces', 'Space Grotesk', system-ui, -apple-system, Segoe UI, sans-serif;
 }
 
+.story-card-surface {
+  background: #ede9e6 !important;
+  border-color: #cfc6c6 !important;
+}
+
+.dark .story-card-surface {
+  background: #261e30 !important;
+  border-color: #4b3b5d !important;
+}
+
+.story-card-genre {
+  border-color: #b8ddd5 !important;
+  background: #e2f5f9 !important;
+  color: #3b7896 !important;
+}
+
+.story-card-status.is-completed {
+  border-color: #bce3cd !important;
+  background: #e1f2e8 !important;
+  color: #397356 !important;
+}
+
+.story-card-status.is-ongoing {
+  border-color: #f2d4a4 !important;
+  background: #fff0d8 !important;
+  color: #9b6728 !important;
+}
+
+.story-card-status-dot {
+  background: #397356;
+}
+
+.story-card-status.is-ongoing .story-card-status-dot {
+  background: #d99a3c;
+}
+
+.dark .story-card-genre {
+  border-color: #34776d !important;
+  background: #1d3d39 !important;
+  color: #9bd8ca !important;
+}
+
+.dark .story-card-status.is-completed {
+  border-color: #31594f !important;
+  background: #1d3830 !important;
+  color: #9bd4bb !important;
+}
+
+.dark .story-card-status.is-ongoing {
+  border-color: #6a5330 !important;
+  background: #3a2f1d !important;
+  color: #f2cf9b !important;
+}
+
+.dark .story-card-status-dot {
+  background: #9bd4bb;
+}
+
+.dark .story-card-status.is-ongoing .story-card-status-dot {
+  background: #f2cf9b;
+}
+
 /* Apply the card font to all children but preserve sizes */
 .surface, .surface * {
   font-family: 'Fraunces', 'Space Grotesk', system-ui, -apple-system, Segoe UI, sans-serif;
@@ -101,6 +163,97 @@ h1, h2, h3, h4 {
   border-radius: 999px;
   padding: 0.7rem 1.3rem;
   font-weight: 600;
+}
+
+/* Story actions use a small lift and sheen so the primary choices feel tactile. */
+.story-action {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 0;
+  box-shadow: 0 5px 12px rgba(68, 45, 76, 0.14);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    filter 180ms ease;
+}
+
+.story-action::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  content: '';
+  background: linear-gradient(115deg, transparent 22%, rgba(255, 255, 255, 0.42) 47%, transparent 70%);
+  transform: translateX(-135%);
+  transition: transform 500ms ease;
+}
+
+.story-action:hover {
+  transform: translateY(-2px) scale(1.035);
+  box-shadow: 0 9px 18px rgba(68, 45, 76, 0.2);
+  filter: saturate(1.08);
+}
+
+.story-action:hover::before {
+  transform: translateX(135%);
+}
+
+.story-action:active {
+  transform: translateY(0) scale(0.96);
+  box-shadow: 0 3px 7px rgba(68, 45, 76, 0.15);
+}
+
+.story-action:focus-visible {
+  outline: 3px solid rgba(232, 123, 93, 0.42);
+  outline-offset: 3px;
+}
+
+.story-action-read {
+  background: linear-gradient(135deg, #cbb1dc, #ad91c4);
+  color: #242037;
+}
+
+.story-action-read-warm {
+  background: linear-gradient(135deg, #e28b72, #ca6755);
+  color: #fffaf7;
+}
+
+.story-action-save {
+  background: linear-gradient(135deg, #e7a5a5, #d37c87);
+  color: #3a2626;
+}
+
+.story-action-save.is-saved {
+  background: linear-gradient(135deg, #9acdb2, #5da58b);
+  color: #173b35;
+  box-shadow: 0 5px 14px rgba(57, 132, 103, 0.24);
+}
+
+.dark .story-action-read {
+  background: linear-gradient(135deg, #765894, #604477);
+  color: #fff;
+}
+
+.dark .story-action-read-warm {
+  background: linear-gradient(135deg, #e8a08d, #c97565);
+  color: #3d2930;
+}
+
+.dark .story-action-save {
+  background: linear-gradient(135deg, #d9959b, #bb6f7c);
+  color: #fff7f2;
+}
+
+.dark .story-action-save.is-saved {
+  background: linear-gradient(135deg, #8fc9ad, #569b83);
+  color: #18382f;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .story-action,
+  .story-action::before {
+    transition: none;
+  }
 }
 
 .pill {

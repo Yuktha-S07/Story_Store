@@ -20,12 +20,22 @@ export default function ProfilePage() {
   const [isFollowing, setIsFollowing] = useState(false)
   const [savingFollow, setSavingFollow] = useState(false)
   const [avatarFailed, setAvatarFailed] = useState(false)
+  const [coverPreview, setCoverPreview] = useState(null)
 
   const isOwnProfile = Boolean(authUser && String(authUser._id) === String(userId))
 
   useEffect(() => {
     setAvatarFailed(false)
   }, [userId])
+
+  useEffect(() => {
+    if (!coverPreview) return undefined
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') setCoverPreview(null)
+    }
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [coverPreview])
 
   useEffect(() => {
     if (!userId) return
@@ -255,7 +265,7 @@ export default function ProfilePage() {
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-4 md:gap-5">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
               {isOwnProfile && (
                 <Link
                   to="/write"
@@ -269,39 +279,95 @@ export default function ProfilePage() {
                 </Link>
               )}
               {stories.map((s) => (
-                <Link
+                <article
                   key={s._id}
-                  to={`/stories/${s._id}`}
-                  className="group block overflow-hidden rounded-2xl border border-[#e8e0d5] bg-[#FBF9F1] transition-all hover:-translate-y-1 hover:border-[#d9cfc1] hover:shadow-[0_16px_35px_rgba(73,48,20,0.1)] dark:border-[#3b3047] dark:bg-[#1d1824] dark:hover:border-[#4b3b5d]"
+                  className="profile-story-card group flex h-full flex-col overflow-hidden rounded-[24px] border border-[#dfd2c7] bg-[#fffdfa] shadow-[0_12px_30px_rgba(73,48,20,0.08)] transition-all duration-300 hover:-translate-y-1.5 hover:border-[#d3b4a3] hover:shadow-[0_18px_38px_rgba(73,48,20,0.14)] dark:border-[#3b3047] dark:bg-[#1d1824] dark:hover:border-[#6d587d]"
                 >
-                  <div className="aspect-[3/2] overflow-hidden bg-[#f0ece4] dark:bg-gray-700">
+                  <button
+                    type="button"
+                    onClick={() => setCoverPreview({ src: buildStoryCoverUrl(s), alt: buildStoryCoverAlt(s), title: s.title })}
+                    className="group/cover relative block aspect-[16/9] w-full overflow-hidden bg-[#f0ece4] text-left dark:bg-gray-700"
+                    aria-label={`View cover for ${s.title}`}
+                  >
                     <img
                       src={buildStoryCoverUrl(s)}
                       alt={buildStoryCoverAlt(s)}
                       loading="lazy"
                       onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = buildStoryFallbackUrl(s) }}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover/cover:scale-105"
                     />
-                  </div>
-                  <div className="p-3.5">
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="flex-1 truncate font-serif text-sm font-semibold text-[#26231f] dark:text-gray-100">{s.title}</h3>
-                      <span className={`shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                    <span className="absolute inset-0 flex items-center justify-center bg-[#211a29]/0 text-sm font-semibold text-white opacity-0 transition group-hover/cover:bg-[#211a29]/45 group-hover/cover:opacity-100">
+                      View Cover
+                    </span>
+                  </button>
+                  <div className="flex flex-1 flex-col p-5">
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <span className="rounded-full border border-[#b8ddd5] bg-[#B4E4D6] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-[#287568] dark:border-[#34776d] dark:bg-[#1d3d39] dark:text-[#9bd8ca]">
+                        {s.genre || 'Story'}
+                      </span>
+                      <span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${
                         s.status === 'published'
-                          ? 'bg-[#d5e8d5] text-[#2D6B3F] dark:bg-green-900/40 dark:text-green-300'
-                          : 'bg-[#f5e0b0] text-[#7a6200] dark:bg-amber-900/40 dark:text-amber-300'
+                          ? 'bg-[#e1f2e8] text-[#397356] dark:bg-[#1d3830] dark:text-[#9bd4bb]'
+                          : 'bg-[#fff0d8] text-[#9b6728] dark:bg-[#3a2f1d] dark:text-[#f2cf9b]'
                       }`}>
                         {s.status === 'published' ? 'Published' : 'Draft'}
                       </span>
                     </div>
-                    <p className="text-[10px] font-medium text-[#5d584f] dark:text-gray-400 mt-1.5 uppercase tracking-wide">{s.genre || 'Uncategorized'}</p>
-                    <p className="text-xs text-[#5d584f] dark:text-gray-400 mt-1.5 line-clamp-2">{s.description}</p>
+                    <Link to={`/stories/${s._id}`} className="font-serif text-xl font-semibold leading-tight text-[#292535] transition-colors hover:text-[#9a514b] dark:text-gray-100 dark:hover:text-[#f2b9ab]">
+                      {s.title}
+                    </Link>
+                    <p className="mt-3 line-clamp-3 text-sm leading-6 text-[#756765] dark:text-[#c8b8d2]">
+                      {s.description || 'A new story waiting to be discovered.'}
+                    </p>
+                    <div className="mt-auto flex items-center justify-between gap-3 border-t border-[#eee3dd] pt-4 dark:border-white/10">
+                      <span className="text-xs font-semibold uppercase tracking-[0.15em] text-[#a08a7b] dark:text-[#cba99c]">
+                        {s.chapters?.length || 0} {s.chapters?.length === 1 ? 'chapter' : 'chapters'}
+                      </span>
+                      <span className="inline-flex items-center rounded-full bg-[#B4E4D6] px-3 py-1.5 text-xs font-bold text-[#287568] transition group-hover:bg-[#8fd1bf] dark:bg-[#1d3d39] dark:text-[#9bd8ca]">
+                        Read story
+                      </span>
+                    </div>
                   </div>
-                </Link>
+                </article>
               ))}
             </div>
           )}
       </section>
+      {coverPreview && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#211a29]/80 p-4 backdrop-blur-sm"
+          role="presentation"
+          onClick={() => setCoverPreview(null)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cover-preview-title"
+            className="relative max-h-[92vh] max-w-[min(92vw,42rem)] overflow-hidden rounded-[24px] border border-white/20 bg-[#fffdfa] p-3 shadow-2xl dark:bg-[#1d1824]"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="mb-2 flex items-center justify-between gap-4 px-2">
+              <h2 id="cover-preview-title" className="font-serif text-lg font-semibold text-[#292535] dark:text-gray-100">
+                View Cover
+              </h2>
+              <button
+                type="button"
+                onClick={() => setCoverPreview(null)}
+                className="rounded-full px-3 py-1 text-sm font-semibold text-[#756765] transition hover:bg-[#f1e8e2] hover:text-[#292535] dark:text-[#c8b8d2] dark:hover:bg-[#302745] dark:hover:text-white"
+                aria-label="Close cover preview"
+              >
+                Close
+              </button>
+            </div>
+            <img
+              src={coverPreview.src}
+              alt={coverPreview.alt}
+              className="max-h-[calc(92vh-4.5rem)] w-full rounded-[16px] object-contain"
+            />
+            <p className="px-2 pt-2 text-center text-sm font-semibold text-[#756765] dark:text-[#c8b8d2]">{coverPreview.title}</p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

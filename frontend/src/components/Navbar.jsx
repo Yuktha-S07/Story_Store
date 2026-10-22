@@ -10,10 +10,16 @@ export default function Navbar() {
   const navigate = useNavigate()
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
-  const [theme, setTheme] = useState(() => getStoredTheme())
+  const [theme, setTheme] = useState(() => (user ? getStoredTheme() : 'light'))
   const [unreadCount, setUnreadCount] = useState(0)
 
   const closeMenu = () => setMenuOpen(false)
+
+  useEffect(() => {
+    // Keep the toggle in sync with the theme actually shown: light while
+    // logged out, saved preference once logged in.
+    setTheme(user ? getStoredTheme() : 'light')
+  }, [user])
 
   const fetchUnread = async () => {
     if (!user) {

@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
-import { getStoredTheme } from './utils/theme'
+import { applyTheme, getStoredTheme } from './utils/theme'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
@@ -18,7 +18,7 @@ import BookmarksPage from './pages/BookmarksPage'
 import MessagesPage from './pages/MessagesPage'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
-import { AuthProvider } from './context/AuthContext'
+import { AuthProvider, AuthContext } from './context/AuthContext'
 import { NotificationProvider } from './context/NotificationContext'
 import ProtectedRoute from './components/ProtectedRoute'
 
@@ -34,16 +34,18 @@ export default function App() {
 
 function Shell() {
   const location = useLocation()
+  const { token } = useContext(AuthContext)
   const isAuthRoute = location.pathname === '/login' || location.pathname === '/signup'
 
   useEffect(() => {
-    if (isAuthRoute) {
-      document.documentElement.classList.remove('dark')
+    // Logged-out visitors always see light mode; once authenticated we restore
+    // the theme they previously chose.
+    if (isAuthRoute || !token) {
+      applyTheme('light')
     } else {
-      const t = getStoredTheme()
-      document.documentElement.classList.toggle('dark', t === 'dark')
+      applyTheme(getStoredTheme())
     }
-  }, [isAuthRoute])
+  }, [isAuthRoute, token])
 
   return (
     <div className={`min-h-screen flex flex-col ${isAuthRoute ? 'bg-[#fbf8f2] text-[#26231f] [color-scheme:light]' : 'text-gray-900'}`}>

@@ -6,6 +6,7 @@ import { useNotification } from '../context/NotificationContext'
 import { buildStoryCoverAlt, buildStoryCoverUrl, buildStoryFallbackUrl } from '../utils/storyCover'
 import { buildAvatarUrl } from '../utils/avatar'
 import { FiBookOpen, FiHeart, FiTrash2 } from 'react-icons/fi'
+import CoverPreview from './CoverPreview'
 
 export default function StoryCard({ story, compact = false, bookmarkStyle = false, bookmarked = false, onUnsave }) {
   const { user } = useContext(AuthContext)
@@ -26,6 +27,7 @@ export default function StoryCard({ story, compact = false, bookmarkStyle = fals
   const coverSrc = buildStoryCoverUrl(story)
   const coverAlt = buildStoryCoverAlt(story)
   const avatarUrl = buildAvatarUrl(story.author?.avatar_url || story.avatar_url)
+  const isCompleted = Boolean(story.is_completed)
 
   const handleSave = async () => {
     if (!user) {
@@ -57,25 +59,28 @@ export default function StoryCard({ story, compact = false, bookmarkStyle = fals
 
   return (
     <div
-      className={`surface group overflow-hidden p-0 transition duration-300 ${bookmarkStyle ? 'rounded-[18px] border-[#eaded7] bg-[#fffdf9]! shadow-[0_8px_24px_rgba(79,53,46,0.08)] hover:-translate-y-1 hover:border-[#d8b7a8] hover:shadow-[0_16px_30px_rgba(79,53,46,0.13)] dark:border-[#4b3b5d] dark:bg-[#211a29]! dark:hover:border-[#8a5f73]' : 'rounded-[24px] border-[#d9e6e2] bg-[#FBF9F1]! shadow-[0_10px_28px_rgba(51,88,80,0.07)] hover:-translate-y-1 hover:shadow-2xl dark:border-[#3b3047] dark:bg-[#211a29]! dark:shadow-[0_10px_28px_rgba(0,0,0,0.3)]'} ${compact ? 'h-full' : 'h-full'}`}
+      className={`surface story-card-surface group overflow-hidden p-0 transition duration-300 ${bookmarkStyle ? 'rounded-[18px] border-[#eaded7] shadow-[0_8px_24px_rgba(79,53,46,0.08)] hover:-translate-y-1 hover:border-[#d8b7a8] hover:shadow-[0_16px_30px_rgba(79,53,46,0.13)] dark:border-[#4b3b5d] dark:hover:border-[#8a5f73]' : 'rounded-[24px] border-[#d9e6e2] shadow-[0_10px_28px_rgba(51,88,80,0.07)] hover:-translate-y-1 hover:shadow-2xl dark:border-[#3b3047] dark:shadow-[0_10px_28px_rgba(0,0,0,0.3)]'} ${compact ? 'h-full' : 'h-full'}`}
     >
       <div className="flex h-full flex-col">
-        <div className={`flex-shrink-0 w-full overflow-hidden bg-[#f0ece4] dark:bg-gray-700 ${bookmarkStyle ? 'aspect-video rounded-t-[18px]' : 'h-48 rounded-t-[24px]'}`}>
-          <img
-            src={coverSrc}
-            alt={coverAlt}
-            loading="lazy"
-            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = buildStoryFallbackUrl(story) }}
-            className="w-full h-full object-cover object-center transition duration-300 group-hover:scale-[1.02]"
-          />
-        </div>
+        <CoverPreview
+          src={coverSrc}
+          fallbackSrc={buildStoryFallbackUrl(story)}
+          alt={coverAlt}
+          title={story.title}
+          className={`flex-shrink-0 bg-[#f0ece4] dark:bg-gray-700 ${bookmarkStyle ? 'aspect-video rounded-t-[18px]' : 'h-48 rounded-t-[24px]'}`}
+          imageClassName="object-center"
+        />
 
         <div className={`flex flex-1 flex-col justify-between ${bookmarkStyle ? 'p-4' : 'p-4'}`}>
           <div>
             <div className="flex items-center justify-between gap-3">
-              <span className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold shadow-sm ${bookmarkStyle ? 'border-[#ead0c5] bg-[#fff1eb] text-[#8d4e4b] dark:border-[#6a3f51] dark:bg-[#3a2733] dark:text-[#f2b9ab]' : 'border-[#d7e8df] bg-[#eff8f3] text-[#397356] dark:border-[#31594f] dark:bg-[#1d3830] dark:text-[#9bd4bb]'}`}>
+              <span className="story-card-genre inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold shadow-sm">
                 <FiBookOpen className="h-3.5 w-3.5" />
                 {genreText}
+              </span>
+              <span className={`story-card-status ${isCompleted ? 'is-completed' : 'is-ongoing'} inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold shadow-sm`}>
+                <span className="story-card-status-dot h-1.5 w-1.5 rounded-full" aria-hidden="true" />
+                {isCompleted ? 'Completed' : 'Ongoing'}
               </span>
             </div>
 
@@ -118,7 +123,7 @@ export default function StoryCard({ story, compact = false, bookmarkStyle = fals
           <div className={`${compact ? 'mt-4' : 'mt-3 sm:mt-5'} flex flex-wrap items-center gap-2 border-t border-[#eee3dd] pt-3 dark:border-white/10`}>
             <Link
               to={`/stories/${storyId}`}
-              className={`inline-flex min-h-10 items-center rounded-lg px-3 py-2 text-xs font-semibold transition sm:text-sm ${bookmarkStyle ? 'bg-[#d97862] text-[#fffaf7]! hover:bg-[#c86450] dark:bg-[#e8a08d]! dark:text-[#3d2930]! dark:hover:bg-[#f3b5a3]' : 'bg-[#BDA6CE] text-[#072935] hover:bg-[#aa93b6] dark:bg-[#6a4b85] dark:text-white dark:hover:bg-[#7c5a99]'}`}
+              className={`story-action story-action-read inline-flex min-h-10 items-center rounded-lg px-3 py-2 text-xs font-semibold sm:text-sm ${bookmarkStyle ? 'story-action-read-warm' : ''}`}
             >
               Read
             </Link>
@@ -134,7 +139,7 @@ export default function StoryCard({ story, compact = false, bookmarkStyle = fals
             ) : (
               <button
                 onClick={handleSave}
-                className={`inline-flex min-h-10 items-center rounded-md bg-[#DC9B9B] px-2.5 py-2 text-xs font-semibold text-[#3a2626] transition hover:bg-[#c68585] sm:px-3 sm:text-sm`}
+                className={`story-action story-action-save inline-flex min-h-10 items-center rounded-md px-2.5 py-2 text-xs font-semibold sm:px-3 sm:text-sm ${saved ? 'is-saved' : ''}`}
               >
                 {saved ? 'Saved' : 'Save'}
               </button>
@@ -144,6 +149,10 @@ export default function StoryCard({ story, compact = false, bookmarkStyle = fals
               onClick={async () => {
                 if (!user) {
                   navigate('/login')
+                  return
+                }
+                if (typeof storyId === 'string' && (storyId.startsWith('sample-') || storyId.startsWith('featured-'))) {
+                  notify('Sample stories cannot be liked. Create your own story to like it!', 'info')
                   return
                 }
                 setLiked(prev => !prev)

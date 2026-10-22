@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { buildStoryCoverAlt, buildStoryCoverUrl, buildStoryFallbackUrl } from '../utils/storyCover';
+import CoverPreview from './CoverPreview';
 
 const fallbackStories = [
   {
@@ -213,17 +214,16 @@ const TrendingStories = () => {
             const coverImage = buildStoryCoverUrl(story);
             const coverAlt = buildStoryCoverAlt(story);
             return (
-              <div key={storyId} className="group h-[420px] w-[156px] flex-shrink-0">
-                <div className="flex h-full flex-col overflow-hidden rounded-[22px] bg-[#FBF9F1] shadow-[0_14px_30px_rgba(0,0,0,0.08)] transition duration-300 group-hover:-translate-y-1 dark:bg-[#261e30] dark:shadow-[0_14px_30px_rgba(0,0,0,0.3)]">
-                  <div className="aspect-[2/3] overflow-hidden">
-                    <img
-                      src={coverImage}
-                      alt={coverAlt}
-                      loading="lazy"
-                      onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = buildStoryFallbackUrl(story) }}
-                      className="h-full w-full object-cover object-center transition duration-500 group-hover:scale-105"
-                    />
-                  </div>
+              <div key={storyId} className="group h-[360px] w-[156px] flex-shrink-0">
+                <div className="story-card-surface flex h-full flex-col overflow-hidden rounded-[22px] shadow-[0_14px_30px_rgba(0,0,0,0.08)] transition duration-300 group-hover:-translate-y-1 dark:shadow-[0_14px_30px_rgba(0,0,0,0.3)]">
+                  <CoverPreview
+                    src={coverImage}
+                    fallbackSrc={buildStoryFallbackUrl(story)}
+                    alt={coverAlt}
+                    title={story.title}
+                    className="aspect-[2/3] bg-[#f0ece4] dark:bg-gray-700"
+                    imageClassName="object-center"
+                  />
                   <div className="flex flex-1 flex-col p-3">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#8a7c68] dark:text-[#c6afd1]">{story.genre || 'Featured'}</p>
                     <h3 className="mt-1.5 line-clamp-2 text-sm font-semibold leading-5 text-[#26231f] dark:text-[#f1e8f4]">{story.title}</h3>
@@ -231,10 +231,10 @@ const TrendingStories = () => {
                       {story.description || 'Open the story to start reading.'}
                     </p>
                     <div className="mt-auto flex items-center gap-2 pt-3">
-                      <Link to={storyId ? `/stories/${storyId}` : '/stories'} className="inline-flex min-h-10 items-center rounded-md bg-[#BDA6CE] px-2.5 py-1.5 text-xs font-semibold text-[#072935] transition hover:bg-[#aa93b6] dark:bg-[#6a4b85] dark:text-white dark:hover:bg-[#7c5a99]">Read</Link>
+                      <Link to={storyId ? `/stories/${storyId}` : '/stories'} className="story-action story-action-read inline-flex min-h-10 items-center rounded-md px-2.5 py-1.5 text-xs font-semibold">Read</Link>
                       <button
                         onClick={() => handleSave(storyId)}
-                        className="inline-flex min-h-10 items-center rounded-md bg-[#DC9B9B] px-2.5 py-1.5 text-xs font-semibold text-[#3a2626] transition hover:bg-[#c68585]"
+                        className={`story-action story-action-save inline-flex min-h-10 items-center rounded-md px-2.5 py-1.5 text-xs font-semibold ${saved[storyId] ? 'is-saved' : ''}`}
                       >
                         {saved[storyId] ? 'Saved' : 'Save'}
                       </button>
