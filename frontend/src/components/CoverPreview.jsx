@@ -1,15 +1,21 @@
 import React, { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 export default function CoverPreview({ src, fallbackSrc, alt, title, className = '', imageClassName = '' }) {
   const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
     if (!isOpen) return undefined
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
     const handleEscape = (event) => {
       if (event.key === 'Escape') setIsOpen(false)
     }
     document.addEventListener('keydown', handleEscape)
-    return () => document.removeEventListener('keydown', handleEscape)
+    return () => {
+      document.removeEventListener('keydown', handleEscape)
+      document.body.style.overflow = previousOverflow
+    }
   }, [isOpen])
 
   const handleImageError = (event) => {
@@ -38,7 +44,7 @@ export default function CoverPreview({ src, fallbackSrc, alt, title, className =
         </span>
       </button>
 
-      {isOpen && (
+      {isOpen && createPortal(
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-[#211a29]/80 p-4 backdrop-blur-sm"
           role="presentation"
@@ -72,7 +78,8 @@ export default function CoverPreview({ src, fallbackSrc, alt, title, className =
             />
             <p className="px-2 pt-2 text-center text-sm font-semibold text-[#756765] dark:text-[#c8b8d2]">{title}</p>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   )
