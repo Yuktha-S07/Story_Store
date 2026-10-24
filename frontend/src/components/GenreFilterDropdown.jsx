@@ -108,7 +108,7 @@ export default function GenreFilterDropdown({ options = [], value = '', onChange
           ref={listRef}
           role="listbox"
           aria-label="Genres"
-          className="absolute left-0 top-full z-30 mt-2 max-h-72 w-full min-w-[13rem] overflow-y-auto rounded-2xl border border-[#e6ded6] bg-white p-1.5 text-left shadow-[0_18px_45px_rgba(79,53,46,0.16)] dark:border-[#4b3b5d] dark:bg-[#211a29]"
+          className="mt-2 max-h-72 w-full min-w-[13rem] overflow-y-auto rounded-2xl border border-[#e6ded6] bg-white p-1.5 text-left shadow-[0_18px_45px_rgba(79,53,46,0.16)] dark:border-[#4b3b5d] dark:bg-[#211a29]"
         >
           {items.map((item, index) => {
             const theme = item.isAll ? getAllGenresTheme() : getGenreTheme(item.label);

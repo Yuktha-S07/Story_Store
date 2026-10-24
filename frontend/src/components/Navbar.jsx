@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { FiSettings, FiSun, FiMoon } from 'react-icons/fi'
 import { AuthContext } from '../context/AuthContext'
 import api from '../services/api'
-import { getStoredTheme } from '../utils/theme'
+import { getStoredTheme, setTheme as persistTheme } from '../utils/theme'
 
 export default function Navbar() {
   const { user, logout } = useContext(AuthContext)
@@ -20,6 +20,12 @@ export default function Navbar() {
     // logged out, saved preference once logged in.
     setTheme(user ? getStoredTheme() : 'light')
   }, [user])
+
+  useEffect(() => {
+    const handleThemeChange = (event) => setTheme(event.detail === 'dark' ? 'dark' : 'light')
+    window.addEventListener('story-store:theme-change', handleThemeChange)
+    return () => window.removeEventListener('story-store:theme-change', handleThemeChange)
+  }, [])
 
   const fetchUnread = async () => {
     if (!user) {
@@ -43,16 +49,7 @@ export default function Navbar() {
   const toggleTheme = () => {
     const next = theme === 'light' ? 'dark' : 'light'
     setTheme(next)
-    if (next === 'dark') {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
-    try {
-      window.localStorage.setItem('story-store:theme', next)
-    } catch {
-      /* ignore storage errors */
-    }
+    persistTheme(next)
   }
 
   const navLinks = [

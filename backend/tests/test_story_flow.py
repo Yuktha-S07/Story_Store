@@ -204,6 +204,38 @@ def test_unpublish_story_returns_all_chapters_to_draft(client, user_credentials)
     assert any(story.get("_id") == story_id for story in owner_by_ids.json())
 
 
+def test_profile_story_count_hides_drafts_from_other_users(client, user_credentials):
+    owner_headers = auth_headers(client, user_credentials)
+    owner_id = client.get("/api/auth/me", headers=owner_headers).json()["_id"]
+
+    for title, story_status in (("Published Story", "published"), ("Draft Story", "draft")):
+        res = client.post(
+            "/api/stories",
+            json={"title": title, "description": "test", "genre": "Fantasy", "tags": [], "status": story_status},
+            headers=owner_headers,
+        )
+        assert res.status_code == 201
+
+    owner_profile = client.get(f"/api/users/{owner_id}", headers=owner_headers)
+    assert owner_profile.status_code == 200
+    assert owner_profile.json()["story_count"] == 2
+
+    reader_creds = {
+        "email": f"{user_credentials['username']}_reader_count@example.com",
+        "username": f"{user_credentials['username']}_reader_count",
+        "password": "secret123",
+    }
+    reader_headers = auth_headers(client, reader_creds)
+
+    reader_profile = client.get(f"/api/users/{owner_id}", headers=reader_headers)
+    assert reader_profile.status_code == 200
+    assert reader_profile.json()["story_count"] == 1
+
+    anonymous_profile = client.get(f"/api/users/{owner_id}")
+    assert anonymous_profile.status_code == 200
+    assert anonymous_profile.json()["story_count"] == 1
+
+
 def test_list_stories_handles_missing_user_id(client):
     db = database.get_database()
     story_id = ObjectId()

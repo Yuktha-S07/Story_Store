@@ -41,11 +41,12 @@ export default function DeleteAccountCard({ user, onDeleted, onError }) {
 
   return (
     <>
-      <div className="rounded-2xl border border-[#eccdc8] dark:border-red-900/40 bg-[#fff6f4] dark:bg-red-950/20 p-5 shadow-[0_10px_28px_rgba(153,77,70,0.05)]">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="font-semibold text-sm text-[#8C3838] dark:text-red-300">Delete account</p>
-            <p className="text-xs text-[#8C3838]/70 dark:text-red-400/70 mt-0.5">
+      <div className="settings-danger-panel rounded-2xl border border-[#eccdc8] bg-[#fffaf8] p-5 shadow-[0_10px_28px_rgba(153,77,70,0.05)] dark:border-red-900/40 dark:bg-red-950/20">
+        <div className="flex items-center gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fae8e5] text-[#a45145] dark:bg-[#4a2929] dark:text-[#e0a6a6]">!</span>
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold text-sm text-[#8c3838] dark:text-red-300">Delete account</p>
+            <p className="settings-subtext mt-0.5 !text-[#b06b61] dark:!text-[#c99595]">
               Permanently remove your account and all data
             </p>
           </div>

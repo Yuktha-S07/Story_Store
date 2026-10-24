@@ -115,6 +115,12 @@ def initialize_collections():
             [("recipient_id", 1), ("read", 1)],
         ],
         "push_subscriptions": ["recipient_id", "endpoint"],
+        "password_reset_tokens": [
+            "token",
+            "user_id",
+            [("token", 1)],
+            [("expires_at", 1)],
+        ],
         # Interaction collections previously had NO indexes (full collection scans)
         "likes": [
             "user_id",

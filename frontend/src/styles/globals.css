@@ -256,6 +256,56 @@ h1, h2, h3, h4 {
   }
 }
 
+.settings-subtext {
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: #687875 !important;
+}
+
+.dark .settings-subtext {
+  color: #b9afc2 !important;
+}
+
+.dark .settings-panel {
+  background-color: #211d29 !important;
+  border-color: #3d4d4a !important;
+  color: #f0e8f6;
+}
+
+.dark .settings-header {
+  background: #211d29 !important;
+  border-color: #3d4d4a !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.24) !important;
+}
+
+.dark .settings-header h1 {
+  color: #f0e8f6 !important;
+}
+
+.dark .settings-header p {
+  color: #c8b8d2 !important;
+}
+
+.dark .settings-header p:first-child {
+  color: #a8d8c5 !important;
+}
+
+.dark .settings-panel input,
+.dark .settings-panel select {
+  background-color: #191621 !important;
+  border-color: #4b5d59 !important;
+  color: #f0e8f6 !important;
+}
+
+.dark .settings-panel button:not([role="switch"]) {
+  color: #f0e8f6;
+}
+
+.dark .settings-danger-panel {
+  background-color: #321f27 !important;
+  border-color: #70434a !important;
+}
+
 .pill {
   background: rgba(224, 122, 95, 0.12);
   color: var(--accent-2);

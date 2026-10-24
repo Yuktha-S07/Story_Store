@@ -39,5 +39,6 @@ export function setTheme(theme) {
     /* ignore storage errors */
   }
   applyTheme(theme)
+  window.dispatchEvent(new CustomEvent('story-store:theme-change', { detail: theme }))
   return theme
 }

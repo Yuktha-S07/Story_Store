@@ -2,10 +2,18 @@ import React, { useContext, useEffect, useState } from 'react'
 import { AuthContext } from '../context/AuthContext'
 import api from '../services/api'
 import { Link } from 'react-router-dom'
-import { FiArrowLeft, FiEdit3, FiList, FiTrash2, FiUploadCloud } from 'react-icons/fi'
+import { FiArrowLeft, FiBookOpen, FiClock, FiEdit3, FiEye, FiList, FiTrash2, FiUploadCloud } from 'react-icons/fi'
 import { useNotification } from '../context/NotificationContext'
 import BackButton from '../components/BackButton'
 import { buildStoryCoverAlt, buildStoryCoverUrl, buildStoryFallbackUrl } from '../utils/storyCover'
+import CoverPreview from '../components/CoverPreview'
+
+const formatStoryDate = (value) => {
+  if (!value) return 'Recently updated'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return 'Recently updated'
+  return `Updated ${date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}`
+}
 
 export default function DashboardPage() {
   const { user } = useContext(AuthContext)
@@ -112,42 +120,51 @@ export default function DashboardPage() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(min(280px,100%),1fr))] gap-6">
+          <div className="grid justify-start gap-6 grid-cols-[repeat(auto-fit,minmax(min(340px,100%),460px))]">
             {stories.map(s => (
-              <div key={s._id} className="group flex flex-col overflow-hidden rounded-[22px] border border-[#dfd6cc] bg-[#fffdf9] shadow-[0_10px_30px_rgba(83,59,38,0.06)] transition-all hover:-translate-y-1 hover:border-[#d5a28d] hover:shadow-[0_18px_38px_rgba(83,59,38,0.12)] dark:border-[#3b3047] dark:bg-[#211a29] dark:shadow-[0_10px_30px_rgba(0,0,0,0.3)] dark:hover:border-[#4b3b5d]">
-                <div className="aspect-[4/3] overflow-hidden bg-[#eee6dd] dark:bg-gray-700">
-                  <img
-                    src={buildStoryCoverUrl(s)}
-                    alt={buildStoryCoverAlt(s)}
-                    loading="lazy"
-                    onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = buildStoryFallbackUrl(s) }}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                </div>
-                <div className="flex flex-1 flex-col p-5">
-                  <h3 className="truncate font-serif text-lg font-semibold text-[#28343a] dark:text-gray-100">{s.title}</h3>
-                  <p className="mt-1 truncate text-sm text-[#77716b] dark:text-gray-400">{s.description}</p>
-                  <div className="flex items-center gap-2 mt-3 flex-wrap">
+              <article key={s._id} className="group flex h-full flex-col overflow-hidden rounded-[22px] border border-[#dfd6cc] bg-[#fffdf9] shadow-[0_10px_30px_rgba(83,59,38,0.06)] transition-all hover:-translate-y-1 hover:border-[#d5a28d] hover:shadow-[0_18px_38px_rgba(83,59,38,0.12)] dark:border-[#3b3047] dark:bg-[#211a29] dark:shadow-[0_10px_30px_rgba(0,0,0,0.3)] dark:hover:border-[#4b3b5d]">
+                <CoverPreview
+                  src={buildStoryCoverUrl(s)}
+                  fallbackSrc={buildStoryFallbackUrl(s)}
+                  alt={buildStoryCoverAlt(s)}
+                  title={s.title}
+                  className="aspect-[5/3] bg-[#eee6dd] dark:bg-gray-700"
+                  imageClassName="transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="flex flex-1 flex-col p-4 sm:p-5">
+                  <h3 className="truncate font-serif text-xl font-semibold text-[#28343a] dark:text-gray-100">{s.title}</h3>
+                  <div className="mt-1.5 flex items-center gap-1 text-xs font-medium text-[#8b7a70] dark:text-gray-400">
+                    <FiClock size={12} />
+                    <span>{formatStoryDate(s.updated_at || s.created_at)}</span>
+                  </div>
+                  <p className="mt-2.5 min-h-[4rem] text-sm leading-5 text-[#77716b] dark:text-gray-400" style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    {s.description || 'No description yet. Add one to help readers discover your story.'}
+                  </p>
+                  <div className="mt-2.5 flex min-h-7 items-center gap-2 flex-wrap">
                     <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${s.status === 'published' ? 'bg-[#e1f2e8] text-[#397356] dark:bg-emerald-900/50 dark:text-emerald-300' : 'bg-[#fff0d8] text-[#9b6728] dark:bg-amber-900/50 dark:text-amber-300'}`}>
                       {s.status === 'published' ? 'Published' : 'Draft'}
                     </span>
                     <span className="rounded-md bg-[#f0ece7] px-2 py-0.5 text-xs text-[#706b67] dark:bg-[#2f2835] dark:text-gray-300">{s.genre}</span>
+                    <span className="inline-flex items-center gap-1 rounded-md bg-[#f0ece7] px-2 py-0.5 text-xs text-[#706b67] dark:bg-[#2f2835] dark:text-gray-300"><FiBookOpen size={12} /> {s.chapter_count || 0} {s.chapter_count === 1 ? 'chapter' : 'chapters'}</span>
                   </div>
-                  <div className="mt-4 flex flex-wrap items-center gap-1.5 border-t border-slate-100 pt-3 sm:gap-2 dark:border-white/10">
-                    <button onClick={() => setEditingStory(s)} className="flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-md border border-[#c9d9d2] bg-[#f5faf7] px-2 py-2 text-center text-xs font-semibold text-[#397356] transition hover:border-[#8fbaa7] hover:bg-[#e8f5ed] sm:px-3 sm:text-sm dark:border-[#31594f] dark:bg-[#1d3830] dark:text-[#9bd4bb] dark:hover:bg-[#25473d]" aria-label={`Edit ${s.title}`}>
+                  <div className={`mt-auto grid gap-2 border-t border-slate-100 pt-3 dark:border-white/10 ${s.status !== 'published' ? 'grid-cols-2' : 'grid-cols-3'}`}>
+                    <Link to={`/stories/${s._id}`} className="flex min-h-10 items-center justify-center gap-1 rounded-md bg-[#e5f3ee] px-2 py-2 text-center text-xs font-semibold text-[#287568] transition hover:bg-[#d5ebe3] sm:text-sm dark:bg-[#1d3d39] dark:text-[#9bd8ca] dark:hover:bg-[#275047]">
+                      <FiEye className="h-3.5 w-3.5" /> View
+                    </Link>
+                    <button onClick={() => setEditingStory(s)} className="flex min-h-10 items-center justify-center gap-1 rounded-md border border-[#c9d9d2] bg-[#f5faf7] px-2 py-2 text-center text-xs font-semibold text-[#397356] transition hover:border-[#8fbaa7] hover:bg-[#e8f5ed] sm:text-sm dark:border-[#31594f] dark:bg-[#1d3830] dark:text-[#9bd4bb] dark:hover:bg-[#25473d]" aria-label={`Edit ${s.title}`}>
                       <FiEdit3 className="h-3.5 w-3.5" />
                       Edit
                     </button>
                     {s.status !== 'published' && (
-                      <button onClick={() => publishStory(s._id)} className="flex min-h-10 items-center justify-center rounded-md bg-gradient-to-r from-green-500 to-green-600 px-2 py-2 text-xs font-medium text-white transition hover:from-green-600 hover:to-green-700 shadow-sm sm:px-3 sm:text-sm">Publish</button>
+                      <button onClick={() => publishStory(s._id)} className="flex min-h-10 items-center justify-center rounded-md bg-gradient-to-r from-green-500 to-green-600 px-2 py-2 text-xs font-medium text-white shadow-sm transition hover:from-green-600 hover:to-green-700 sm:text-sm">Publish</button>
                     )}
-                    <button onClick={() => deleteStory(s._id)} className="flex min-h-10 items-center justify-center gap-1.5 rounded-md border border-[#f0caca] bg-[#fff3f1] px-2 py-2 text-xs font-semibold text-[#b34f4f] shadow-sm transition hover:border-[#d98787] hover:bg-[#ffe5e2] sm:px-3 sm:text-sm dark:border-[#633c45] dark:bg-[#3a222b] dark:text-[#ffaaa3] dark:hover:bg-[#4a2933]" aria-label={`Delete ${s.title}`}>
+                    <button onClick={() => deleteStory(s._id)} className="flex min-h-10 items-center justify-center gap-1 rounded-md border border-[#f0caca] bg-[#fff3f1] px-2 py-2 text-xs font-semibold text-[#b34f4f] shadow-sm transition hover:border-[#d98787] hover:bg-[#ffe5e2] sm:text-sm dark:border-[#633c45] dark:bg-[#3a222b] dark:text-[#ffaaa3] dark:hover:bg-[#4a2933]" aria-label={`Delete ${s.title}`}>
                       <FiTrash2 className="h-3.5 w-3.5" />
                       Delete
                     </button>
                   </div>
                 </div>
-              </div>
+              </article>
             ))}
           </div>
         )}

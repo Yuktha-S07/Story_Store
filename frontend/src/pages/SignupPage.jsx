@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
 import { useNotification } from '../context/NotificationContext'
+import { FiLock, FiMail, FiUser } from 'react-icons/fi'
 
 const toErrorMessage = (detail, fallback) => {
   if (typeof detail === 'string') return detail
@@ -40,29 +41,22 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="relative flex min-h-[calc(100vh-4rem)] w-full items-center justify-center overflow-hidden px-4 py-8">
-      {/* decorative circles removed for cleaner auth pages */}
-
-      <div className="relative w-full max-w-md">
-        <div className="rounded-[28px] bg-white/95 p-8 shadow-[0_30px_80px_rgba(62,46,26,0.08)] backdrop-blur-lg md:p-10">
-          <div className="mb-6 text-center">
-            <span className="mx-auto inline-flex rounded-full border border-[#e7d3c3] bg-[#fff4ee] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#a15a22]">
-              Join Story Store
-            </span>
-            <h2 className="mt-4 text-3xl text-[#26231f]">Create account</h2>
-            <p className="mt-3 text-sm leading-6 text-[#6d6a63]">Set up your profile and start saving stories in one place.</p>
-          </div>
+    <div className="relative flex min-h-screen w-full items-center justify-center px-4 bg-[#fbf8f2] [color-scheme:light]">
+      <div className="relative w-full max-w-md -translate-y-6 rounded-[28px] border border-black/8 bg-white/65 p-8">
+        <h2 className="text-center font-serif text-3xl text-[#26231f]">Create account</h2>
+        <p className="mt-3 text-center text-sm leading-6 text-[#6d6a63]">Set up your profile and start saving stories in one place.</p>
 
           {error && (
-            <p className="mb-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 shadow-sm">
+            <p className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 shadow-sm">
               {error}
             </p>
           )}
 
-          <form onSubmit={submit} className="space-y-4">
+          <form onSubmit={submit} className="mt-8 space-y-4">
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-[0.14em] text-[#7b7167]">Username</label>
+              <label htmlFor="signup-username" className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#7b7167]"><FiUser size={14} /> Username</label>
               <input
+                id="signup-username"
                 value={username}
                 onChange={e => setUsername(e.target.value)}
                 placeholder="Your display name"
@@ -71,8 +65,9 @@ export default function SignupPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-[0.14em] text-[#7b7167]">Email</label>
+              <label htmlFor="signup-email" className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#7b7167]"><FiMail size={14} /> Email</label>
               <input
+                id="signup-email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 placeholder="you@example.com"
@@ -82,8 +77,9 @@ export default function SignupPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-[0.14em] text-[#7b7167]">Password</label>
+              <label htmlFor="signup-password" className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#7b7167]"><FiLock size={14} /> Password</label>
               <input
+                id="signup-password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder="Create a password"
@@ -93,6 +89,7 @@ export default function SignupPage() {
             </div>
 
             <button
+              type="submit"
               className="w-full rounded-full bg-gradient-to-r from-[#E06B80] to-[#C2D099] px-5 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-white shadow-[0_10px_30px_rgba(192,107,118,0.14)] transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_40px_rgba(192,107,118,0.18)]"
             >
               Create account
@@ -105,8 +102,7 @@ export default function SignupPage() {
               Log in
             </Link>
           </p>
-        </div>
-      </div>
+          </div>
     </div>
   )
 }

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { FiBell, FiCheck, FiChevronDown, FiLoader, FiMessageCircle, FiPlay, FiSmartphone, FiThumbsUp, FiVolume2, FiX } from 'react-icons/fi'
-import { Card } from '../SettingsUI'
 import api from '../../services/api'
 import { getPushStatus, isPushSupported, requestPushPermission, unsubscribeFromPush } from '../../services/push'
 import { playSound } from '../../utils/notificationSound'
@@ -21,8 +20,8 @@ const SOUND_OPTIONS = [
   { value: 'whistle', label: 'Bright whistle' },
 ]
 
-export default function NotificationPreferences() {
-  const [expanded, setExpanded] = useState(false)
+export default function NotificationPreferences({ standalone = false }) {
+  const [expanded, setExpanded] = useState(standalone)
   const [preferences, setPreferences] = useState(DEFAULTS)
   const [sound, setSound] = useState(() => localStorage.getItem('story-store:notification-sound') || 'chime')
   const [saving, setSaving] = useState(false)
@@ -116,22 +115,30 @@ export default function NotificationPreferences() {
   }
 
   return (
-    <Card>
-      <button
-        type="button"
-        onClick={() => setExpanded((value) => !value)}
-        aria-expanded={expanded}
-        className="flex w-full items-center gap-3 text-left"
-      >
+    <div className={standalone ? 'space-y-8' : ''}>
+      {standalone ? (
+        null
+      ) : (
+        <button
+          type="button"
+          onClick={() => setExpanded((value) => !value)}
+          aria-expanded={expanded}
+          className="flex w-full items-center gap-3 text-left"
+        >
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#eee5f7] text-[#755b8b] dark:bg-[#3b2d4b] dark:text-[#d9c5eb]"><FiBell size={18} /></span>
         <span className="min-w-0 flex-1">
           <span className="block text-sm font-semibold text-[#26231f] dark:text-[#f0e8f6]">Notifications</span>
           <span className="mt-0.5 block text-xs text-[#5d584f] dark:text-[#c8b8d2]">Choose which activity reaches you and how it sounds.</span>
         </span>
         <FiChevronDown className={`shrink-0 text-[#876da0] dark:text-[#d3bce4] transition-transform ${expanded ? 'rotate-180' : ''}`} size={19} />
-      </button>
-      {expanded && <div className="mt-4 border-t border-[#e6dcd2] pt-4 dark:border-[#4b3b5d]">
-      <div className="grid gap-2 sm:grid-cols-2">
+        </button>
+      )}
+      {expanded && <div className={`${standalone ? 'space-y-8' : 'mt-4 border-t border-[#e6dcd2] pt-4 dark:border-[#4b3b5d]'}`}>
+      <section>
+        {standalone && (
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-[#8b6b52] dark:text-[#cba99c]">Activity alerts</p>
+        )}
+      <div className={`${standalone ? 'settings-panel divide-y divide-[#d8e4df] rounded-2xl border border-[#d8e4df] bg-white shadow-[0_8px_22px_rgba(47,86,76,0.05)] dark:divide-[#3d4d4a] dark:border-[#3d4d4a] dark:bg-[#211d29]' : 'grid gap-2 sm:grid-cols-2'}`}>
         {EVENT_OPTIONS.map(({ key, label, description, icon: Icon, color }) => (
           <button
             key={key}
@@ -140,24 +147,29 @@ export default function NotificationPreferences() {
             aria-checked={preferences[key]}
             onClick={() => updatePreferences(key)}
             disabled={saving}
-            className={`flex items-center gap-3 rounded-xl border p-3 text-left transition hover:-translate-y-0.5 hover:shadow-sm dark:text-[#f0e8f6] ${preferences[key] ? 'border-[#d8c9e8] bg-[#fbf9fd] dark:border-[#604b73] dark:bg-[#2d2438]' : 'border-[#e6dcd2] bg-[#fffaf5] opacity-65 dark:border-[#4b3b5d] dark:bg-[#241e2d]'}`}
+            className={`flex w-full items-center gap-3 text-left transition dark:text-[#f0e8f6] ${standalone ? 'px-4 py-4 first:rounded-t-2xl last:rounded-b-2xl hover:bg-[#fffaf5] dark:hover:bg-[#2d2438]' : 'rounded-xl border p-3 hover:-translate-y-0.5 hover:shadow-sm'} ${preferences[key] ? '' : 'opacity-55'}`}
           >
-            <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${color}`}><Icon size={17} /></span>
+            <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${color}`}><Icon size={17} /></span>
             <span className="min-w-0 flex-1">
               <span className="block text-sm font-semibold text-[#453253] dark:text-[#f0e8f6]">{label}</span>
-              <span className="mt-0.5 block text-xs leading-4 text-[#7b7470] dark:text-[#c8b8d2]">{description}</span>
+              <span className={`${standalone ? 'hidden' : 'block'} mt-0.5 text-xs leading-4 text-[#7b7470] dark:text-[#c8b8d2]`}>{description}</span>
             </span>
-            <span className={`h-5 w-9 shrink-0 rounded-full p-0.5 transition ${preferences[key] ? 'bg-[#9c78b9]' : 'bg-[#d8d1d9]'}`}>
-              <span className={`block h-4 w-4 rounded-full bg-white shadow-sm transition ${preferences[key] ? 'translate-x-4' : ''}`} />
+            <span className={`h-6 w-11 shrink-0 rounded-full p-0.5 transition ${preferences[key] ? 'bg-[#5fa996]' : 'bg-[#d8d1d9]'}`}>
+              <span className={`block h-5 w-5 rounded-full bg-white shadow-sm transition ${preferences[key] ? 'translate-x-5' : ''}`} />
             </span>
           </button>
         ))}
       </div>
-      <div className="mt-4 flex items-center gap-3 rounded-xl border border-[#ded2eb] bg-[#f8f3fc] p-3 dark:border-[#4b3b5d] dark:bg-[#2d2438]">
+      </section>
+      <section className={`${standalone ? 'border-t border-[#d8e4df] pt-7 dark:border-[#3d4d4a]' : ''}`}>
+      {standalone && (
+        <p className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-[#8b6b52] dark:text-[#cba99c]">Device delivery</p>
+      )}
+      <div className={`${standalone ? 'flex items-center gap-4 rounded-2xl border border-[#b8ddd5] bg-[#eff9f6] p-4 dark:border-[#31594f] dark:bg-[#1d3830]' : 'mt-4 flex items-center gap-3 rounded-xl border border-[#ded2eb] bg-[#f8f3fc] p-3 dark:border-[#4b3b5d] dark:bg-[#2d2438]'}`}>
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#e3d8ef] text-[#755b8b] dark:bg-[#49375b] dark:text-[#d9c5eb]"><FiSmartphone size={17} /></span>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-[#604579] dark:text-[#eadff1]">Device notifications</p>
-          <p className="mt-0.5 text-xs leading-4 text-[#7b7470] dark:text-[#c8b8d2]">
+          <p className="mt-0.5 hidden text-xs leading-4 text-[#7b7470] dark:text-[#c8b8d2] sm:block">
             {pushSupported
               ? pushEnabled
                 ? 'On: you get notifications here even when you are not on Story Store.'
@@ -186,7 +198,12 @@ export default function NotificationPreferences() {
           <FiX size={13} className="mt-0.5 shrink-0" /> {pushError}
         </p>
       )}
-      <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-[#ded2eb] bg-[#f8f3fc] p-3 dark:border-[#4b3b5d] dark:bg-[#2d2438]">
+      </section>
+      <section className={`${standalone ? 'border-t border-[#d8e4df] pt-7 dark:border-[#3d4d4a]' : 'mt-4'}`}>
+      {standalone && (
+        <p className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-[#8b6b52] dark:text-[#cba99c]">Sound</p>
+      )}
+      <div className={`${standalone ? 'flex flex-wrap items-center gap-3 rounded-2xl border border-[#e2d5ee] bg-[#faf7fd] p-4 dark:border-[#4b3b5d] dark:bg-[#2d2438]' : 'flex flex-wrap items-center gap-3 rounded-xl border border-[#ded2eb] bg-[#f8f3fc] p-3 dark:border-[#4b3b5d] dark:bg-[#2d2438]'}`}>
         <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#e3d8ef] text-[#755b8b] dark:bg-[#49375b] dark:text-[#d9c5eb]"><FiVolume2 size={17} /></span>
         <label htmlFor="notification-sound" className="text-sm font-semibold text-[#604579] dark:text-[#eadff1]">Notification sound</label>
         <select id="notification-sound" value={sound} onChange={updateSound} className="min-w-0 flex-1 rounded-lg border border-[#d8c9e8] bg-white px-3 py-2.5 text-sm text-[#604579] outline-none focus:border-[#9c78b9] dark:border-[#604b73] dark:bg-[#1d1824] dark:text-[#f0e8f6]">
@@ -208,7 +225,8 @@ export default function NotificationPreferences() {
           </button>
         ))}
       </div>
+      </section>
       </div>}
-    </Card>
+    </div>
   )
 }

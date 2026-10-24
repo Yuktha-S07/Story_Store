@@ -1,8 +1,20 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 
 from app.middleware.auth_middleware import get_current_user
-from app.models.user import RefreshTokenRequest, UserCreate, UserLogin
-from app.services.auth_service import authenticate_user, create_user, refresh_access_token
+from app.models.user import (
+    RefreshTokenRequest,
+    UserCreate,
+    UserLogin,
+    ForgotPasswordRequest,
+    ResetPasswordRequest,
+)
+from app.services.auth_service import (
+    authenticate_user,
+    create_user,
+    refresh_access_token,
+    request_password_reset,
+    reset_password,
+)
 
 router = APIRouter()
 
@@ -22,7 +34,14 @@ async def register(payload: UserCreate):
 async def login(payload: UserLogin):
     res = authenticate_user(payload.email, payload.password)
     if not res:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid credentials')
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Account does not exist, need to signup first')
+    if isinstance(res, dict) and res.get('error'):
+        err = res['error']
+        if err == 'Account does not exist, need to signup first':
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=err)
+        if err == 'Incorrect password':
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=err)
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=err)
     return {
         "access_token": res["access_token"],
         "refresh_token": res["refresh_token"],
@@ -51,3 +70,23 @@ async def logout(_user: dict = Depends(get_current_user)):
 @router.get('/me')
 async def me(user: dict = Depends(get_current_user)):
     return user
+
+
+@router.post('/forgot-password')
+async def forgot_password(payload: ForgotPasswordRequest):
+    try:
+        return request_password_reset(payload.email)
+    except ValueError as err:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@router.post('/reset-password')
+async def reset_password_route(payload: ResetPasswordRequest):
+    try:
+        return reset_password(payload.token, payload.new_password)
+    except ValueError as err:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

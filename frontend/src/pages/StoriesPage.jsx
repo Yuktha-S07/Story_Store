@@ -230,7 +230,7 @@ const StoriesPage = () => {
         </div>
         <div className="text-center mb-12">
           <h1 className="text-4xl font-serif font-bold text-[#26231f] dark:text-gray-100">Discover Stories</h1>
-          <p className="mt-2 text-lg text-[#5d584f] dark:text-gray-400">Explore a universe of stories from writers around the world.</p>
+          <p className="mt-2 text-lg text-[#5d584f] dark:text-gray-400">A universe of stories awaits you here.</p>
           <div className="mt-6 max-w-md mx-auto">
             <div className="relative">
               <FiSearch
@@ -247,8 +247,8 @@ const StoriesPage = () => {
             </div>
           </div>
 
-          <div className="mx-auto mt-7 max-w-4xl rounded-[28px] border border-[#e9dfd5] bg-white/80 p-4 text-left shadow-[0_18px_45px_rgba(79,53,46,0.10)] backdrop-blur sm:p-5 dark:border-[#3b3047] dark:bg-[#211a29]/80 dark:shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
-            <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:gap-6">
+          <div className="relative z-40 mx-auto mt-7 max-w-4xl rounded-[28px] border border-[#e9dfd5] bg-white/80 p-4 text-left shadow-[0_18px_45px_rgba(79,53,46,0.10)] backdrop-blur sm:p-5 dark:border-[#3b3047] dark:bg-[#211a29]/80 dark:shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:gap-6">
               <div className="flex flex-col gap-2">
                 <span className={FILTER_LABEL_CLASS}>Genre</span>
                 <GenreFilterDropdown
@@ -258,7 +258,7 @@ const StoriesPage = () => {
                 />
               </div>
 
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 lg:ml-20">
                 <span className={FILTER_LABEL_CLASS}>Status</span>
                 <div className="inline-flex flex-wrap items-center gap-1.5 rounded-full border border-black/10 bg-[#fbfaf7] p-1.5 shadow-sm dark:border-[#5b4b64] dark:bg-[#181320]">
                   {COMPLETION_FILTERS.map((option) => {
@@ -283,7 +283,7 @@ const StoriesPage = () => {
                 <button
                   type="button"
                   onClick={() => updateFilters({ genre: '', completion: '' })}
-                  className="inline-flex items-center justify-center gap-1.5 self-start rounded-full border border-[#f0c9c9] bg-[#fff1f1] px-4 py-2.5 text-sm font-semibold text-[#a3404f] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#ffe4e4] hover:shadow-md lg:ml-auto lg:self-end dark:border-[#6b3a44] dark:bg-[#3a222a] dark:text-[#f3b3bb]! dark:hover:bg-[#4a2a34]"
+                  className="inline-flex items-center justify-center gap-1.5 self-start rounded-full border border-[#f0c9c9] bg-[#fff1f1] px-4 py-2.5 text-sm font-semibold text-[#a3404f] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#ffe4e4] hover:shadow-md lg:ml-auto dark:border-[#6b3a44] dark:bg-[#3a222a] dark:text-[#f3b3bb]! dark:hover:bg-[#4a2a34]"
                 >
                   <FiX className="h-4 w-4" aria-hidden="true" />
                   Clear filters

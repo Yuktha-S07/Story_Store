@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
@@ -20,6 +20,7 @@ const LoginPage = () => {
   const { user, login } = useContext(AuthContext);
   const navigate = useNavigate();
   const [error, setError] = React.useState('');
+  const [email, setEmail] = useState('');
 
   useEffect(() => {
     if (user) {
@@ -44,7 +45,7 @@ const LoginPage = () => {
     <div className="relative flex min-h-screen w-full items-center justify-center px-4 bg-[#fbf8f2] [color-scheme:light]">
       {/* decorative circles removed for cleaner auth pages */}
 
-      <div className="relative w-full max-w-md -translate-y-6 rounded-[28px] border border-black/8 bg-white/65 p-8">
+      <div className="relative w-full max-w-lg -translate-y-6 rounded-[28px] border border-black/8 bg-white/65 p-9">
           <h2 className="text-center font-serif text-3xl text-[#26231f]">Join the Community</h2>
           <p className="mt-3 text-center text-sm leading-6 text-[#6d6a63]">Log in to continue reading or start sharing your own stories.</p>
 
@@ -58,6 +59,8 @@ const LoginPage = () => {
               type="email"
               placeholder="Email"
               required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full rounded-full border border-black/8 bg-[#fbfaf7] px-5 py-3 text-[#3a3a3a] outline-none transition-shadow duration-200 focus:shadow-[0_8px_30px_rgba(224,107,128,0.12)] focus:border-transparent focus:ring-2 focus:ring-[#E06B80]/30"
             />
             <input
@@ -70,18 +73,20 @@ const LoginPage = () => {
 
             <button
               type="submit"
-              className="w-full rounded-full px-5 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-white transition-transform duration-200 transform hover:-translate-y-0.5 bg-gradient-to-r from-[#E06B80] to-[#C2D099] shadow-[0_10px_30px_rgba(192,107,118,0.12)] hover:shadow-[0_14px_40px_rgba(192,107,118,0.16)]"
+              className="w-full rounded-full px-5 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-white transition duration-200 transform hover:-translate-y-0.5 bg-gradient-to-r from-[#E06B80] to-[#C2D099] shadow-[0_10px_30px_rgba(192,107,118,0.12)] hover:shadow-[0_12px_32px_rgba(192,107,118,0.16)] focus:outline-none focus:ring-2 focus:ring-[#E06B80]/25 focus:ring-offset-2"
             >
               Login
             </button>
           </form>
 
-          <p className="mt-5 text-center text-sm text-[#6d6a63]">
-            No account?{' '}
-            <Link to="/signup" className="font-semibold text-black underline underline-offset-4">
+          <div className="mt-7 grid grid-cols-2 gap-4">
+            <Link to={`/forgot-password${email ? `?email=${encodeURIComponent(email)}` : ''}`} className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#E06B80]/35 bg-gradient-to-br from-[#fffaf8] via-[#fff1ee] to-[#fbe1df] px-3 py-2 text-center text-xs font-semibold uppercase tracking-[0.08em] text-[#b65368] shadow-[0_6px_18px_rgba(224,107,128,0.1)] transition duration-200 hover:-translate-y-0.5 hover:border-[#E06B80]/50 hover:shadow-[0_8px_20px_rgba(224,107,128,0.14)] focus:outline-none focus:ring-2 focus:ring-[#E06B80]/25 focus:ring-offset-2">
+              Forgot password?
+            </Link>
+            <Link to="/signup" className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#9dab77] bg-gradient-to-br from-[#f7faef] via-[#e7efd6] to-[#d5e2bb] px-3 py-2 text-center text-xs font-semibold uppercase tracking-[0.08em] text-[#566842] shadow-[0_6px_18px_rgba(137,157,106,0.14)] transition duration-200 hover:-translate-y-0.5 hover:border-[#8d9f6c] hover:shadow-[0_8px_20px_rgba(137,157,106,0.17)] focus:outline-none focus:ring-2 focus:ring-[#9dab77]/30 focus:ring-offset-2">
               Sign up
             </Link>
-          </p>
+          </div>
       </div>
     </div>
   );

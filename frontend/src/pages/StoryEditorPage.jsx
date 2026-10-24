@@ -108,7 +108,7 @@ export default function StoryEditorPage() {
           <div className="mb-9 border-b border-[#e8d8c8] pb-6 dark:border-[#3b3047]">
             <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#b06f7f] dark:text-[#e8917f]">Create &amp; manage</p>
             <h2 className="font-serif text-2xl font-semibold tracking-tight text-[#28343a] md:text-3xl dark:text-gray-100">Write a Story</h2>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-[#6d6863] dark:text-gray-400">Start a brand new story or jump back into one you are already writing.</p>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-[#6d6863] dark:text-gray-400">Begin a new tale or continue your current story.</p>
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2">

@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import secrets
 
 import bcrypt
 from bson import ObjectId
@@ -7,6 +8,7 @@ from pymongo.errors import DuplicateKeyError
 from app.config import settings
 from app.database import get_database
 from app.utils.jwt_handler import create_access_token, create_refresh_token, decode_token
+from app.utils.email import send_password_reset_email
 
 
 def hash_password(password: str) -> bytes:
@@ -58,9 +60,14 @@ def authenticate_user(email: str, password: str):
     users = db.users
     user = users.find_one({"email": email.lower().strip()})
     if not user:
-        return None
+        return {"error": "Account does not exist, need to signup first"}
     if not verify_password(password, user["password"]):
-        return None
+        return {"error": "Incorrect password"}
+    # Basic email format check for clearer message
+    email_clean = email.lower().strip()
+    if '@' not in email_clean or '.' not in email_clean.split('@')[-1]:
+        # still don't block normal flow, but keep explicit message if needed elsewhere
+        pass
 
     payload = {
         "sub": str(user["_id"]),
@@ -97,3 +104,55 @@ def get_user_by_id(user_id: str):
     if not user:
         return None
     return _serialize_user(user)
+
+
+def request_password_reset(email: str):
+    db = get_database()
+    users = db.users
+    user = users.find_one({"email": email.lower().strip()})
+    if not user:
+        raise ValueError("Account does not exist, need to signup first")
+    
+    token = secrets.token_urlsafe(32)
+    expires_at = datetime.utcnow() + timedelta(hours=1)
+    
+    db.password_reset_tokens.update_one(
+        {"user_id": user["_id"]},
+        {"$set": {"token": token, "expires_at": expires_at, "used": False}},
+        upsert=True
+    )
+    
+    reset_link = f"{settings.FRONTEND_URL}/reset-password?token={token}"
+    email_sent = send_password_reset_email(user["email"], reset_link)
+    
+    if email_sent:
+        return {"message": "Password reset link sent to your email."}
+    # If email not configured, do not leak token to client in production-like flow
+    # but for development, still be helpful? User wants email-only security.
+    # Return message instructing to check email; if SMTP not set, we can't send - raise error or inform
+    if settings.SMTP_HOST and settings.SMTP_USER and settings.SMTP_PASSWORD:
+        # tried to send but failed
+        raise ValueError("Failed to send password reset email. Please try again later.")
+    # SMTP not configured - cannot send email, cannot provide token securely
+    raise ValueError("Email service not configured. Please contact support.")
+
+
+def reset_password(token: str, new_password: str):
+    db = get_database()
+    tokens = db.password_reset_tokens
+    users = db.users
+    
+    token_doc = tokens.find_one({"token": token, "used": {"$ne": True}})
+    if not token_doc:
+        raise ValueError("Invalid or expired reset token")
+    
+    if token_doc.get("expires_at") and token_doc["expires_at"] < datetime.utcnow():
+        raise ValueError("Invalid or expired reset token")
+    
+    user_id = token_doc["user_id"]
+    hashed = hash_password(new_password)
+    
+    users.update_one({"_id": user_id}, {"$set": {"password": hashed, "updated_at": datetime.utcnow()}})
+    tokens.update_one({"_id": token_doc["_id"]}, {"$set": {"used": True}})
+    
+    return {"message": "Password updated successfully"}

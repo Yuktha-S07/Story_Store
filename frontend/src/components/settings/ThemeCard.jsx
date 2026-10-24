@@ -1,29 +1,28 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Card } from '../SettingsUI'
-import { getStoredTheme } from '../../utils/theme'
+import { getStoredTheme, setTheme as persistTheme } from '../../utils/theme'
+import { FiMoon } from 'react-icons/fi'
 
 export default function ThemeCard() {
   const [theme, setTheme] = useState(() => getStoredTheme())
 
+  useEffect(() => {
+    const handleThemeChange = (event) => setTheme(event.detail === 'dark' ? 'dark' : 'light')
+    window.addEventListener('story-store:theme-change', handleThemeChange)
+    return () => window.removeEventListener('story-store:theme-change', handleThemeChange)
+  }, [])
+
   const toggleTheme = () => {
     const next = theme === 'light' ? 'dark' : 'light'
     setTheme(next)
-    if (next === 'dark') {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
-    try {
-      window.localStorage.setItem('story-store:theme', next)
-    } catch {
-      /* ignore storage errors */
-    }
+    persistTheme(next)
   }
 
   return (
     <Card
       title="Theme"
       subtitle="Switch between light and dark mode."
+      icon={<FiMoon size={18} />}
       actions={<button
           type="button"
           onClick={toggleTheme}
@@ -51,8 +50,8 @@ export default function ThemeCard() {
           </span>
         </button>}
     >
-      <p className="text-xs text-[#5d584f] dark:text-gray-300">
-        Current theme: <span className="font-semibold capitalize">{theme}</span>
+      <p className="text-xs text-[#71817d] dark:text-gray-300">
+        Current theme <span className="font-semibold capitalize text-[#287568] dark:text-[#9bd8ca]">{theme}</span>
       </p>
     </Card>
   )

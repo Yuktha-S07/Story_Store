@@ -5,7 +5,7 @@ from datetime import datetime
 from pymongo.errors import DuplicateKeyError
 
 from app.database import get_database
-from app.middleware.auth_middleware import get_current_user
+from app.middleware.auth_middleware import get_current_user, get_current_user_optional
 from app.models.user import ChangePasswordRequest, DeleteAccountRequest
 from app.services.auth_service import get_user_by_id, hash_password, verify_password
 
@@ -31,7 +31,10 @@ async def get_avatar_image_endpoint(user_id: str):
 
 
 @router.get("/users/{user_id}")
-async def get_user_profile(user_id: str):
+async def get_user_profile(
+    user_id: str,
+    current_user: dict | None = Depends(get_current_user_optional),
+):
     if not ObjectId.is_valid(user_id):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
@@ -50,7 +53,14 @@ async def get_user_profile(user_id: str):
     id_variants = _id_variants(user_id)
     followers_count = db.follows.count_documents({"following_id": {"$in": id_variants}})
     following_count = db.follows.count_documents({"follower_id": {"$in": id_variants}})
-    story_count = db.stories.count_documents({"user_id": {"$in": id_variants}})
+
+    # Owners see all of their stories (drafts included); everyone else only sees
+    # the stories that are actually published.
+    is_owner = bool(current_user and str(current_user["_id"]) == user_id)
+    story_query = {"user_id": {"$in": id_variants}}
+    if not is_owner:
+        story_query["status"] = "published"
+    story_count = db.stories.count_documents(story_query)
 
     return {
         **user,

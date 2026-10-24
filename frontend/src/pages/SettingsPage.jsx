@@ -1,16 +1,16 @@
 import React, { useContext, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
 import { useNotification } from '../context/NotificationContext'
+import { FiBell, FiChevronRight, FiMoon, FiShield, FiUser } from 'react-icons/fi'
 import BackButton from '../components/BackButton'
 import ThemeCard from '../components/settings/ThemeCard'
-import EditProfileCard from '../components/settings/EditProfileCard'
 import LogoutCard from '../components/settings/LogoutCard'
 import DeleteAccountCard from '../components/settings/DeleteAccountCard'
 import NotificationPreferences from '../components/settings/NotificationPreferences'
 
 export default function SettingsPage() {
-  const { user, logout, updateUser } = useContext(AuthContext)
+  const { user, logout } = useContext(AuthContext)
   const { notify } = useNotification()
   const navigate = useNavigate()
 
@@ -28,24 +28,46 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-8 pb-10">
+    <div className="settings-page mx-auto w-full max-w-4xl space-y-7 pb-12 text-[15px]">
       <div className="flex items-center justify-between">
         <BackButton />
-        <span className="rounded-full border border-[#e3cfd0] bg-[#fff4f3] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#a45d60] dark:border-[#5d4b5f] dark:bg-[#2d2731] dark:text-[#d9bdd6]">Account</span>
+        <span className="inline-flex items-center gap-2 rounded-full border border-[#b8ddd5] bg-[#eaf8f3] px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-[#287568] dark:border-[#31594f] dark:bg-[#1d3830] dark:text-[#a8d8c5]">
+          <FiShield size={13} />
+          Settings
+        </span>
       </div>
-      <header className="relative border-b border-[#e8d8c8] pb-6 dark:border-[#3b3240]">
-        <div className="mb-3 flex items-center gap-2 text-[#b06f7f] dark:text-[#c99ab7]">
-          <span className="h-px w-8 bg-[#e07a5f] dark:bg-[#c99ab7]" />
-          <p className="text-xs font-semibold uppercase tracking-[0.2em]">Story Store account</p>
+
+      <header className="settings-header rounded-3xl border border-[#d8e4df] bg-[linear-gradient(135deg,#f7fcfa,#fffaf5)] p-6 shadow-[0_12px_28px_rgba(47,86,76,0.06)] dark:border-[#3d4d4a] dark:bg-[#211d29] sm:p-7">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#6d9587] dark:text-[#a8d8c5]">Account</p>
+          <h1 className="mt-1 font-serif text-4xl font-semibold tracking-tight text-[#28343a] dark:text-[#f0e8f6]">Settings</h1>
         </div>
-        <h1 className="font-serif text-3xl font-semibold tracking-tight text-[#28343a] dark:text-[#e6dde9] md:text-3xl">Settings</h1>
-        <p className="mt-2 max-w-xl text-sm leading-6 text-[#6d6863] dark:text-[#b8adbf]">Shape your profile, reading experience, and account preferences.</p>
       </header>
 
       <main className="space-y-3">
+        <Link
+          to="/settings/profile"
+          className="settings-panel group flex items-center gap-4 rounded-2xl border border-[#d8e4df] border-l-4 border-l-[#b8a1c8] bg-white p-5 shadow-[0_8px_22px_rgba(47,86,76,0.05)] transition hover:-translate-y-0.5 hover:border-[#b8a1c8] hover:shadow-md dark:border-[#3d4d4a] dark:border-l-[#8d72a8] dark:bg-[#211d29]"
+        >
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#f1eafa] text-[#755b8b] dark:bg-[#3b2d4b] dark:text-[#d9c5eb]"><FiUser size={19} /></span>
+          <span>
+            <span className="block text-sm font-semibold text-[#263a38] dark:text-gray-200">Edit profile</span>
+            <span className="settings-subtext mt-1 block">Picture, username, email, and password</span>
+          </span>
+          <FiChevronRight className="ml-auto text-[#a08a7b] transition group-hover:translate-x-1 dark:text-[#cbb9d9]" aria-hidden="true" />
+        </Link>
+        <Link
+          to="/settings/notifications"
+          className="settings-panel group flex items-center gap-4 rounded-2xl border border-[#d8e4df] border-l-4 border-l-[#5fa996] bg-white p-5 shadow-[0_8px_22px_rgba(47,86,76,0.05)] transition hover:-translate-y-0.5 hover:border-[#8fcfbe] hover:shadow-md dark:border-[#3d4d4a] dark:border-l-[#5fa996] dark:bg-[#211d29]"
+        >
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#e5f6f1] text-[#287568] dark:bg-[#1d3d39] dark:text-[#9bd8ca]"><FiBell size={19} /></span>
+          <span>
+            <span className="block text-sm font-semibold text-[#263a38] dark:text-gray-200">Notifications</span>
+            <span className="settings-subtext mt-1 block">Activity alerts, device notifications, and sound</span>
+          </span>
+          <FiChevronRight className="ml-auto text-[#5fa996] transition group-hover:translate-x-1 dark:text-[#9bd8ca]" aria-hidden="true" />
+        </Link>
         <ThemeCard />
-        <NotificationPreferences />
-        <EditProfileCard user={user} onUpdated={updateUser} notify={notify} />
         <LogoutCard
           onLogout={() => {
             logout()
@@ -53,8 +75,8 @@ export default function SettingsPage() {
             notify('Logged out successfully.', 'info')
           }}
         />
-        <section className="pt-4">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-[#a45145] dark:text-[#d7a1a1]">Danger zone</p>
+        <section className="border-t border-[#eccdc8] pt-5 dark:border-red-900/40">
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-[#a45145] dark:text-[#d7a1a1]">Danger zone</p>
           <DeleteAccountCard user={user} onDeleted={handleDeleted} onError={notify} />
         </section>
       </main>

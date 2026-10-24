@@ -4,6 +4,8 @@ import { applyTheme, getStoredTheme } from './utils/theme'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
+import ForgotPasswordPage from './pages/ForgotPasswordPage'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 import StoriesPage from './pages/StoriesPage'
 import StoryDetailsPage from './pages/StoryDetailsPage'
 import ReadingPage from './pages/ReadingPage'
@@ -14,6 +16,8 @@ import ChapterEditorPage from './pages/ChapterEditorPage'
 import DashboardPage from './pages/DashboardPage'
 import ProfilePage from './pages/ProfilePage'
 import SettingsPage from './pages/SettingsPage'
+import EditProfilePage from './pages/EditProfilePage'
+import NotificationsPage from './pages/NotificationsPage'
 import BookmarksPage from './pages/BookmarksPage'
 import MessagesPage from './pages/MessagesPage'
 import Navbar from './components/Navbar'
@@ -35,7 +39,7 @@ export default function App() {
 function Shell() {
   const location = useLocation()
   const { token } = useContext(AuthContext)
-  const isAuthRoute = location.pathname === '/login' || location.pathname === '/signup'
+  const isAuthRoute = ['/login', '/signup', '/forgot-password', '/reset-password'].includes(location.pathname)
 
   useEffect(() => {
     // Logged-out visitors always see light mode; once authenticated we restore
@@ -55,6 +59,8 @@ function Shell() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/stories" element={<StoriesPage />} />
           <Route path="/stories/:id" element={<StoryDetailsPage />} />
           <Route path="/read/:chapterId" element={<ProtectedRoute><ReadingPage /></ProtectedRoute>} />
@@ -66,6 +72,8 @@ function Shell() {
           <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
           <Route path="/profile/:userId" element={<ProfilePage />} />
           <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+          <Route path="/settings/profile" element={<ProtectedRoute><EditProfilePage /></ProtectedRoute>} />
+          <Route path="/settings/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
           <Route path="/bookmarks" element={<ProtectedRoute><BookmarksPage /></ProtectedRoute>} />
           <Route path="/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
           <Route path="/messages/:userId" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />

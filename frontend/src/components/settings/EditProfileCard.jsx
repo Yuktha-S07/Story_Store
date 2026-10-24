@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import api from '../../services/api'
-import { Card, Field, inputClass } from '../SettingsUI'
+import { Field, inputClass } from '../SettingsUI'
 import { buildAvatarUrl } from '../../utils/avatar'
 
 function ChevronIcon({ open }) {
@@ -17,13 +17,14 @@ function ChevronIcon({ open }) {
   )
 }
 
-export default function EditProfileCard({ user, onUpdated, notify }) {
+export default function EditProfileCard({ user, onUpdated, notify, standalone = false }) {
   const [open, setOpen] = useState(false)
 
   const [username, setUsername] = useState(user?.username || '')
   const [email, setEmail] = useState(user?.email || '')
   const [avatarFile, setAvatarFile] = useState(null)
   const [avatarPreview, setAvatarPreview] = useState(buildAvatarUrl(user?.avatar_url || ''))
+  const [avatarVersion, setAvatarVersion] = useState('')
   const [savingProfile, setSavingProfile] = useState(false)
   const fileInputRef = useRef(null)
 
@@ -36,8 +37,11 @@ export default function EditProfileCard({ user, onUpdated, notify }) {
   useEffect(() => {
     setUsername(user?.username || '')
     setEmail(user?.email || '')
-    if (!avatarFile) setAvatarPreview(buildAvatarUrl(user?.avatar_url || ''))
-  }, [user])
+    if (!avatarFile) {
+      const url = buildAvatarUrl(user?.avatar_url || '')
+      setAvatarPreview(url ? `${url}${url.includes('?') ? '&' : '?'}v=${avatarVersion}` : '')
+    }
+  }, [user, avatarVersion, avatarFile])
 
   const memberSince = user?.created_at
     ? new Date(user.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
@@ -83,9 +87,12 @@ export default function EditProfileCard({ user, onUpdated, notify }) {
       formData.append('email', email.trim())
       if (avatarFile) formData.append('avatar', avatarFile)
       const res = await api.put(`/api/users/${user._id}`, formData)
+      const nextAvatarVersion = String(Date.now())
       onUpdated(res.data)
       setAvatarFile(null)
-      setAvatarPreview(buildAvatarUrl(res.data.avatar_url || ''))
+      setAvatarVersion(nextAvatarVersion)
+      const nextAvatarUrl = buildAvatarUrl(res.data.avatar_url || '')
+      setAvatarPreview(nextAvatarUrl ? `${nextAvatarUrl}${nextAvatarUrl.includes('?') ? '&' : '?'}v=${nextAvatarVersion}` : '')
       notify('Profile updated successfully.', 'success')
     } catch (err) {
       const detail = err?.response?.data?.detail
@@ -135,28 +142,47 @@ export default function EditProfileCard({ user, onUpdated, notify }) {
   }
 
   return (
-    <Card tone="default">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between gap-3 text-left cursor-pointer"
-        aria-expanded={open}
-      >
-        <div>
-          <p className="font-semibold text-sm text-[#26231f] dark:text-gray-200">Edit profile</p>
-          <p className="text-xs text-[#5d584f] dark:text-gray-400 mt-0.5">
-            Username, email, profile picture and password.
-          </p>
+    <div className={standalone ? 'space-y-7' : 'rounded-xl border border-[#e6dcd2] bg-[#fffaf5]/80 p-4 shadow-[0_6px_18px_rgba(91,61,34,0.04)] dark:border-gray-700 dark:bg-gray-800/50 sm:p-5'}>
+      {!standalone && (
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          className="flex w-full items-center justify-between gap-3 text-left cursor-pointer"
+          aria-expanded={open}
+        >
+          <div>
+            <p className="font-semibold text-sm text-[#26231f] dark:text-gray-200">Edit profile</p>
+            <p className="text-xs text-[#5d584f] dark:text-gray-400 mt-0.5">
+              Username, email, profile picture and password.
+            </p>
+          </div>
+          <ChevronIcon open={open} />
+        </button>
+      )}
+
+      {standalone && (
+        <div className="space-y-2">
+          <button
+            type="button"
+            onClick={() => setOpen((value) => !value)}
+            className={`flex w-full items-center justify-between rounded-2xl border p-4 text-left transition ${open ? 'border-[#b8ddd5] bg-[#eff9f6] dark:border-[#31594f] dark:bg-[#1d3830]' : 'border-[#d8e4df] bg-white hover:border-[#8fcfbe] dark:border-[#3d4d4a] dark:bg-[#211d29]'}`}
+            aria-expanded={open}
+          >
+            <span>
+              <span className="block text-sm font-semibold text-[#26231f] dark:text-gray-200">Edit profile</span>
+              <span className="mt-1 block text-xs text-[#756765] dark:text-[#c8b8d2]">Picture and account details</span>
+            </span>
+            <ChevronIcon open={open} />
+          </button>
         </div>
-        <ChevronIcon open={open} />
-      </button>
+      )}
 
       {open && (
-        <div className="mt-5 space-y-5">
+        <div className={standalone ? 'space-y-5' : 'mt-5 space-y-5'}>
           {/* Profile picture */}
-          <div className="rounded-xl border border-[#efe8dd] dark:border-gray-700 bg-white/70 dark:bg-gray-900/40 p-4">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[#8b6b52] dark:text-gray-400">Profile picture</p>
-            <div className="flex items-center gap-4">
+          <div className={`settings-panel ${standalone ? 'rounded-2xl border border-[#d8e4df] bg-white p-5 shadow-[0_8px_22px_rgba(47,86,76,0.05)] dark:border-[#3d4d4a] dark:bg-[#211d29]' : 'rounded-xl border border-[#d8e4df] bg-white p-4 dark:border-[#3d4d4a] dark:bg-[#211d29]'}`}>
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-[#8b6b52] dark:text-[#cba99c]">Profile picture</p>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
               {avatarPreview ? (
                 <img
                   src={avatarPreview}
@@ -172,7 +198,7 @@ export default function EditProfileCard({ user, onUpdated, notify }) {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="rounded-full border border-[#d9c7b4] bg-white dark:bg-gray-800 px-4 py-2 text-xs font-semibold text-[#8b6b52] dark:text-gray-300 transition hover:bg-[#fffaf4] hover:shadow-sm"
+                  className="inline-flex rounded-xl border border-[#b8ddd5] bg-[#eff9f6] px-4 py-2.5 text-xs font-bold text-[#287568] transition hover:bg-[#e2f5ef] hover:shadow-sm dark:border-[#31594f] dark:bg-[#1d3830] dark:text-[#9bd8ca]"
                 >
                   {avatarPreview ? 'Replace picture' : 'Upload picture'}
                 </button>
@@ -189,7 +215,7 @@ export default function EditProfileCard({ user, onUpdated, notify }) {
           </div>
 
           {/* Username / Email / Member since */}
-          <form onSubmit={handleSaveProfile} className="space-y-4">
+          <form onSubmit={handleSaveProfile} className={`${standalone ? 'space-y-5' : 'space-y-4'}`}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Field label="Username">
                 <input
@@ -225,31 +251,44 @@ export default function EditProfileCard({ user, onUpdated, notify }) {
             <button
               type="submit"
               disabled={savingProfile}
-              className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-[#BDA6CE] to-[#b8a1c8] px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:from-[#b397bf] hover:to-[#ad92b9] hover:shadow-md disabled:opacity-60 disabled:hover:shadow-sm"
+              className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-[#7abfaf] to-[#4d9b88] px-6 py-2.5 text-sm font-bold text-white shadow-sm transition hover:from-[#69b09f] hover:to-[#438d7b] hover:shadow-md disabled:opacity-60 disabled:hover:shadow-sm"
             >
               {savingProfile ? 'Saving...' : 'Save changes'}
             </button>
           </form>
 
-          <div className="border-t border-[#e8e0d5] dark:border-gray-700" />
+        </div>
+      )}
 
-          {/* Change password sub-option */}
-          <div className="rounded-xl border border-[#efe8dd] dark:border-gray-700 bg-white/70 dark:bg-gray-900/40 p-4">
-            <button
-              type="button"
-              onClick={() => setPwOpen((v) => !v)}
-              className="flex w-full items-center justify-between gap-3 text-left cursor-pointer"
-              aria-expanded={pwOpen}
-            >
+      {standalone && (
+        <div className="space-y-2">
+          <button
+            type="button"
+            onClick={() => setPwOpen((value) => !value)}
+            className={`flex w-full items-center justify-between rounded-2xl border p-4 text-left transition ${pwOpen ? 'border-[#d6c1e8] bg-[#f8f3fc] dark:border-[#604b73] dark:bg-[#2d2438]' : 'border-[#d8e4df] bg-white hover:border-[#d6c1e8] dark:border-[#3d4d4a] dark:bg-[#211d29]'}`}
+            aria-expanded={pwOpen}
+          >
+            <span>
+              <span className="block text-sm font-semibold text-[#26231f] dark:text-gray-200">Change password</span>
+              <span className="mt-1 block text-xs text-[#756765] dark:text-[#c8b8d2]">Update your account password</span>
+            </span>
+            <ChevronIcon open={pwOpen} />
+          </button>
+        </div>
+      )}
+
+      {(!standalone && open || standalone && pwOpen) && (
+        <div className={`settings-panel ${standalone ? 'rounded-2xl border border-[#e2d5ee] bg-[#faf7fd] p-5 shadow-[0_8px_22px_rgba(117,91,139,0.06)] dark:border-[#4b3b5d] dark:bg-[#2d2438]' : 'mt-5 rounded-xl border border-[#d8e4df] bg-white p-4 dark:border-[#3d4d4a] dark:bg-[#211d29]'}`}>
+          {!standalone && (
+            <div className="mb-4 flex items-center justify-between">
               <div>
                 <p className="font-semibold text-sm text-[#26231f] dark:text-gray-200">Change password</p>
                 <p className="text-xs text-[#5d584f] dark:text-gray-400 mt-0.5">Verify your current password to set a new one</p>
               </div>
               <ChevronIcon open={pwOpen} />
-            </button>
-
-            {pwOpen && (
-              <form onSubmit={handleChangePassword} className="mt-4 space-y-4">
+            </div>
+          )}
+          <form onSubmit={handleChangePassword} className="space-y-4">
                 <Field label="Current password">
                   <input
                     type="password"
@@ -293,11 +332,9 @@ export default function EditProfileCard({ user, onUpdated, notify }) {
                 >
                   {savingPassword ? 'Updating...' : 'Update password'}
                 </button>
-              </form>
-            )}
-          </div>
+          </form>
         </div>
       )}
-    </Card>
+    </div>
   )
 }
