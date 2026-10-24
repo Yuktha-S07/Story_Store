@@ -196,25 +196,25 @@ const TrendingStories = () => {
   };
 
   return (
-    <section className="bg-transparent py-12">
-      <div className="mx-auto max-w-7xl px-6 lg:px-10">
-        <div className="mb-6 flex items-end justify-between gap-4">
+    <section className="bg-transparent py-8 sm:py-12">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10">
+        <div className="mb-5 flex items-end justify-between gap-4 sm:mb-6">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.35em] text-[#8a7c68] dark:text-[#c6afd1]">Trending now</p>
-            <h2 className="mt-2 font-serif text-3xl text-[#26231f] dark:text-[#f1e8f4] sm:text-4xl">Stories worth your time</h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[#8a7c68] sm:text-sm sm:tracking-[0.35em] dark:text-[#c6afd1]">Trending now</p>
+            <h2 className="mt-2 font-serif text-2xl text-[#26231f] sm:text-3xl lg:text-4xl dark:text-[#f1e8f4]">Stories worth your time</h2>
           </div>
           <Link to="/stories" className="hidden text-sm font-semibold text-[#5d584f] underline underline-offset-4 dark:text-[#cbb9d5] md:inline-flex">
             Browse all stories
           </Link>
         </div>
 
-        <div className="flex gap-4 overflow-x-auto pb-3">
+        <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 sm:mx-0 sm:px-0">
           {visibleStories.map((story) => {
             const storyId = story._id || story.id;
             const coverImage = buildStoryCoverUrl(story);
             const coverAlt = buildStoryCoverAlt(story);
             return (
-              <div key={storyId} className="group h-[360px] w-[156px] flex-shrink-0">
+              <div key={storyId} className="group h-[330px] w-[148px] flex-shrink-0 snap-start sm:h-[360px] sm:w-[156px]">
                 <div className="story-card-surface flex h-full flex-col overflow-hidden rounded-[22px] shadow-[0_14px_30px_rgba(0,0,0,0.08)] transition duration-300 group-hover:-translate-y-1 dark:shadow-[0_14px_30px_rgba(0,0,0,0.3)]">
                   <CoverPreview
                     src={coverImage}

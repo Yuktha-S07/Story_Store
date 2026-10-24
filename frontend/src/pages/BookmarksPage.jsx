@@ -60,7 +60,7 @@ export default function BookmarksPage() {
       </div>
 
       <section className="relative isolate overflow-hidden rounded-[24px] border border-[#ead8ca] bg-[#f8eee7] shadow-[0_16px_40px_rgba(111,68,80,0.08)] dark:border-[#4b3b5d] dark:bg-[#2a2132] dark:shadow-[0_16px_40px_rgba(0,0,0,0.25)]">
-        <div className="grid gap-6 p-6 sm:p-8 md:grid-cols-[1fr_auto] md:items-end md:p-9">
+        <div className="grid gap-5 p-5 sm:gap-6 sm:p-8 md:grid-cols-[1fr_auto] md:items-end md:p-9">
           <div>
             <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#e8b6a5] text-[#6a3440] shadow-sm dark:bg-[#6a3f51] dark:text-[#ffd4c8]">
               <FiBookmark className="h-6 w-6" aria-hidden="true" />
@@ -79,7 +79,7 @@ export default function BookmarksPage() {
         </div>
       </section>
 
-      <div className="mb-5 mt-9 flex items-end justify-between gap-4">
+      <div className="mb-4 mt-7 flex flex-wrap items-end justify-between gap-3 sm:mb-5 sm:mt-9 sm:gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#9a6655] dark:text-[#e6b7a1]">Collection</p>
           <h2 className="mt-1 font-serif text-xl font-semibold text-[#3d2930] dark:text-gray-100">Saved stories</h2>
@@ -96,7 +96,7 @@ export default function BookmarksPage() {
           <Link to="/stories" className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#397356] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2d5d45] dark:bg-[#6b9f82] dark:text-[#17251d] dark:hover:bg-[#84b798]"><FiCompass className="h-4 w-4" aria-hidden="true" /> Discover stories</Link>
         </div>
       )}
-      <div className="grid grid-cols-1 items-stretch gap-5 pb-16 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 items-stretch gap-4 pb-10 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
         {stories.map(s => <StoryCard key={s._id} story={s} compact={true} bookmarkStyle={true} bookmarked={true} onUnsave={handleUnsave} />)}
       </div>
     </div>

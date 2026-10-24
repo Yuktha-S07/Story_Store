@@ -54,7 +54,7 @@ function Shell() {
   return (
     <div className={`min-h-screen flex flex-col ${isAuthRoute ? 'bg-[#fbf8f2] text-[#26231f] [color-scheme:light]' : 'text-gray-900'}`}>
       <Navbar />
-      <main className="flex-grow w-full max-w-[90rem] mx-auto pt-4 pb-6 md:pt-8 md:pb-12 px-3 sm:px-6 lg:px-8">
+      <main className="flex-grow w-full min-w-0 max-w-[90rem] mx-auto pt-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] md:pt-8 md:pb-12 px-3 sm:px-6 lg:px-8">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />

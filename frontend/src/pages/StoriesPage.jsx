@@ -224,13 +224,13 @@ const StoriesPage = () => {
 
   return (
     <div className="min-h-screen bg-[#fbfaf7] dark:bg-[#16131b]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="mb-6 flex justify-start">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
+        <div className="mb-5 flex justify-start sm:mb-6">
           <BackButton />
         </div>
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-serif font-bold text-[#26231f] dark:text-gray-100">Discover Stories</h1>
-          <p className="mt-2 text-lg text-[#5d584f] dark:text-gray-400">A universe of stories awaits you here.</p>
+        <div className="mb-8 text-center sm:mb-12">
+          <h1 className="font-serif text-3xl font-bold text-[#26231f] sm:text-4xl dark:text-gray-100">Discover Stories</h1>
+          <p className="mt-2 text-base text-[#5d584f] sm:text-lg dark:text-gray-400">A universe of stories awaits you here.</p>
           <div className="mt-6 max-w-md mx-auto">
             <div className="relative">
               <FiSearch
@@ -247,7 +247,7 @@ const StoriesPage = () => {
             </div>
           </div>
 
-          <div className="relative z-40 mx-auto mt-7 max-w-4xl rounded-[28px] border border-[#e9dfd5] bg-white/80 p-4 text-left shadow-[0_18px_45px_rgba(79,53,46,0.10)] backdrop-blur sm:p-5 dark:border-[#3b3047] dark:bg-[#211a29]/80 dark:shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
+          <div className="relative z-40 mx-auto mt-5 max-w-4xl rounded-[20px] border border-[#e9dfd5] bg-white/80 p-3.5 text-left shadow-[0_18px_45px_rgba(79,53,46,0.10)] backdrop-blur sm:mt-7 sm:rounded-[28px] sm:p-5 dark:border-[#3b3047] dark:bg-[#211a29]/80 dark:shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
             <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:gap-6">
               <div className="flex flex-col gap-2">
                 <span className={FILTER_LABEL_CLASS}>Genre</span>
@@ -333,7 +333,7 @@ const StoriesPage = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-6 items-stretch md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 items-stretch gap-4 sm:gap-6 md:grid-cols-2 xl:grid-cols-3">
           {filteredStories.map((story) => (
             <StoryCard key={story._id || story.id} story={story} />
           ))}

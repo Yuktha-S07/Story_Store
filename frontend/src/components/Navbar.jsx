@@ -16,6 +16,11 @@ export default function Navbar() {
   const closeMenu = () => setMenuOpen(false)
 
   useEffect(() => {
+    // Close the mobile drawer whenever the route changes.
+    setMenuOpen(false)
+  }, [location.pathname])
+
+  useEffect(() => {
     // Keep the toggle in sync with the theme actually shown: light while
     // logged out, saved preference once logged in.
     setTheme(user ? getStoredTheme() : 'light')
@@ -158,7 +163,7 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden border-t border-white/70 bg-white/98 backdrop-blur-xl px-3 pb-4 pt-2 space-y-1 dark:border-[#3b3047] dark:bg-[#211a29]">
+        <div className="md:hidden max-h-[calc(100dvh-4.5rem)] overflow-y-auto overscroll-contain border-t border-white/70 bg-white/98 px-3 pt-2 pb-[max(1rem,env(safe-area-inset-bottom))] space-y-1 backdrop-blur-xl dark:border-[#3b3047] dark:bg-[#211a29]">
           {navLinks.map((link) =>
             (!link.auth || user) && (
               <Link

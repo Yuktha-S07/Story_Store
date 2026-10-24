@@ -74,37 +74,37 @@ export default function DashboardPage() {
         <BackButton />
         <span className="rounded-full border border-[#d9c7b4] bg-[#fffaf4] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#8b6b52] dark:border-[#4b3b5d] dark:bg-[#2b2235] dark:text-gray-300">Your studio</span>
       </div>
-      <section className="rounded-[28px] border border-[#e8d8c8] bg-[linear-gradient(135deg,#fffaf4_0%,#f5e9dd_100%)] p-6 shadow-[0_18px_50px_rgba(91,61,34,0.08)] md:p-9 dark:border-[#3b3047] dark:bg-[linear-gradient(135deg,#211a29_0%,#2b2235_100%)] dark:shadow-[0_18px_50px_rgba(0,0,0,0.3)]">
+      <section className="rounded-[24px] border border-[#898481] bg-[linear-gradient(135deg,#fffaf4_0%,#f5e9dd_100%)] p-5 shadow-[0_18px_50px_rgba(91,61,34,0.08)] sm:p-6 md:rounded-[28px] md:p-9 dark:border-[#898481] dark:bg-[linear-gradient(135deg,#211a29_0%,#2b2235_100%)] dark:shadow-[0_18px_50px_rgba(0,0,0,0.3)]">
         <div className="flex flex-col items-start justify-between gap-5 md:flex-row md:items-end">
           <div>
             <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#b06f7f] dark:text-[#e8917f]">Writer dashboard</p>
             <h1 className="font-serif text-2xl font-semibold tracking-tight text-[#28343a] md:text-3xl dark:text-gray-100">Welcome, {user.username}</h1>
             <p className="mt-3 max-w-lg text-sm leading-6 text-[#6d6863] md:text-base dark:text-gray-400">A quiet place to shape your next story and keep every draft moving.</p>
           </div>
-          <Link to="/write" className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#c99084] px-5 py-3 text-sm font-semibold text-[#6e342e] shadow-[0_10px_20px_rgba(224,111,84,0.16)] transition hover:bg-[#bc8377] hover:shadow-[0_14px_24px_rgba(224,111,84,0.22)]">
+          <Link to="/write" className="mt-1 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#c99084] px-5 py-3 text-sm font-semibold text-[#6e342e] shadow-[0_10px_20px_rgba(224,111,84,0.16)] transition hover:bg-[#bc8377] hover:shadow-[0_14px_24px_rgba(224,111,84,0.22)] sm:w-auto md:mt-4">
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
             Create new story
           </Link>
         </div>
       </section>
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        <div className="rounded-2xl border border-[#d9ebe4] bg-[#f2faf6] px-5 py-4 dark:border-[#26524a] dark:bg-[#1d2b27]">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#628477] dark:text-emerald-300">Total stories</p>
-          <p className="mt-2 font-serif text-4xl font-semibold text-[#29463d] dark:text-emerald-100">{stories.length}</p>
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
+        <div className="rounded-2xl border border-[#d9ebe4] bg-[#f2faf6] px-2 py-3.5 sm:px-5 sm:py-4 dark:border-[#26524a] dark:bg-[#1d2b27]">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#628477] sm:text-xs sm:tracking-[0.16em] dark:text-emerald-300">Total stories</p>
+          <p className="mt-1.5 font-serif text-3xl font-semibold text-[#29463d] sm:mt-2 sm:text-4xl dark:text-emerald-100">{stories.length}</p>
         </div>
-        <div className="rounded-2xl border border-[#f1dcc9] bg-[#fff7ed] px-5 py-4 dark:border-[#5a3d23] dark:bg-[#33281f]">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#a56c43] dark:text-amber-300">Published</p>
-          <p className="mt-2 font-serif text-4xl font-semibold text-[#8c4f2d] dark:text-amber-100">{published.length}</p>
+        <div className="rounded-2xl border border-[#f1dcc9] bg-[#fff7ed] px-2 py-3.5 sm:px-5 sm:py-4 dark:border-[#5a3d23] dark:bg-[#33281f]">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#a56c43] sm:text-xs sm:tracking-[0.16em] dark:text-amber-300">Published</p>
+          <p className="mt-1.5 font-serif text-3xl font-semibold text-[#8c4f2d] sm:mt-2 sm:text-4xl dark:text-amber-100">{published.length}</p>
         </div>
-        <div className="rounded-2xl border border-[#ddd8ec] bg-[#f7f5fc] px-5 py-4 dark:border-[#4b3b6b] dark:bg-[#2b2538]">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#776d9a] dark:text-purple-300">Drafts</p>
-          <p className="mt-2 font-serif text-4xl font-semibold text-[#514970] dark:text-purple-100">{drafts}</p>
+        <div className="rounded-2xl border border-[#ddd8ec] bg-[#f7f5fc] px-2 py-3.5 sm:px-5 sm:py-4 dark:border-[#4b3b6b] dark:bg-[#2b2538]">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#776d9a] sm:text-xs sm:tracking-[0.16em] dark:text-purple-300">Drafts</p>
+          <p className="mt-1.5 font-serif text-3xl font-semibold text-[#514970] sm:mt-2 sm:text-4xl dark:text-purple-100">{drafts}</p>
         </div>
       </div>
 
       <section>
-        <div className="mb-5 flex items-end justify-between gap-4">
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-3 sm:mb-5 sm:gap-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#b06f7f] dark:text-[#e8917f]">Your collection</p>
             <h2 className="mt-1 font-serif text-2xl font-semibold tracking-tight text-[#28343a] md:text-3xl dark:text-gray-100">My Stories</h2>
@@ -120,9 +120,9 @@ export default function DashboardPage() {
             </Link>
           </div>
         ) : (
-          <div className="grid justify-start gap-6 grid-cols-[repeat(auto-fit,minmax(min(340px,100%),460px))]">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(280px,100%),460px))] justify-start gap-4 sm:gap-6">
             {stories.map(s => (
-              <article key={s._id} className="group flex h-full flex-col overflow-hidden rounded-[22px] border border-[#dfd6cc] bg-[#fffdf9] shadow-[0_10px_30px_rgba(83,59,38,0.06)] transition-all hover:-translate-y-1 hover:border-[#d5a28d] hover:shadow-[0_18px_38px_rgba(83,59,38,0.12)] dark:border-[#3b3047] dark:bg-[#211a29] dark:shadow-[0_10px_30px_rgba(0,0,0,0.3)] dark:hover:border-[#4b3b5d]">
+              <article key={s._id} className="story-card-surface group flex h-full flex-col overflow-hidden rounded-[22px] shadow-[0_10px_30px_rgba(83,59,38,0.06)] transition-all hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(83,59,38,0.12)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.3)] dark:hover:shadow-[0_18px_38px_rgba(0,0,0,0.4)]">
                 <CoverPreview
                   src={buildStoryCoverUrl(s)}
                   fallbackSrc={buildStoryFallbackUrl(s)}
@@ -147,18 +147,18 @@ export default function DashboardPage() {
                     <span className="rounded-md bg-[#f0ece7] px-2 py-0.5 text-xs text-[#706b67] dark:bg-[#2f2835] dark:text-gray-300">{s.genre}</span>
                     <span className="inline-flex items-center gap-1 rounded-md bg-[#f0ece7] px-2 py-0.5 text-xs text-[#706b67] dark:bg-[#2f2835] dark:text-gray-300"><FiBookOpen size={12} /> {s.chapter_count || 0} {s.chapter_count === 1 ? 'chapter' : 'chapters'}</span>
                   </div>
-                  <div className={`mt-auto grid gap-2 border-t border-slate-100 pt-3 dark:border-white/10 ${s.status !== 'published' ? 'grid-cols-2' : 'grid-cols-3'}`}>
-                    <Link to={`/stories/${s._id}`} className="flex min-h-10 items-center justify-center gap-1 rounded-md bg-[#e5f3ee] px-2 py-2 text-center text-xs font-semibold text-[#287568] transition hover:bg-[#d5ebe3] sm:text-sm dark:bg-[#1d3d39] dark:text-[#9bd8ca] dark:hover:bg-[#275047]">
+                  <div className={`mt-auto grid gap-2 border-t border-[#898481] pt-3 dark:border-[#898481] ${s.status !== 'published' ? 'grid-cols-2' : 'grid-cols-3'}`}>
+                    <Link to={`/stories/${s._id}`} className="flex min-h-10 items-center justify-center gap-1 rounded-md bg-[#4e4c5000] px-2 py-2 text-center text-xs font-semibold text-[#287568] transition hover:bg-[#d5ebe3] sm:text-sm dark:bg-[#4e4c5000] dark:text-[#9bd8ca] dark:hover:bg-[#275047]">
                       <FiEye className="h-3.5 w-3.5" /> View
                     </Link>
-                    <button onClick={() => setEditingStory(s)} className="flex min-h-10 items-center justify-center gap-1 rounded-md border border-[#c9d9d2] bg-[#f5faf7] px-2 py-2 text-center text-xs font-semibold text-[#397356] transition hover:border-[#8fbaa7] hover:bg-[#e8f5ed] sm:text-sm dark:border-[#31594f] dark:bg-[#1d3830] dark:text-[#9bd4bb] dark:hover:bg-[#25473d]" aria-label={`Edit ${s.title}`}>
+                    <button onClick={() => setEditingStory(s)} className="flex min-h-10 items-center justify-center gap-1 rounded-md border border-[#898481] bg-[#4e4c5000] px-2 py-2 text-center text-xs font-semibold text-[#397356] transition hover:border-[#8fbaa7] hover:bg-[#e8f5ed] sm:text-sm dark:border-[#898481] dark:bg-[#4e4c5000] dark:text-[#9bd4bb] dark:hover:bg-[#25473d]" aria-label={`Edit ${s.title}`}>
                       <FiEdit3 className="h-3.5 w-3.5" />
                       Edit
                     </button>
                     {s.status !== 'published' && (
-                      <button onClick={() => publishStory(s._id)} className="flex min-h-10 items-center justify-center rounded-md bg-gradient-to-r from-green-500 to-green-600 px-2 py-2 text-xs font-medium text-white shadow-sm transition hover:from-green-600 hover:to-green-700 sm:text-sm">Publish</button>
+                      <button onClick={() => publishStory(s._id)} className="flex min-h-10 items-center justify-center rounded-md bg-[#4e4c5000] px-2 py-2 text-xs font-medium text-[#3a7c5a] shadow-sm transition hover:bg-[#e4f2eb] sm:text-sm dark:bg-[#4e4c5000] dark:text-[#9bd8ca] dark:hover:bg-[#275047]">Publish</button>
                     )}
-                    <button onClick={() => deleteStory(s._id)} className="flex min-h-10 items-center justify-center gap-1 rounded-md border border-[#f0caca] bg-[#fff3f1] px-2 py-2 text-xs font-semibold text-[#b34f4f] shadow-sm transition hover:border-[#d98787] hover:bg-[#ffe5e2] sm:text-sm dark:border-[#633c45] dark:bg-[#3a222b] dark:text-[#ffaaa3] dark:hover:bg-[#4a2933]" aria-label={`Delete ${s.title}`}>
+                    <button onClick={() => deleteStory(s._id)} className="flex min-h-10 items-center justify-center gap-1 rounded-md border border-[#898481] bg-[#4e4c5000] px-2 py-2 text-xs font-semibold text-[#b34f4f] shadow-sm transition hover:border-[#d98787] hover:bg-[#ffe5e2] sm:text-sm dark:border-[#898481] dark:bg-[#4e4c5000] dark:text-[#ffaaa3] dark:hover:bg-[#4a2933]" aria-label={`Delete ${s.title}`}>
                       <FiTrash2 className="h-3.5 w-3.5" />
                       Delete
                     </button>
@@ -227,7 +227,7 @@ export default function DashboardPage() {
                 </span>
               </Link>
 
-              {editingStory.status !== 'published' && editingStory.chapter_count > 0 ? (
+              {editingStory.status !== 'published' && editingStory.chapter_count > 0 && (
                 <button
                   type="button"
                   onClick={async () => {
@@ -245,32 +245,25 @@ export default function DashboardPage() {
                     <span className="block text-xs text-slate-500 dark:text-gray-400">Make this draft visible to everyone</span>
                   </span>
                 </button>
-              ) : editingStory.status !== 'published' ? (
-                <div className="space-y-2 rounded-xl border border-amber-200 bg-amber-50 p-3 dark:border-amber-900/60 dark:bg-amber-950/20">
-                  <p className="text-xs text-amber-800 dark:text-amber-200">This story has no chapters yet. Keep it to continue writing, or delete it.</p>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setEditingStory(null)}
-                      className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-[#1f1b22] dark:text-gray-200 dark:hover:bg-slate-800"
-                    >
-                      Keep story
-                    </button>
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        const storyId = editingStory._id
-                        setEditingStory(null)
-                        await deleteStory(storyId)
-                      }}
-                      className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-[#f0caca] bg-[#fff3f1] px-3 py-2 text-sm font-semibold text-[#b34f4f] transition hover:border-[#d98787] hover:bg-[#ffe5e2] dark:border-[#633c45] dark:bg-[#3a222b] dark:text-[#ffaaa3] dark:hover:bg-[#4a2933]"
-                    >
-                      <FiTrash2 className="h-3.5 w-3.5" />
-                      Delete story
-                    </button>
-                  </div>
-                </div>
-              ) : null}
+              )}
+
+              <button
+                type="button"
+                onClick={async () => {
+                  const storyId = editingStory._id
+                  setEditingStory(null)
+                  await deleteStory(storyId)
+                }}
+                className="flex w-full items-center gap-4 rounded-xl border border-[#f0caca] bg-[#fff3f1] px-4 py-3.5 text-left transition hover:-translate-y-0.5 hover:border-[#d98787] hover:bg-[#ffe5e2] hover:shadow-md dark:border-[#633c45] dark:bg-[#3a222b] dark:text-[#ffaaa3] dark:hover:bg-[#4a2933]"
+              >
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#f7d6d0] text-[#b34f4f] dark:bg-[#5a3038] dark:text-[#ffaaa3]">
+                  <FiTrash2 className="h-5 w-5" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block font-serif text-base font-semibold text-[#8f3d3d] dark:text-[#ffaaa3]">Delete story</span>
+                  <span className="block text-xs text-[#a65f5f] dark:text-[#e69a94]">Remove this story and all of its chapters</span>
+                </span>
+              </button>
             </div>
 
             <button

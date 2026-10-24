@@ -4,7 +4,7 @@ import api from '../services/api'
 import { AuthContext } from '../context/AuthContext'
 import { useNotification } from '../context/NotificationContext'
 import BackButton from '../components/BackButton'
-import { FiEdit3, FiFeather, FiList, FiChevronLeft, FiArrowRight } from 'react-icons/fi'
+import { FiBookOpen, FiCheck, FiEdit3, FiFeather, FiList, FiChevronLeft, FiArrowRight } from 'react-icons/fi'
 import { buildStoryCoverAlt, buildStoryCoverUrl, buildStoryFallbackUrl } from '../utils/storyCover'
 import GenreSelect from '../components/GenreSelect'
 
@@ -98,7 +98,7 @@ export default function StoryEditorPage() {
   // ---------- Landing hub ----------
   if (mode === 'landing') {
     return (
-      <div className="mx-auto w-full max-w-4xl space-y-7 pb-10 font-sans">
+      <div className="mx-auto w-full max-w-5xl space-y-7 pb-10 font-sans">
         <div className="flex items-center justify-between">
           <BackButton />
           <span className="rounded-full border border-[#d9c7b4] bg-[#fffaf4] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#8b6b52] dark:border-[#4b3b5d] dark:bg-[#2b2235] dark:text-gray-300">Story studio</span>
@@ -199,7 +199,7 @@ export default function StoryEditorPage() {
               <button
                 type="button"
                 onClick={() => navigate(`/stories/${selectedStory._id}/edit`)}
-                className="group flex flex-col items-start gap-4 rounded-2xl border border-[#e8d8c8] bg-[#fffaf4] p-7 text-left transition hover:-translate-y-1 hover:border-[#E87B5D]/50 hover:shadow-lg dark:border-[#3b3047] dark:bg-[#211a29] dark:hover:border-[#E87B5D]/60 dark:hover:shadow-none"
+                className="story-card-surface group flex flex-col items-start gap-4 rounded-2xl p-7 text-left transition hover:-translate-y-1 hover:shadow-lg dark:hover:shadow-none"
               >
                 <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#E87B5D] to-[#e59a7d] text-white shadow-sm">
                   <FiEdit3 className="h-6 w-6" />
@@ -213,7 +213,7 @@ export default function StoryEditorPage() {
               <button
                 type="button"
                 onClick={() => navigate(`/stories/${selectedStory._id}/chapters`)}
-                className="group flex flex-col items-start gap-4 rounded-2xl border border-[#e8d8c8] bg-[#fffaf4] p-7 text-left transition hover:-translate-y-1 hover:border-[#BDA6CE]/60 hover:shadow-lg dark:border-[#3b3047] dark:bg-[#211a29] dark:hover:border-[#BDA6CE]/70 dark:hover:shadow-none"
+                className="story-card-surface group flex flex-col items-start gap-4 rounded-2xl p-7 text-left transition hover:-translate-y-1 hover:shadow-lg dark:hover:shadow-none"
               >
                 <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#BDA6CE] to-[#b8a1c8] text-white shadow-sm">
                   <FiList className="h-6 w-6" />
@@ -238,7 +238,7 @@ export default function StoryEditorPage() {
         </div>
 
         <section className="w-full">
-          <div className="mb-8 border-b border-[#e8d8c8] pb-6 dark:border-[#3b3047]">
+          <div className="mb-8 border-b border-[#d8e2dd] pb-7 dark:border-[#3b3047]">
             <button
               type="button"
               onClick={() => setMode('landing')}
@@ -248,8 +248,7 @@ export default function StoryEditorPage() {
               Back to options
             </button>
             <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#b06f7f] dark:text-[#e8917f]">Your collection</p>
-            <h2 className="font-serif text-2xl font-semibold tracking-tight text-[#28343a] md:text-3xl dark:text-gray-100">Choose a story to edit</h2>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-[#6d6863] dark:text-gray-400">Pick one of your stories. You will then choose what to edit.</p>
+            <h2 className="font-serif text-2xl font-semibold tracking-tight text-[#28343a] md:text-3xl dark:text-gray-100">Choose a Story to Edit</h2>
           </div>
 
           {storiesLoading ? (
@@ -267,15 +266,15 @@ export default function StoryEditorPage() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(min(260px,100%),1fr))] gap-5">
+            <div className="grid gap-6 sm:grid-cols-2">
               {stories.map(s => (
                 <button
                   key={s._id}
                   type="button"
                   onClick={() => setSelectedStory(s)}
-                  className="group flex flex-col overflow-hidden rounded-2xl border border-[#dfd6cc] bg-[#fffdf9] text-left shadow-[0_10px_30px_rgba(83,59,38,0.06)] transition-all hover:-translate-y-1 hover:border-[#E87B5D]/50 hover:shadow-lg dark:border-[#3b3047] dark:bg-[#211a29] dark:shadow-[0_10px_30px_rgba(0,0,0,0.3)] dark:hover:border-[#E87B5D]/60"
+                  className="story-card-surface group relative flex min-h-[290px] flex-col overflow-hidden rounded-[24px] text-left shadow-[0_10px_26px_rgba(53,83,68,0.08)] outline outline-1 outline-transparent outline-offset-2 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_36px_rgba(53,83,68,0.16)] focus:outline-2 focus:outline-[#cbd9d2] focus:outline-offset-2 dark:shadow-[0_10px_30px_rgba(0,0,0,0.28)] dark:focus:outline-[#3b5a4d]"
                 >
-                  <div className="aspect-[4/3] overflow-hidden bg-[#eee6dd] dark:bg-gray-700">
+                  <div className="relative aspect-[16/9] overflow-hidden bg-[#dfece5] dark:bg-[#263d34]">
                     <img
                       src={buildStoryCoverUrl(s)}
                       alt={buildStoryCoverAlt(s)}
@@ -283,14 +282,24 @@ export default function StoryEditorPage() {
                       onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = buildStoryFallbackUrl(s) }}
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
+                    <span className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/25 to-transparent opacity-70" />
                   </div>
-                  <div className="flex flex-1 flex-col p-4">
-                    <h3 className="truncate font-serif text-base font-semibold text-[#28343a] dark:text-gray-100">{s.title}</h3>
-                    <div className="mt-2 flex items-center gap-2">
-                      <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${s.status === 'published' ? 'bg-[#e1f2e8] text-[#397356] dark:bg-emerald-900/50 dark:text-emerald-300' : 'bg-[#fff0d8] text-[#9b6728] dark:bg-amber-900/50 dark:text-amber-300'}`}>
+                  <div className="flex flex-1 flex-col justify-between gap-4 border-t border-[#e6eee9] bg-transparent p-5 dark:border-[#315044]">
+                    <div className="min-w-0">
+                      <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#729283] dark:text-[#9ac9b0]">Story</p>
+                      <h3 className="truncate font-serif text-xl font-semibold tracking-tight text-[#263c34] dark:text-gray-100">{s.title}</h3>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      <span className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] shadow-sm ${s.status === 'published' ? 'border-[#b9dec9] bg-[linear-gradient(135deg,#effbf3_0%,#dcefe4_100%)] text-[#287052] dark:border-[#39715a] dark:bg-[linear-gradient(135deg,#245440_0%,#1d4939_100%)] dark:text-[#a9e0bf]' : 'border-[#ead2a9] bg-[linear-gradient(135deg,#fff9eb_0%,#fff0d0_100%)] text-[#9b6728] dark:border-[#72552a] dark:bg-[linear-gradient(135deg,#59441f_0%,#49371d_100%)] dark:text-[#f2cf9b]'}`}>
+                        <span className={`flex h-4 w-4 items-center justify-center rounded-full ${s.status === 'published' ? 'bg-[#78b894] text-white dark:bg-[#6fb58f]' : 'bg-[#d8a75f] text-white dark:bg-[#b88743]'}`}>
+                          {s.status === 'published' ? <FiCheck className="h-2.5 w-2.5" strokeWidth={3} /> : <span className="h-1.5 w-1.5 rounded-full bg-white" />}
+                        </span>
                         {s.status === 'published' ? 'Published' : 'Draft'}
                       </span>
-                      <span className="rounded-md bg-[#f0ece7] px-2 py-0.5 text-xs text-[#706b67] dark:bg-[#2f2835] dark:text-gray-300">{s.chapter_count || 0} ch.</span>
+                      <span className="inline-flex items-center gap-1.5 rounded-xl border border-[#d6e2db] bg-[linear-gradient(135deg,#f8fcf9_0%,#edf5f0_100%)] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-[#617d6e] shadow-sm dark:border-[#385247] dark:bg-[linear-gradient(135deg,#2c473b_0%,#263d34_100%)] dark:text-[#b6cec0]">
+                        <FiBookOpen className="h-3.5 w-3.5 text-[#6b9b83] dark:text-[#91c4a6]" />
+                        {s.chapter_count || 0} {s.chapter_count === 1 ? 'chapter' : 'chapters'}
+                      </span>
                     </div>
                   </div>
                 </button>
@@ -323,7 +332,6 @@ export default function StoryEditorPage() {
             </button>
             <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#b06f7f] dark:text-[#e8917f]">Story studio</p>
             <h2 className="font-serif text-2xl font-semibold tracking-tight text-[#28343a] md:text-3xl dark:text-gray-100">Write a Story</h2>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-[#6d6863] dark:text-gray-400">Give your story a strong beginning with a title, mood, and cover.</p>
           </div>
         </div>
 

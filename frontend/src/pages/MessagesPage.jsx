@@ -345,7 +345,7 @@ export default function MessagesPage() {
               <span className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#315D5E]"><FiUsers size={14} /> Conversations</span>
               <span className="text-xs font-semibold text-[#315D5E]">{conversations.length}</span>
             </div>
-            <div className="max-h-[calc(100dvh-18rem)] overflow-y-auto">
+            <div className="max-h-[calc(100dvh-16rem)] overflow-y-auto md:max-h-[calc(100dvh-18rem)]">
               {loading ? (
                 <p className="p-4 text-sm text-[#315D5E] italic">Loading...</p>
               ) : conversations.length === 0 ? (
@@ -411,7 +411,7 @@ export default function MessagesPage() {
                     <Link to={`/profile/${activeUser._id}`} className="block truncate text-sm font-semibold text-[#5F9598] hover:text-[#F7A5A5]">
                       {activeUser.username}
                     </Link>
-                    <span className="text-xs text-[#5F9598]">{activeUser.followers_count ?? 0} followers · private conversation</span>
+                    <span className="block truncate text-xs text-[#5F9598]">{activeUser.followers_count ?? 0} followers · private conversation</span>
                   </div>
                   </div>
                   <Link to={`/profile/${activeUser._id}`} aria-label="View profile" title="View profile" className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#95CCDD] text-[#5F9598] transition hover:bg-[#EEEEEE] sm:flex">
@@ -455,11 +455,11 @@ export default function MessagesPage() {
                       return (
                         <div key={m._id} className={`group relative flex items-end gap-2 ${m.is_mine ? 'justify-end' : 'justify-start'}`}>
                           {messageActions}
-                          <div className={`relative flex max-w-[75%] flex-col ${m.is_mine ? 'items-end' : 'items-start'}`}>
+                          <div className={`relative flex max-w-[85%] flex-col sm:max-w-[75%] ${m.is_mine ? 'items-end' : 'items-start'}`}>
                             {pickerOpen && (
                               <>
                                 <div className="fixed inset-0 z-10" onClick={() => setReactionPickerId(null)} />
-                                <div className="absolute bottom-full z-20 mb-1 flex gap-1 rounded-full border border-[#95CCDD] bg-[#F4F2F2] px-2 py-1.5 shadow-md">
+                                <div className={`absolute bottom-full z-20 mb-1 flex gap-1 rounded-full border border-[#95CCDD] bg-[#F4F2F2] px-2 py-1.5 shadow-md ${m.is_mine ? 'right-0' : 'left-0'}`}>
                                   {QUICK_REACTIONS.map((emoji) => (
                                     <button
                                       key={emoji}
@@ -573,7 +573,7 @@ export default function MessagesPage() {
                   )}
                   <form
                     onSubmit={(e) => { e.preventDefault(); sendMessage() }}
-                    className="flex items-end gap-3"
+                    className="flex items-end gap-2 sm:gap-3"
                   >
                     <span className="hidden pb-3 text-[10px] font-bold uppercase tracking-[0.16em] text-[#5F9598] sm:block">Reply</span>
                     <textarea

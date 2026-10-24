@@ -159,11 +159,11 @@ export default function ProfilePage() {
       </div>
 
       <section className="pb-2">
-        <div className="flex flex-col items-start gap-7 sm:flex-row sm:items-center">
-          {renderAvatar('h-28 w-28 md:h-32 md:w-32', 'text-4xl md:text-5xl')}
-          <div className="flex-1 min-w-0">
+        <div className="flex flex-col items-center gap-6 text-center sm:flex-row sm:items-center sm:gap-7 sm:text-left">
+          {renderAvatar('h-24 w-24 sm:h-28 sm:w-28 md:h-32 md:w-32', 'text-4xl md:text-5xl')}
+          <div className="w-full min-w-0 flex-1">
             <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#b06f7f]">Story Store member</p>
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 sm:justify-start">
               <h1 className="break-words font-serif text-3xl font-semibold tracking-tight text-[#26231f] dark:text-gray-100 md:text-4xl">
                 {profile.username}
               </h1>
@@ -211,24 +211,24 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <div className="rounded-2xl border border-[#d9ebe4] bg-[#f2faf6] px-4 py-3 text-center dark:border-[#3b3047] dark:bg-[#1d1824]">
-            <p className="font-serif text-3xl font-semibold text-[#29463d] dark:text-[#9fd7c1]">{profile.story_count ?? 0}</p>
-            <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#628477] dark:text-[#8fb9a5]">Stories</p>
+        <div className="mt-6 grid grid-cols-3 gap-2 sm:mt-8 sm:gap-3">
+          <div className="rounded-2xl border border-[#d9ebe4] bg-[#f2faf6] px-2 py-3 text-center sm:px-4 dark:border-[#3b3047] dark:bg-[#1d1824]">
+            <p className="font-serif text-2xl font-semibold text-[#29463d] sm:text-3xl dark:text-[#9fd7c1]">{profile.story_count ?? 0}</p>
+            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#628477] sm:text-xs sm:tracking-[0.16em] dark:text-[#8fb9a5]">Stories</p>
           </div>
-          <div className="rounded-2xl border border-[#f1dcc9] bg-[#fff7ed] px-4 py-3 text-center dark:border-[#4b3b5d] dark:bg-[#211a29]">
-            <p className="font-serif text-3xl font-semibold text-[#8c4f2d] dark:text-[#e8b98e]">{profile.followers_count ?? 0}</p>
-            <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#a56c43] dark:text-[#cf9d6e]">Followers</p>
+          <div className="rounded-2xl border border-[#f1dcc9] bg-[#fff7ed] px-2 py-3 text-center sm:px-4 dark:border-[#4b3b5d] dark:bg-[#211a29]">
+            <p className="font-serif text-2xl font-semibold text-[#8c4f2d] sm:text-3xl dark:text-[#e8b98e]">{profile.followers_count ?? 0}</p>
+            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#a56c43] sm:text-xs sm:tracking-[0.16em] dark:text-[#cf9d6e]">Followers</p>
           </div>
-          <div className="rounded-2xl border border-[#ddd8ec] bg-[#f7f5fc] px-4 py-3 text-center dark:border-[#6a4b85] dark:bg-[#261e30]">
-            <p className="font-serif text-3xl font-semibold text-[#514970] dark:text-[#c4b5fd]">{profile.following_count ?? 0}</p>
-            <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#776d9a] dark:text-[#a99bc9]">Following</p>
+          <div className="rounded-2xl border border-[#ddd8ec] bg-[#f7f5fc] px-2 py-3 text-center sm:px-4 dark:border-[#6a4b85] dark:bg-[#261e30]">
+            <p className="font-serif text-2xl font-semibold text-[#514970] sm:text-3xl dark:text-[#c4b5fd]">{profile.following_count ?? 0}</p>
+            <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#776d9a] sm:text-xs sm:tracking-[0.16em] dark:text-[#a99bc9]">Following</p>
           </div>
         </div>
       </section>
 
       <section>
-          <div className="mb-6 flex items-end justify-between gap-4">
+          <div className="mb-5 flex flex-wrap items-end justify-between gap-3 sm:mb-6 sm:gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#b06f7f]">{isOwnProfile ? 'Your collection' : "Stories"}</p>
               <h2 className="mt-1 font-serif text-2xl font-semibold tracking-tight text-[#26231f] dark:text-gray-100">
@@ -265,7 +265,7 @@ export default function ProfilePage() {
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 xl:grid-cols-3">
               {isOwnProfile && (
                 <Link
                   to="/write"
@@ -281,7 +281,7 @@ export default function ProfilePage() {
               {stories.map((s) => (
                 <article
                   key={s._id}
-                  className="profile-story-card group flex h-full flex-col overflow-hidden rounded-[24px] border border-[#dfd2c7] bg-[#fffdfa] shadow-[0_12px_30px_rgba(73,48,20,0.08)] transition-all duration-300 hover:-translate-y-1.5 hover:border-[#d3b4a3] hover:shadow-[0_18px_38px_rgba(73,48,20,0.14)] dark:border-[#3b3047] dark:bg-[#1d1824] dark:hover:border-[#6d587d]"
+                  className="story-card-surface group flex h-full flex-col overflow-hidden rounded-[24px] shadow-[0_12px_30px_rgba(73,48,20,0.08)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_18px_38px_rgba(73,48,20,0.14)] dark:shadow-[0_12px_30px_rgba(0,0,0,0.3)] dark:hover:shadow-[0_18px_38px_rgba(0,0,0,0.4)]"
                 >
                   <button
                     type="button"

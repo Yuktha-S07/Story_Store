@@ -67,7 +67,7 @@ export default function StoryCard({ story, compact = false, bookmarkStyle = fals
           fallbackSrc={buildStoryFallbackUrl(story)}
           alt={coverAlt}
           title={story.title}
-          className={`flex-shrink-0 bg-[#f0ece4] dark:bg-gray-700 ${bookmarkStyle ? 'aspect-video rounded-t-[18px]' : 'h-48 rounded-t-[24px]'}`}
+          className={`flex-shrink-0 bg-[#f0ece4] dark:bg-gray-700 ${bookmarkStyle ? 'aspect-video rounded-t-[18px]' : 'h-48 rounded-t-[24px] sm:h-64 lg:h-72'}`}
           imageClassName="object-center"
         />
 

@@ -284,7 +284,7 @@ export default function StoryDetailsPage() {
   const coverAlt = buildStoryCoverAlt(story)
 
   return (
-    <div className="space-y-8 pb-10">
+    <div className="space-y-6 pb-10 sm:space-y-8">
       <div>
         <BackButton />
       </div>
@@ -385,7 +385,7 @@ export default function StoryDetailsPage() {
       </section>
 
       <section id="chapters" className="surface border-0 bg-[#fffaf5]/90 p-3 sm:p-4 md:p-6 shadow-[0_16px_45px_rgba(73,48,20,0.06)]">
-        <div className="mb-4 flex items-center justify-between gap-4">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 sm:gap-4">
           <div className="flex items-center gap-3">
             {isOwner && (
               <Link to={`/stories/${id}/chapters`} className="text-sm text-amber-600 hover:text-amber-700">
@@ -415,8 +415,8 @@ export default function StoryDetailsPage() {
                 className="block rounded-xl border border-[#eadfd5] bg-gradient-to-r from-white to-[#fff8f2] px-4 py-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#E87B5D]/20"
               >
                 <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <div className="text-base font-semibold uppercase tracking-[0.12em] text-[#243042]">{ch.title}</div>
+                  <div className="min-w-0">
+                    <div className="break-words text-sm font-semibold uppercase tracking-[0.08em] text-[#243042] sm:text-base sm:tracking-[0.12em]">{ch.title}</div>
                   </div>
                   <div className="text-right">
                     {(ch.published_at || ch.created_at) ? (
@@ -434,7 +434,7 @@ export default function StoryDetailsPage() {
         )}
 
         {showComments && <div className="mt-8 space-y-4 border-t border-[#eadfd5] pt-6">
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <h3 className="text-lg font-semibold">Comments</h3>
             <span className="text-sm text-[#7c8796]">{comments.length} total</span>
           </div>
@@ -454,7 +454,7 @@ export default function StoryDetailsPage() {
           <div className="space-y-3">
             {comments.length > 0 ? comments.map((comment) => (
               <div key={comment._id} className="comment-card rounded-xl border border-[#eadfd5] p-4 shadow-sm">
-                <div className="flex items-center justify-between gap-3 text-sm">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
                   <div className="flex min-w-0 items-center gap-2">
                     <ProfileAvatar
                       url={comment.avatar_url}

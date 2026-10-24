@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react'
+import React, { useEffect, useState, useContext, useRef } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import api from '../services/api'
 import { AuthContext } from '../context/AuthContext'
@@ -57,6 +57,7 @@ export default function ReadingPage() {
   const [savingVote, setSavingVote] = useState(false)
   const { user } = useContext(AuthContext)
   const { notify } = useNotification()
+  const historyRecordedRef = useRef({})
 
   useEffect(() => {
     const storyId = chapter?.story_id ? String(chapter.story_id) : ''
@@ -122,12 +123,31 @@ export default function ReadingPage() {
           }
         }
         if (user && res.data?.story_id) {
-          await api.post(`/api/stories/${res.data.story_id}/chapters/${chapterId}/history`)
-          localStorage.setItem('latest_reading', JSON.stringify({
-            story_id: res.data.story_id,
-            chapter_id: chapterId,
-            chapter_title: res.data.title,
-          }))
+          const key = `${res.data.story_id}:${chapterId}`
+          if (historyRecordedRef.current[key]) {
+            return
+          }
+          let recorded = false
+          const historyTimeout = setTimeout(async () => {
+            if (recorded || historyRecordedRef.current[key]) return
+            recorded = true
+            historyRecordedRef.current[key] = true
+            try {
+              await api.post(`/api/stories/${res.data.story_id}/chapters/${chapterId}/history`)
+              localStorage.setItem('latest_reading', JSON.stringify({
+                story_id: res.data.story_id,
+                chapter_id: chapterId,
+                chapter_title: res.data.title,
+              }))
+            } catch (historyErr) {
+              console.error(historyErr)
+              historyRecordedRef.current[key] = false
+              recorded = false
+            }
+          }, 10000)
+          return () => {
+            clearTimeout(historyTimeout)
+          }
         }
       } catch (err) {
         const fallbackChapter = getSampleChapter(chapterId)
@@ -258,7 +278,7 @@ export default function ReadingPage() {
 
   return (
     <main className="reading-page">
-      <div className="mx-auto w-full px-5 pb-4 pt-6" style={{ maxWidth: '60rem' }}>
+      <div className="mx-auto w-full px-3 pb-4 pt-4 sm:px-5 sm:pt-6" style={{ maxWidth: '60rem' }}>
         <BackButton fallback={`/stories/${chapter.story_id || ''}`} label="Back to story" />
       </div>
       <article className="reading-shell">
@@ -321,7 +341,14 @@ export default function ReadingPage() {
                 <FiType size={16} /> <FiChevronDown size={14} />
               </button>
               {showOptions && (
-                <div className="reading-options-panel" aria-label="Reading settings">
+                <>
+                  <button
+                    type="button"
+                    aria-label="Close reading settings"
+                    onClick={() => setShowOptions(false)}
+                    className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[1px] sm:hidden"
+                  />
+                  <div className="reading-options-panel" aria-label="Reading settings">
                   <div className="reading-options-title">Reading settings</div>
                   <div className="reading-option-group">
                     <span className="reading-options-label">Text size</span>
@@ -377,6 +404,7 @@ export default function ReadingPage() {
                     <FiRotateCcw size={14} /> Reset
                   </button>
                 </div>
+                </>
               )}
             </div>
             <Link to={`/stories/${chapter.story_id}`} className="reading-action reading-done">

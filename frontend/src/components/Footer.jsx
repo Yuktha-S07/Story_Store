@@ -30,7 +30,8 @@ const Footer = () => {
                 <li key={link.label}>
                   <Link
                     to={link.to}
-                    className="inline-block text-white opacity-100 transition-all duration-200 hover:-translate-x-0.5 hover:text-white"
+                    className="inline-block transition-all duration-200 hover:-translate-x-0.5"
+                    style={{ color: '#edcaca' }}
                   >
                     {link.label}
                   </Link>
