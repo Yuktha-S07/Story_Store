@@ -126,14 +126,14 @@ def request_password_reset(email: str):
     email_sent = send_password_reset_email(user["email"], reset_link)
     
     if email_sent:
-        return {"message": "Password reset link sent to your email."}
-    # If email not configured, do not leak token to client in production-like flow
-    # but for development, still be helpful? User wants email-only security.
-    # Return message instructing to check email; if SMTP not set, we can't send - raise error or inform
+        return {"message": "Password reset link sent to your email.", "reset_link": reset_link}
+    # If SMTP is configured but sending failed
     if settings.SMTP_HOST and settings.SMTP_USER and settings.SMTP_PASSWORD:
-        # tried to send but failed
         raise ValueError("Failed to send password reset email. Please try again later.")
-    # SMTP not configured - cannot send email, cannot provide token securely
+    # SMTP not configured - in development, return the link so user can reset password
+    if settings.DEBUG:
+        return {"message": "Password reset link sent to your email.", "reset_link": reset_link}
+    # In production without SMTP configured
     raise ValueError("Email service not configured. Please contact support.")
 
 

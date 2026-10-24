@@ -20,21 +20,20 @@ const ForgotPasswordPage = () => {
   const [searchParams] = useSearchParams();
   const [email, setEmail] = useState(searchParams.get('email') || "");
   const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
-  const [resetToken, setResetToken] = useState("");
+  const [resetLink, setResetLink] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setMessage("");
-    setResetToken("");
+    setResetLink("");
     setLoading(true);
     try {
       const res = await api.post('/api/auth/forgot-password', { email });
-      setMessage(res?.data?.message || "If an account exists with that email, a reset link has been sent.");
-      if (res?.data?.reset_token) {
-        setResetToken(res.data.reset_token);
+      if (res?.data?.reset_link) {
+        setResetLink(res.data.reset_link);
+      } else {
+        setMessage(res?.data?.message || "Password reset link sent to your email.");
       }
     } catch (err) {
       const msg = toErrorMessage(err?.response?.data?.detail || err?.response?.data, 'Request failed');
@@ -53,8 +52,18 @@ const ForgotPasswordPage = () => {
         {error && (
           <p className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
         )}
-        {message && (
-          <p className="mt-5 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">{message}</p>
+        {resetLink && (
+          <div className="mt-5 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+            <div className="mt-1">
+              <p className="mb-2 text-xs text-green-800">Tap on the link below to reset your password:</p>
+              <a
+                href={resetLink}
+                className="block w-full rounded-lg bg-green-100 px-3 py-2 text-center text-sm font-semibold text-green-800 underline underline-offset-2"
+              >
+                Reset Password
+              </a>
+            </div>
+          </div>
         )}
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-4">

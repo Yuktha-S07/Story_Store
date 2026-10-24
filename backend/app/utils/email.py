@@ -9,7 +9,17 @@ from app.config import settings
 def send_password_reset_email(to_email: str, reset_link: str) -> bool:
     """Send password reset email. Returns True if sent, False otherwise."""
     if not settings.SMTP_HOST or not settings.SMTP_USER or not settings.SMTP_PASSWORD:
-        # If SMTP not configured, fall back to not sending (caller will decide behavior)
+        # If SMTP not configured, log to console for development
+        if settings.DEBUG:
+            print("\n" + "="*60)
+            print("PASSWORD RESET EMAIL (DEV MODE - NO SMTP CONFIGURED)")
+            print("="*60)
+            print(f"To: {to_email}")
+            print(f"Subject: Reset your Story Store password")
+            print(f"\nReset Link: {reset_link}")
+            print("="*60 + "\n")
+            return True
+        # If SMTP not configured in production, fall back to not sending
         return False
 
     try:
