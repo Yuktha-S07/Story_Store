@@ -4,18 +4,30 @@ import api from '../services/api'
 import { AuthContext } from '../context/AuthContext'
 import { useNotification } from '../context/NotificationContext'
 import { getSampleChapter, getSampleStory } from '../data/sampleStories'
-import { FiArrowLeft, FiArrowRight, FiBookOpen, FiCheck, FiChevronDown, FiHeart, FiRotateCcw, FiThumbsUp, FiType } from 'react-icons/fi'
+import { FiArrowLeft, FiArrowRight, FiBookOpen, FiCheck, FiChevronDown, FiHeart, FiRotateCcw, FiThumbsUp, FiType, FiX } from 'react-icons/fi'
 import BackButton from '../components/BackButton'
 
 const FONT_MIN = 14
 const FONT_MAX = 26
 const TEXT_COLORS = [
-  { name: 'Charcoal', value: '#302b32' },
-  { name: 'Slate blue', value: '#334155' },
-  { name: 'Ink blue', value: '#1e3a5f' },
-  { name: 'Forest green', value: '#1f3d34' },
-  { name: 'Wine red', value: '#5c2e3a' },
+  { name: 'Charcoal', value: '#302b32', dark: '#f2ecf4' },
+  { name: 'Slate blue', value: '#334155', dark: '#c6d8f2' },
+  { name: 'Ink blue', value: '#1e3a5f', dark: '#a9cbf5' },
+  { name: 'Forest green', value: '#1f3d34', dark: '#b6e8cf' },
+  { name: 'Wine red', value: '#5c2e3a', dark: '#f6c3cf' },
 ]
+
+function getColorOption(value) {
+  return (
+    TEXT_COLORS.find((color) => color.value === value || color.dark === value) ||
+    TEXT_COLORS[0]
+  )
+}
+
+function resolveTextColor(value, darkMode) {
+  const option = getColorOption(value)
+  return darkMode ? option.dark : option.value
+}
 const FONT_STYLES = [
   { name: 'Editorial', value: "'Fraunces', serif" },
   { name: 'Clean', value: "'Lora', serif" },
@@ -58,6 +70,25 @@ export default function ReadingPage() {
   const { user } = useContext(AuthContext)
   const { notify } = useNotification()
   const historyRecordedRef = useRef({})
+  const [isDarkMode, setIsDarkMode] = useState(
+    () => typeof document !== 'undefined' && document.documentElement.classList.contains('dark')
+  )
+
+  useEffect(() => {
+    const syncTheme = () => {
+      setIsDarkMode(document.documentElement.classList.contains('dark'))
+    }
+    syncTheme()
+    window.addEventListener('story-store:theme-change', syncTheme)
+    const observer = new MutationObserver(syncTheme)
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+    return () => {
+      window.removeEventListener('story-store:theme-change', syncTheme)
+      observer.disconnect()
+    }
+  }, [])
+
+  const activeTextColor = resolveTextColor(textColor, isDarkMode)
 
   useEffect(() => {
     const storyId = chapter?.story_id ? String(chapter.story_id) : ''
@@ -346,10 +377,20 @@ export default function ReadingPage() {
                     type="button"
                     aria-label="Close reading settings"
                     onClick={() => setShowOptions(false)}
-                    className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[1px] sm:hidden"
+                    className="fixed inset-0 z-50 bg-black/30 backdrop-blur-[1px] sm:hidden"
                   />
-                  <div className="reading-options-panel" aria-label="Reading settings">
-                  <div className="reading-options-title">Reading settings</div>
+                  <div className="reading-options-panel" role="dialog" aria-modal="true" aria-label="Reading settings">
+                  <div className="reading-options-title">
+                    <span>Reading settings</span>
+                    <button
+                      type="button"
+                      className="reading-options-close"
+                      onClick={() => setShowOptions(false)}
+                      aria-label="Close reading settings"
+                    >
+                      <FiX size={16} />
+                    </button>
+                  </div>
                   <div className="reading-option-group">
                     <span className="reading-options-label">Text size</span>
                     <div className="reading-segmented-control">
@@ -389,7 +430,7 @@ export default function ReadingPage() {
                     <span className="reading-options-label">Color</span>
                     <div className="reading-color-swatches">
                       {TEXT_COLORS.map((color) => (
-                        <button key={color.value} type="button" onClick={() => setTextColor(color.value)} title={color.name} aria-label={`Text color ${color.name}`} aria-pressed={textColor === color.value} className={`reading-color-swatch ${textColor === color.value ? 'is-selected' : ''}`} style={{ backgroundColor: color.value }} />
+                        <button key={color.value} type="button" onClick={() => setTextColor(color.value)} title={color.name} aria-label={`Text color ${color.name}`} aria-pressed={getColorOption(textColor).value === color.value} className={`reading-color-swatch ${getColorOption(textColor).value === color.value ? 'is-selected' : ''}`} style={{ backgroundColor: isDarkMode ? color.dark : color.value }} />
                       ))}
                     </div>
                   </div>
@@ -414,7 +455,7 @@ export default function ReadingPage() {
         </header>
 
         <div className="reading-divider" />
-        <div className="reading-content prose" style={{ fontFamily: fontStyle, fontSize: `${fontSize}px`, lineHeight, color: textColor }} dangerouslySetInnerHTML={{ __html: chapter.content }} />
+        <div className="reading-content prose" style={{ fontFamily: fontStyle, fontSize: `${fontSize}px`, lineHeight, color: activeTextColor }} dangerouslySetInnerHTML={{ __html: chapter.content }} />
         <nav className="reading-navigation" aria-label="Chapter navigation">
           {previousChapterHref ? (
             <Link to={previousChapterHref} className="reading-nav-button reading-nav-previous">

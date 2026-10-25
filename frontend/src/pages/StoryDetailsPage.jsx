@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react'
+import React, { useEffect, useRef, useState, useContext } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import api from '../services/api'
 import { AuthContext } from '../context/AuthContext'
@@ -8,6 +8,7 @@ import { formatCommentDate } from '../utils/formatDate'
 import { getSampleStory } from '../data/sampleStories'
 import BackButton from '../components/BackButton'
 import ProfileAvatar from '../components/ProfileAvatar'
+import EmojiPicker from '../components/EmojiPicker'
 import { FiBookOpen, FiHeart, FiMessageCircle, FiEdit2, FiTrash2, FiUserPlus } from 'react-icons/fi'
 
 export default function StoryDetailsPage() {
@@ -31,6 +32,9 @@ export default function StoryDetailsPage() {
   const { user } = useContext(AuthContext)
   const { notify, confirmAction } = useNotification()
   const navigate = useNavigate()
+  const commentsSectionRef = useRef(null)
+  const commentInputRef = useRef(null)
+  const editCommentInputRef = useRef(null)
 
   useEffect(() => {
     const fetchStory = async () => {
@@ -172,6 +176,34 @@ export default function StoryDetailsPage() {
     } finally {
       setSavingVote(false)
     }
+  }
+
+  const goToComments = () => {
+    if (showComments) {
+      setShowComments(false)
+      return
+    }
+    setShowComments(true)
+    window.setTimeout(() => {
+      commentsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      if (user) commentInputRef.current?.focus({ preventScroll: true })
+    }, 80)
+  }
+
+  const insertEmoji = (emoji, inputRef, value, setValue) => {
+    const input = inputRef.current
+    if (!input) {
+      setValue(previous => `${previous}${emoji}`)
+      return
+    }
+    const start = input.selectionStart ?? value.length
+    const end = input.selectionEnd ?? start
+    setValue(`${value.slice(0, start)}${emoji}${value.slice(end)}`)
+    window.requestAnimationFrame(() => {
+      input.focus()
+      const cursor = start + emoji.length
+      input.setSelectionRange(cursor, cursor)
+    })
   }
 
   const submitComment = async () => {
@@ -365,6 +397,18 @@ export default function StoryDetailsPage() {
                   {!savingVote && <span className="story-action-count">{voteCount}</span>}
                 </button>
               )}
+              <button
+                type="button"
+                onClick={goToComments}
+                aria-expanded={showComments}
+                aria-controls="comments"
+                title={showComments ? 'Hide comments' : 'Show comments'}
+                className={`story-action story-action-comment ${showComments ? 'is-open' : ''}`}
+              >
+                <FiMessageCircle size={16} />
+                <span>Comments</span>
+                <span className="story-action-count">{comments.length}</span>
+              </button>
             </div>
             <div className="story-stat-rail mt-6">
               <div className="story-stat story-stat-votes">
@@ -394,17 +438,6 @@ export default function StoryDetailsPage() {
             )}
             <div className="text-sm text-[#7c8796]">{story.chapters?.length || 0} parts</div>
           </div>
-          <button
-            type="button"
-            onClick={() => setShowComments(prev => !prev)}
-            aria-label={showComments ? 'Hide comments' : 'Open comments'}
-            title={showComments ? 'Hide comments' : 'Open comments'}
-            className={`inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-full border px-3.5 text-sm font-semibold transition ${showComments ? 'border-[#E87B5D] bg-[#fff0e9] text-[#c45e43]' : 'border-[#eadfd5] bg-[#fffaf5] text-[#7c8796] hover:border-[#E87B5D] hover:text-[#c45e43]'}`}
-          >
-            <FiMessageCircle size={18} aria-hidden="true" />
-            <span>Comment</span>
-            {comments.length > 0 && <span className="sr-only">{comments.length} comments</span>}
-          </button>
         </div>
         {story.chapters?.length > 0 ? (
           <div className="space-y-1.5">
@@ -432,74 +465,146 @@ export default function StoryDetailsPage() {
         ) : (
           <div className="text-sm text-[#7c8796] italic">No parts yet. Add a part to get started.</div>
         )}
+      </section>
 
-        {showComments && <div className="mt-8 space-y-4 border-t border-[#eadfd5] pt-6">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h3 className="text-lg font-semibold">Comments</h3>
-            <span className="text-sm text-[#7c8796]">{comments.length} total</span>
-          </div>
-          {user && (
-            <div className="space-y-3">
-              <textarea
-                value={commentText}
-                onChange={e => setCommentText(e.target.value)}
-                placeholder="Write a comment..."
-                className="w-full border border-[#eadfd5] bg-[#fffdfb] px-4 py-3 rounded-xl h-20 resize-y focus:border-[#E87B5D] focus:ring-2 focus:ring-[#E87B5D]/20 outline-none transition"
-              />
-              <button type="button" onClick={submitComment} disabled={savingComment} className="btn-primary disabled:opacity-60">
-                {savingComment ? 'Posting...' : 'Post comment'}
-              </button>
+      <section
+        id="comments"
+        ref={commentsSectionRef}
+        className={`${showComments ? '' : 'hidden'} surface scroll-mt-24 border-0 bg-[#fffaf5]/90 p-4 shadow-[0_16px_45px_rgba(73,48,20,0.06)] sm:p-6 md:p-8`}
+      >
+        <div className="mb-6 flex flex-wrap items-start justify-between gap-4 border-b border-[#eadfd5] pb-5">
+          <div className="flex items-start gap-3">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#fdeee8] text-[#c45e43]">
+              <FiMessageCircle size={20} aria-hidden="true" />
+            </span>
+            <div>
+              <h2 className="font-serif text-xl font-semibold text-[#243042] sm:text-2xl">Discussion</h2>
+              <p className="mt-1 text-sm text-[#7c8796]">
+                {comments.length} {comments.length === 1 ? 'comment' : 'comments'}
+              </p>
             </div>
-          )}
-          <div className="space-y-3">
-            {comments.length > 0 ? comments.map((comment) => (
-              <div key={comment._id} className="comment-card rounded-xl border border-[#eadfd5] p-4 shadow-sm">
-                <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
-                  <div className="flex min-w-0 items-center gap-2">
-                    <ProfileAvatar
-                      url={comment.avatar_url}
-                      name={comment.username || 'Reader'}
-                      className="comment-avatar"
-                      fallbackClassName="bg-[#f3c7b7] text-[#8f3e36]"
-                    />
-                    <span className="truncate font-semibold text-[#243042]">{comment.username || 'Reader'}</span>
-                  </div>
+          </div>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#ecd9cd] bg-white/80 px-3 py-1.5 text-xs font-bold text-[#8b6b52]">
+            <FiMessageCircle size={13} aria-hidden="true" />
+            {comments.length}
+          </span>
+        </div>
+
+        {user ? (
+          <div className="mb-6 rounded-2xl border border-[#eadfd5] bg-white/75 p-3 shadow-sm sm:p-4">
+            <div className="flex items-start gap-3">
+              <ProfileAvatar
+                url={user.avatar_url}
+                name={user.username || 'You'}
+                className="comment-avatar h-10 w-10 text-sm"
+                fallbackClassName="bg-[#f3c7b7] text-[#8f3e36]"
+              />
+              <div className="min-w-0 flex-1 space-y-2">
+                <textarea
+                  ref={commentInputRef}
+                  value={commentText}
+                  onChange={e => setCommentText(e.target.value)}
+                  placeholder="Write a thoughtful comment..."
+                  className="min-h-[92px] w-full resize-y rounded-xl border border-[#eadfd5] bg-[#fffdfb] px-4 py-3 text-sm outline-none transition focus:border-[#E87B5D] focus:ring-2 focus:ring-[#E87B5D]/20"
+                />
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-xs text-[#9a8677]">Be kind and constructive.</span>
                   <div className="flex items-center gap-2">
-                    {comment.updated_at && <span className="text-xs text-[#8b7764]">(edited)</span>}
-                    {comment.created_at && <span className="text-[#8b7764]">{formatCommentDate(comment.created_at)}</span>}
+                    <EmojiPicker onSelect={(emoji) => insertEmoji(emoji, commentInputRef, commentText, setCommentText)} />
+                    {commentText.trim() && (
+                      <button type="button" onClick={() => setCommentText('')} className="min-h-10 rounded-full px-3 text-xs font-semibold text-[#8b7764] transition hover:bg-[#fff0e9] hover:text-[#c45e43]">
+                        Clear
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={submitComment}
+                      disabled={savingComment || !commentText.trim()}
+                      className="btn-primary min-h-10 px-5 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {savingComment ? 'Posting...' : 'Post comment'}
+                    </button>
                   </div>
                 </div>
-                {editingCommentId === comment._id ? (
-                  <div className="mt-2 space-y-2">
-                    <textarea
-                      value={editingCommentText}
-                      onChange={e => setEditingCommentText(e.target.value)}
-                      className="w-full border border-[#eadfd5] bg-[#fffdfb] px-4 py-3 rounded-xl h-20 resize-y focus:border-[#E87B5D] focus:ring-2 focus:ring-[#E87B5D]/20 outline-none transition"
-                    />
-                    <div className="flex gap-2">
-                      <button onClick={() => saveEditComment(comment._id)} className="btn-primary min-h-10 px-4 py-2 text-sm">Save</button>
-                      <button onClick={cancelEditComment} className="btn-ghost min-h-10 px-4 py-2 text-sm">Cancel</button>
-                    </div>
-                  </div>
-                ) : (
-                  <p className="mt-2 text-sm text-[#5e6675] whitespace-pre-line">{comment.content}</p>
-                )}
-                {user && String(user._id) === String(comment.user_id) && editingCommentId !== comment._id && (
-                  <div className="mt-2 flex gap-2">
-                    <button onClick={() => startEditComment(comment)} aria-label="Edit comment" title="Edit comment" className="inline-flex h-10 w-10 items-center justify-center rounded-full text-[#8b7764] hover:bg-[#fff0e9] hover:text-[#E87B5D] transition">
-                      <FiEdit2 size={14} />
-                    </button>
-                    <button onClick={() => deleteComment(comment._id)} aria-label="Delete comment" title="Delete comment" className="inline-flex h-10 w-10 items-center justify-center rounded-full text-[#8b7764] hover:bg-red-50 hover:text-red-500 transition">
-                      <FiTrash2 size={14} />
-                    </button>
-                  </div>
-                )}
               </div>
-            )) : (
-              <div className="text-sm text-[#7c8796] italic">No comments yet.</div>
-            )}
+            </div>
           </div>
-        </div>}
+        ) : (
+          <div className="mb-6 flex flex-col items-start justify-between gap-3 rounded-2xl border border-dashed border-[#e2d3c7] bg-white/60 p-4 sm:flex-row sm:items-center">
+            <p className="text-sm text-[#7c8796]">Sign in to like, vote, and join the discussion.</p>
+            <Link to="/login" className="btn-primary min-h-10 px-5 py-2 text-sm">Sign in</Link>
+          </div>
+        )}
+
+        <div className="space-y-3">
+          {comments.length > 0 ? (
+            comments.map((comment) => (
+              <article key={comment._id} className="comment-card rounded-2xl border border-[#eadfd5] p-4 shadow-sm sm:p-5">
+                <div className="flex items-start gap-3">
+                  <ProfileAvatar
+                    url={comment.avatar_url}
+                    name={comment.username || 'Reader'}
+                    className="comment-avatar"
+                    fallbackClassName="bg-[#f3c7b7] text-[#8f3e36]"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                      <div className="flex min-w-0 flex-wrap items-center gap-2">
+                        <span className="truncate font-semibold text-[#243042]">{comment.username || 'Reader'}</span>
+                        {String(comment.user_id) === String(story.user_id) && (
+                          <span className="rounded-full bg-[#fdeee8] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em] text-[#b45d42]">
+                            Author
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-[#8b7764]">
+                        {comment.updated_at && <span aria-label="Edited">(edited)</span>}
+                        {comment.created_at && (
+                          <time dateTime={comment.created_at}>{formatCommentDate(comment.created_at)}</time>
+                        )}
+                      </div>
+                    </div>
+                    {editingCommentId === comment._id ? (
+                      <div className="mt-3 space-y-2">
+                        <textarea
+                          ref={editCommentInputRef}
+                          value={editingCommentText}
+                          onChange={e => setEditingCommentText(e.target.value)}
+                          className="min-h-[88px] w-full resize-y rounded-xl border border-[#eadfd5] bg-[#fffdfb] px-4 py-3 text-sm outline-none transition focus:border-[#E87B5D] focus:ring-2 focus:ring-[#E87B5D]/20"
+                        />
+                        <div className="flex flex-wrap items-center gap-2">
+                          <EmojiPicker onSelect={(emoji) => insertEmoji(emoji, editCommentInputRef, editingCommentText, setEditingCommentText)} />
+                          <button type="button" onClick={() => saveEditComment(comment._id)} className="btn-primary min-h-10 px-4 py-2 text-sm">Save</button>
+                          <button type="button" onClick={cancelEditComment} className="btn-ghost min-h-10 px-4 py-2 text-sm">Cancel</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="mt-2 whitespace-pre-line text-sm leading-6 text-[#5e6675]">{comment.content}</p>
+                    )}
+                    {user && String(user._id) === String(comment.user_id) && editingCommentId !== comment._id && (
+                      <div className="mt-2 flex items-center gap-1">
+                        <button type="button" onClick={() => startEditComment(comment)} aria-label="Edit comment" title="Edit comment" className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#8b7764] transition hover:bg-[#fff0e9] hover:text-[#E87B5D]">
+                          <FiEdit2 size={14} />
+                        </button>
+                        <button type="button" onClick={() => deleteComment(comment._id)} aria-label="Delete comment" title="Delete comment" className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#8b7764] transition hover:bg-red-50 hover:text-red-500">
+                          <FiTrash2 size={14} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </article>
+            ))
+          ) : (
+            <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-[#e2d3c7] bg-white/50 px-4 py-10 text-center">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#fdeee8] text-[#c45e43]">
+                <FiMessageCircle size={22} aria-hidden="true" />
+              </span>
+              <p className="font-semibold text-[#3f3a44]">No comments yet</p>
+              <p className="max-w-xs text-sm text-[#8b7764]">Be the first to share what you think about this story.</p>
+            </div>
+          )}
+        </div>
       </section>
 
       {isOwner && (
