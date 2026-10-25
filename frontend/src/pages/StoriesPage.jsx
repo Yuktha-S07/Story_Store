@@ -248,34 +248,38 @@ const StoriesPage = () => {
           </div>
 
           <div className="relative z-40 mx-auto mt-5 max-w-4xl rounded-[20px] border border-[#e9dfd5] bg-white/80 p-3.5 text-left shadow-[0_18px_45px_rgba(79,53,46,0.10)] backdrop-blur sm:mt-7 sm:rounded-[28px] sm:p-5 dark:border-[#3b3047] dark:bg-[#211a29]/80 dark:shadow-[0_18px_45px_rgba(0,0,0,0.35)]">
-            <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:gap-6">
-              <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-4 sm:gap-5 lg:flex-row lg:flex-wrap lg:items-end lg:gap-6">
+              <div className="flex w-full flex-col gap-2 sm:w-auto">
                 <span className={FILTER_LABEL_CLASS}>Genre</span>
-                <GenreFilterDropdown
-                  options={genreOptions}
-                  value={normalizedSelectedGenre}
-                  onChange={(nextGenre) => updateFilters({ genre: nextGenre })}
-                />
+                <div className="w-full sm:w-auto">
+                  <GenreFilterDropdown
+                    options={genreOptions}
+                    value={normalizedSelectedGenre}
+                    onChange={(nextGenre) => updateFilters({ genre: nextGenre })}
+                  />
+                </div>
               </div>
 
-              <div className="flex flex-col gap-2 lg:ml-20">
+              <div className="flex w-full flex-col gap-2 sm:w-auto lg:ml-0 xl:ml-12">
                 <span className={FILTER_LABEL_CLASS}>Status</span>
-                <div className="inline-flex flex-wrap items-center gap-1.5 rounded-full border border-black/10 bg-[#fbfaf7] p-1.5 shadow-sm dark:border-[#5b4b64] dark:bg-[#181320]">
-                  {COMPLETION_FILTERS.map((option) => {
-                    const active = completionFilter === option.value;
-                    return (
-                      <button
-                        key={option.value}
-                        type="button"
-                        onClick={() => updateFilters({ completion: option.value === 'all' ? '' : option.value })}
-                        aria-pressed={active}
-                        className={`inline-flex items-center gap-2 rounded-full border border-transparent px-4 py-1.5 text-sm font-semibold transition hover:-translate-y-0.5 ${active ? option.active : option.idle}`}
-                      >
-                        <span className={`h-2 w-2 rounded-full ${option.dot}`} aria-hidden="true" />
-                        {option.label}
-                      </button>
-                    );
-                  })}
+                <div className="w-full overflow-x-auto sm:w-auto">
+                  <div className="inline-flex w-full items-center gap-1.5 rounded-full border border-black/10 bg-[#fbfaf7] p-1.5 shadow-sm sm:w-auto dark:border-[#5b4b64] dark:bg-[#181320]">
+                    {COMPLETION_FILTERS.map((option) => {
+                      const active = completionFilter === option.value;
+                      return (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => updateFilters({ completion: option.value === 'all' ? '' : option.value })}
+                          aria-pressed={active}
+                          className={`inline-flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full border border-transparent px-3 py-1.5 text-xs font-semibold transition hover:-translate-y-0.5 sm:flex-none sm:px-4 sm:text-sm ${active ? option.active : option.idle}`}
+                        >
+                          <span className={`h-2 w-2 rounded-full ${option.dot}`} aria-hidden="true" />
+                          {option.label}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 
@@ -283,7 +287,7 @@ const StoriesPage = () => {
                 <button
                   type="button"
                   onClick={() => updateFilters({ genre: '', completion: '' })}
-                  className="inline-flex items-center justify-center gap-1.5 self-start rounded-full border border-[#f0c9c9] bg-[#fff1f1] px-4 py-2.5 text-sm font-semibold text-[#a3404f] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#ffe4e4] hover:shadow-md lg:ml-auto dark:border-[#6b3a44] dark:bg-[#3a222a] dark:text-[#f3b3bb]! dark:hover:bg-[#4a2a34]"
+                  className="inline-flex w-full items-center justify-center gap-1.5 self-start rounded-full border border-[#f0c9c9] bg-[#fff1f1] px-4 py-2.5 text-sm font-semibold text-[#a3404f] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#ffe4e4] hover:shadow-md sm:w-auto lg:ml-auto dark:border-[#6b3a44] dark:bg-[#3a222a] dark:text-[#f3b3bb]! dark:hover:bg-[#4a2a34]"
                 >
                   <FiX className="h-4 w-4" aria-hidden="true" />
                   Clear filters

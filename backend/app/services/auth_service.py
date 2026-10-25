@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import secrets
+import re
 
 import bcrypt
 from bson import ObjectId
@@ -36,10 +37,20 @@ def create_user(email: str, username: str, password: str):
     users = db.users
 
     email = email.lower().strip()
+    username_clean = (username or "").strip()
+
+    if not username_clean:
+        raise ValueError("Username is required")
+
+    # Check if username already exists (case-insensitive)
+    existing_username = users.find_one({"username": {"$regex": f"^{re.escape(username_clean)}$", "$options": "i"}})
+    if existing_username:
+        raise ValueError("Username already exists. Please choose another.")
+
     hashed = hash_password(password)
     user_doc = {
         "email": email,
-        "username": username,
+        "username": username_clean,
         "password": hashed,
         "bio": "",
         "avatar_url": "",
@@ -52,7 +63,7 @@ def create_user(email: str, username: str, password: str):
         user_doc["_id"] = res.inserted_id
         return _serialize_user(user_doc)
     except DuplicateKeyError:
-        raise ValueError("Email is already registered")
+        raise ValueError("Email or username is already registered")
 
 
 def authenticate_user(email: str, password: str):

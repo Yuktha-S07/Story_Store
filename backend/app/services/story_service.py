@@ -503,13 +503,35 @@ def update_chapter(chapter_id: str, owner_id: str, payload: dict) -> dict | None
     chapter_oid = _to_object_id(chapter_id)
     user_oid = _to_object_id(owner_id)
 
-    update_data = {k: v for k, v in payload.items() if v is not None}
+    # Fetch current chapter to compare
+    current_chapter = db.chapters.find_one({"_id": chapter_oid, "user_id": user_oid})
+    if not current_chapter:
+        return None
+
+    update_data = {}
+    for k, v in payload.items():
+        if v is None:
+            continue
+        # Only update if there's an actual change
+        if k in current_chapter and current_chapter[k] == v:
+            continue
+        update_data[k] = v
+
     if not update_data:
-        chapter = db.chapters.find_one({"_id": chapter_oid, "user_id": user_oid})
-        return _serialize_chapter(chapter) if chapter else None
+        return _serialize_chapter(current_chapter)
 
     if "status" in update_data:
-        update_data["published_at"] = datetime.utcnow() if update_data["status"] == "published" else None
+        old_status = current_chapter.get("status")
+        new_status = update_data["status"]
+        # Only update published_at if status is actually changing to published
+        # or if it's being published now
+        if new_status == "published":
+            # Set published_at to now if publishing for the first time or if it wasn't published before
+            if old_status != "published":
+                update_data["published_at"] = datetime.utcnow()
+            # If already published and just updating content, keep original published_at
+        else:  # unpublishing
+            update_data["published_at"] = None
 
     update_data["updated_at"] = datetime.utcnow()
 
