@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Lora:ital,wght@0,400..700;1,400..700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 @import "tailwindcss";
 
@@ -1041,6 +1041,12 @@ a {
   font-family: 'Fraunces', serif;
   font-size: clamp(1rem, 1.35vw, 1.12rem);
   line-height: 1.85;
+}
+
+/* Let the reader's font choice win over fonts baked into the chapter HTML
+   (e.g. <font face> or inline font-family from the editor) and heading rules. */
+.reading-content * {
+  font-family: inherit !important;
 }
 
 .reading-content p {
